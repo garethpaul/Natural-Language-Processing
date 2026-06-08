@@ -43,3 +43,6 @@ or synthetic text, and error output should avoid dumping private input.
 - Private text corpora
 - Large model dependencies without a clear reason
 - Behavior changes without test fixtures
+
+This list is a roadmap guardrail, not a permanent rule.
+Strong user demand and strong technical rationale can change it.
