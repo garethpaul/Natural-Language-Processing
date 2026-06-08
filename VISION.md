@@ -1,5 +1,8 @@
 ## Natural Language Processing Vision
 
+This document explains the current state and direction of the project.
+Project overview and developer docs: [`README.md`](README.md)
+
 Natural Language Processing is a Python/NLTK sample for language detection using
 stopword overlap.
 
