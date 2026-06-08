@@ -1,8 +1,11 @@
 import unittest
 
 from language_detection import (
+    UNKNOWN_LANGUAGE,
     _calculate_languages_ratios,
     detect_language,
+    load_checked_in_stop_words,
+    load_stopword_sets,
 )
 
 
@@ -26,42 +29,50 @@ def simple_tokenizer(text):
 
 class LanguageDetectionTests(unittest.TestCase):
     def setUp(self):
-        self.stopwords = FakeStopwords()
+        self.stopword_sets = load_stopword_sets(FakeStopwords())
 
-    def test_calculates_stopword_overlap_by_language(self):
+    def test_calculate_language_ratios(self):
         ratios = _calculate_languages_ratios(
             "une adoption et des chiffres",
-            stopwords_provider=self.stopwords,
+            stopword_sets=self.stopword_sets,
             tokenizer=simple_tokenizer,
         )
 
         self.assertEqual(ratios["french"], 3)
         self.assertEqual(ratios["english"], 0)
 
-    def test_detects_highest_scoring_language(self):
+    def test_detect_language(self):
         language = detect_language(
             "the quick example and you will see",
-            stopwords_provider=self.stopwords,
+            stopword_sets=self.stopword_sets,
             tokenizer=simple_tokenizer,
         )
 
         self.assertEqual(language, "english")
 
-    def test_returns_none_for_empty_or_unknown_text(self):
-        self.assertIsNone(
+    def test_unknown(self):
+        self.assertEqual(
             detect_language(
                 "",
-                stopwords_provider=self.stopwords,
+                stopword_sets=self.stopword_sets,
                 tokenizer=simple_tokenizer,
-            )
+            ),
+            UNKNOWN_LANGUAGE,
         )
-        self.assertIsNone(
+        self.assertEqual(
             detect_language(
                 "xyzzy plugh",
-                stopwords_provider=self.stopwords,
+                stopword_sets=self.stopword_sets,
                 tokenizer=simple_tokenizer,
-            )
+            ),
+            UNKNOWN_LANGUAGE,
         )
+
+    def test_checked_in_stop_words(self):
+        words = load_checked_in_stop_words()
+
+        self.assertIn("the", words)
+        self.assertIn("and", words)
 
 
 if __name__ == "__main__":

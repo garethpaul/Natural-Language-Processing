@@ -10,12 +10,12 @@ clean:
 	find . -type d -name '__pycache__' -prune -exec rm -rf {} +
 
 compile:
-	PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m py_compile language_detection.py tests/test_language_detection.py scripts/check_nlp_baseline.py
+	PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m py_compile language_detection.py tests/test_language_detection.py scripts/check-baseline.py
 
 test:
 	PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m unittest discover -s tests
 
 static-check:
-	PYTHONDONTWRITEBYTECODE=1 $(PYTHON) scripts/check_nlp_baseline.py
+	PYTHONDONTWRITEBYTECODE=1 $(PYTHON) scripts/check-baseline.py
 
 verify: compile test static-check

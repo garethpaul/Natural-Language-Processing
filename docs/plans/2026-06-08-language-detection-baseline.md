@@ -15,8 +15,8 @@ syntax, printed dependency errors at import time, and had no automated checks.
 - Port the sample to Python 3 syntax.
 - Keep NLTK as an explicit dependency while allowing tests to inject small
   stopword fixtures.
-- Document the NLTK `stopwords` corpus setup and fail clearly when it is absent.
-- Return `None` for empty or unsupported input instead of claiming a language.
+- Fall back to the checked-in English stop-word list when NLTK corpora are absent.
+- Return `unknown` for empty or unsupported input instead of claiming a language.
 - Add automated tests for stopword ratios, clear detection, and no-match input.
 - Add a local `make check` gate with compile, unit, and static baseline checks.
 
@@ -24,5 +24,5 @@ syntax, printed dependency errors at import time, and had no automated checks.
 
 - `make check`
 - `python3 -m unittest discover -s tests`
-- `python3 scripts/check_nlp_baseline.py`
+- `python3 scripts/check-baseline.py`
 - `git diff --check`

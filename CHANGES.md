@@ -4,7 +4,7 @@
 
 - Ported the stopword language detector to Python 3.
 - Added injectable stopword/tokenizer dependencies for deterministic tests.
-- Reported missing NLTK stopword corpus setup without dumping a traceback.
-- Returned `None` for empty or unsupported text instead of forcing a language.
+- Added a fallback to the checked-in English stop-word list when NLTK corpora are absent.
+- Returned `unknown` for empty or unsupported text instead of forcing a language.
 - Added `requirements.txt`, unit tests, and a local `make check` gate.
 - Documented private-text handling and dependency verification in the security policy.
