@@ -27,23 +27,31 @@ Additional scan context:
 ### Prerequisites
 
 - Git
+- Python 3
+- NLTK for running the sample against the built-in stopword corpus
 
 ### Setup
 
 ```bash
 git clone https://github.com/garethpaul/Natural-Language-Processing.git
 cd Natural-Language-Processing
+python3 -m pip install -r requirements.txt
+python3 -m nltk.downloader stopwords
 ```
 
 The setup commands above are derived from repository files. Legacy mobile, Python, or JavaScript samples may require older SDKs or package versions than a modern workstation uses by default.
 
 ## Running or Using the Project
 
-- No single runtime entry point was identified. Start by reading the source files and manifests listed above.
+- Run `python3 language_detection.py` to detect the language of the checked-in
+  sample text.
+- Import `detect_language` from `language_detection.py` for small experiments.
 
 ## Testing and Verification
 
-- No dedicated automated test command was identified from the checked-in files. Verify changes by running the relevant build or manually exercising the sample.
+- `make check`
+- `python3 -m unittest discover -s tests`
+- `python3 scripts/check_nlp_baseline.py`
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
@@ -57,6 +65,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 ## Maintenance Notes
 
+- The unit tests use small injected stopword fixtures, so they do not require
+  downloading NLTK corpora.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
 

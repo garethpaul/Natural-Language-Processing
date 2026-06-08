@@ -20,12 +20,11 @@ Priority:
 - Keep NLTK dependency requirements visible
 - Avoid claiming production-level language detection accuracy
 - Keep sample text and stop-word data reviewable
+- Keep deterministic fixture tests for clear and no-match input
 
 Next priorities:
 
-- Add README setup and usage examples
-- Port print statements to supported Python syntax
-- Add tests for clear, ambiguous, empty, and unsupported-language input
+- Add tests for ambiguous multilingual input
 - Document known limitations compared with model-based language detection
 
 Contribution rules:
