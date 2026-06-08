@@ -68,4 +68,4 @@ Keep changes small and tied to the project that is already present in this repos
 
 Prior README summary:
 
-> Natural-Language-Processing <!-- README-OVERVIEW-IMAGE --> `garethpaul/Natural-Language-Processing` is a public sample, documentation, or utility project. NLTK via Python
+> Natural-Language-Processing `garethpaul/Natural-Language-Processing` is a public sample, documentation, or utility project. NLTK via Python
