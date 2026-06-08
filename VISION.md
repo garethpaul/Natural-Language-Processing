@@ -37,7 +37,7 @@ Contribution rules:
 Text samples may contain personal content. Tests and examples should use public
 or synthetic text, and error output should avoid dumping private input.
 
-## What We Will Not Merge For Now
+## What We Will Not Merge (For Now)
 
 - Production accuracy claims without evaluation
 - Private text corpora
