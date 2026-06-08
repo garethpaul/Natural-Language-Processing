@@ -32,7 +32,7 @@ Contribution rules:
 - Keep dependency changes documented.
 - Explain accuracy claims with tests or references.
 
-## Data And Safety
+## Security And Responsible Use
 
 Text samples may contain personal content. Tests and examples should use public
 or synthetic text, and error output should avoid dumping private input.
