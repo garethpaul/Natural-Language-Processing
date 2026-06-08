@@ -34,6 +34,11 @@ Contribution rules:
 
 ## Security And Responsible Use
 
+Canonical security policy and reporting:
+
+- [`SECURITY.md`](SECURITY.md)
+
+
 Text samples may contain personal content. Tests and examples should use public
 or synthetic text, and error output should avoid dumping private input.
 
