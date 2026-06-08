@@ -61,6 +61,14 @@ class LanguageDetectionTests(unittest.TestCase):
         )
         self.assertEqual(
             detect_language(
+                "the",
+                stopword_sets=self.stopword_sets,
+                tokenizer=simple_tokenizer,
+            ),
+            UNKNOWN_LANGUAGE,
+        )
+        self.assertEqual(
+            detect_language(
                 "xyzzy plugh",
                 stopword_sets=self.stopword_sets,
                 tokenizer=simple_tokenizer,

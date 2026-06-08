@@ -21,7 +21,7 @@ Priority:
 - Avoid claiming production-level language detection accuracy
 - Keep sample text and stop-word data reviewable
 - Keep deterministic fixture tests for clear and no-match input
-- Return an explicit unknown result when stopword evidence is absent
+- Return an explicit unknown result when stopword evidence is absent or too weak
 
 Next priorities:
 

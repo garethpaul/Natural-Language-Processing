@@ -16,7 +16,8 @@ syntax, printed dependency errors at import time, and had no automated checks.
 - Keep NLTK as an explicit dependency while allowing tests to inject small
   stopword fixtures.
 - Fall back to the checked-in English stop-word list when NLTK corpora are absent.
-- Return `unknown` for empty or unsupported input instead of claiming a language.
+- Return `unknown` for empty, unsupported, or weak single-stopword input instead
+  of claiming a language.
 - Add automated tests for stopword ratios, clear detection, and no-match input.
 - Add a local `make check` gate with compile, unit, and static baseline checks.
 
