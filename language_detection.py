@@ -81,7 +81,11 @@ def _calculate_languages_ratios(
 ) -> Dict[str, int]:
     """Return the number of unique stopwords matched for each language."""
     words = _normalise_tokens((tokenizer or _default_tokenizer())(text or ""))
-    language_stopwords = stopword_sets or load_stopword_sets(stopwords_provider)
+    language_stopwords = (
+        stopword_sets
+        if stopword_sets is not None
+        else load_stopword_sets(stopwords_provider)
+    )
 
     return {
         language: len(words.intersection(stopwords))

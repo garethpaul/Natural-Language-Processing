@@ -54,6 +54,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   the minimum margin.
 - Punctuation-only tokens are ignored before stopword scoring, so symbols alone
   do not create language evidence.
+- Explicit empty stopword mappings stay empty and return `unknown` rather than
+  falling back to the default corpus.
 
 ## Testing and Verification
 
@@ -83,6 +85,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   stopword margin behavior.
 - See `docs/plans/2026-06-09-punctuation-token-filter.md` for punctuation-only
   token filtering behavior.
+- See `docs/plans/2026-06-09-empty-stopword-mapping.md` for explicit empty
+  stopword mapping behavior.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
 

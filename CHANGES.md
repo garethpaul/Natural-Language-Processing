@@ -4,6 +4,7 @@
 
 - Ignored punctuation-only tokens before stopword scoring so fallback symbols do not create language evidence.
 - Returned `unknown` for near-tie stopword scores that do not clear the minimum margin.
+- Preserved explicit empty stopword mappings as no-evidence inputs instead of falling back to default corpora.
 
 ## 2026-06-08
 

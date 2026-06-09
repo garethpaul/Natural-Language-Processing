@@ -34,6 +34,7 @@ def main():
         "tests/test_language_detection.py",
         "docs/plans/2026-06-08-language-detection-baseline.md",
         "docs/plans/2026-06-09-ambiguous-stopword-ties.md",
+        "docs/plans/2026-06-09-empty-stopword-mapping.md",
         "docs/plans/2026-06-09-near-tie-stopword-margin.md",
         "docs/plans/2026-06-09-punctuation-token-filter.md",
         "docs/readme-overview.svg",
@@ -69,6 +70,9 @@ def main():
     require("MIN_STOPWORD_MARGIN" in source and "runner_up_score" in source,
             "detector must return unknown for near-tie stopword scores",
             failures)
+    require("stopword_sets is not None" in source,
+            "detector must preserve explicit empty stopword mappings",
+            failures)
     require("argparse" in source and "if __name__ == \"__main__\"" in source,
             "detector must expose a small CLI", failures)
 
@@ -79,6 +83,7 @@ def main():
         "test_calculate_language_ratios",
         "test_ambiguous_top_score_returns_unknown",
         "test_near_tie_stopword_scores_return_unknown",
+        "test_empty_stopword_mapping_is_no_evidence",
         "test_punctuation_only_tokens_do_not_create_stopword_evidence",
         "test_checked_in_stop_words",
     ]:
@@ -91,7 +96,7 @@ def main():
         require(expected in gitignore, f".gitignore must include {expected}", failures)
 
     docs = read("README.md") + "\n" + read("VISION.md") + "\n" + read("SECURITY.md")
-    for phrase in ["make check", "language_detection.py", "stopword", "ambiguous", "near-tie", "private text", "punctuation-only"]:
+    for phrase in ["make check", "language_detection.py", "stopword", "ambiguous", "near-tie", "private text", "punctuation-only", "empty stopword"]:
         require(phrase in docs.lower(), f"docs must mention {phrase}", failures)
 
     plan = read("docs/plans/2026-06-08-language-detection-baseline.md")
@@ -108,6 +113,9 @@ def main():
     punctuation_plan = read("docs/plans/2026-06-09-punctuation-token-filter.md")
     require("status: completed" in punctuation_plan and "make check" in punctuation_plan,
             "punctuation token filter plan must be completed and include verification", failures)
+    empty_mapping_plan = read("docs/plans/2026-06-09-empty-stopword-mapping.md")
+    require("status: completed" in empty_mapping_plan and "make check" in empty_mapping_plan,
+            "empty stopword mapping plan must be completed and include verification", failures)
 
     if failures:
         for failure in failures:

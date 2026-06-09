@@ -76,6 +76,24 @@ class LanguageDetectionTests(unittest.TestCase):
             UNKNOWN_LANGUAGE,
         )
 
+    def test_empty_stopword_mapping_is_no_evidence(self):
+        self.assertEqual(
+            _calculate_languages_ratios(
+                "the and you",
+                stopword_sets={},
+                tokenizer=simple_tokenizer,
+            ),
+            {},
+        )
+        self.assertEqual(
+            detect_language(
+                "the and you",
+                stopword_sets={},
+                tokenizer=simple_tokenizer,
+            ),
+            UNKNOWN_LANGUAGE,
+        )
+
     def test_punctuation_only_tokens_do_not_create_stopword_evidence(self):
         stopword_sets = {"english": {"-", "&"}}
 

@@ -25,6 +25,7 @@ Priority:
 - Return unknown for ambiguous tied stopword evidence
 - Return unknown for near-tie stopword evidence that does not clear the margin
 - Ignore punctuation-only tokens before stopword scoring
+- Preserve explicit empty stopword mappings as no evidence
 
 Next priorities:
 
@@ -38,6 +39,7 @@ Contribution rules:
 - Keep dependency changes documented.
 - Explain accuracy claims with tests or references.
 - Preserve punctuation-only token filtering when changing tokenization.
+- Preserve explicit empty stopword mappings when changing injected fixtures.
 
 ## Security And Responsible Use
 

@@ -31,6 +31,7 @@ Helpful reports include:
 - Text samples can contain private text. Tests and examples should use synthetic or public text, and errors should not dump private input.
 - Near-tie stopword scores should return `unknown` rather than overstating language confidence from weak evidence.
 - Punctuation-only tokens should not create language evidence from fallback stopword symbols.
+- Explicit empty stopword mappings should remain no-evidence inputs instead of falling back to default corpora.
 
 ## Service and API Notes
 
