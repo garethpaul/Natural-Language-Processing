@@ -27,6 +27,7 @@ Priority:
 - Ignore punctuation-only tokens before stopword scoring
 - Preserve explicit empty stopword mappings as no evidence
 - Return unknown when stopword evidence is too sparse for the amount of text
+- Preserve stopword entry normalization before scoring provider data
 
 Next priorities:
 
@@ -42,6 +43,7 @@ Contribution rules:
 - Preserve punctuation-only token filtering when changing tokenization.
 - Preserve explicit empty stopword mappings when changing injected fixtures.
 - Preserve sparse stopword density checks when changing scoring thresholds.
+- Preserve stopword entry normalization when changing corpus loading.
 
 ## Security And Responsible Use
 

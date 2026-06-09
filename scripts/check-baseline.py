@@ -38,6 +38,7 @@ def main():
         "docs/plans/2026-06-09-near-tie-stopword-margin.md",
         "docs/plans/2026-06-09-punctuation-token-filter.md",
         "docs/plans/2026-06-09-sparse-stopword-density.md",
+        "docs/plans/2026-06-09-stopword-entry-normalization.md",
         "docs/readme-overview.svg",
         "scripts/check-baseline.py",
     ]
@@ -65,6 +66,9 @@ def main():
     require("def _normalise_tokens" in source and "character.isalpha()" in source,
             "detector must ignore punctuation-only tokens before stopword scoring",
             failures)
+    require("def _normalise_stopwords" in source and "word.strip().lower()" in source,
+            "detector must strip, lowercase, and drop blank stopword entries",
+            failures)
     require("highest_scoring_languages" in source and "len(highest_scoring_languages) != 1" in source,
             "detector must return unknown for ambiguous top-score ties",
             failures)
@@ -90,6 +94,7 @@ def main():
         "test_empty_stopword_mapping_is_no_evidence",
         "test_punctuation_only_tokens_do_not_create_stopword_evidence",
         "test_sparse_stopword_evidence_returns_unknown",
+        "test_stopword_entries_are_normalized_and_blank_entries_ignored",
         "test_checked_in_stop_words",
     ]:
         require(expected in tests, f"tests must include {expected}", failures)
@@ -101,7 +106,7 @@ def main():
         require(expected in gitignore, f".gitignore must include {expected}", failures)
 
     docs = read("README.md") + "\n" + read("VISION.md") + "\n" + read("SECURITY.md")
-    for phrase in ["make check", "language_detection.py", "stopword", "ambiguous", "near-tie", "private text", "punctuation-only", "empty stopword", "sparse stopword"]:
+    for phrase in ["make check", "language_detection.py", "stopword", "ambiguous", "near-tie", "private text", "punctuation-only", "empty stopword", "sparse stopword", "stopword entry normalization"]:
         require(phrase in docs.lower(), f"docs must mention {phrase}", failures)
 
     plan = read("docs/plans/2026-06-08-language-detection-baseline.md")
@@ -124,6 +129,9 @@ def main():
     sparse_density_plan = read("docs/plans/2026-06-09-sparse-stopword-density.md")
     require("status: completed" in sparse_density_plan and "make check" in sparse_density_plan,
             "sparse stopword density plan must be completed and include verification", failures)
+    stopword_normalization_plan = read("docs/plans/2026-06-09-stopword-entry-normalization.md")
+    require("status: completed" in stopword_normalization_plan and "make check" in stopword_normalization_plan,
+            "stopword entry normalization plan must be completed and include verification", failures)
 
     if failures:
         for failure in failures:

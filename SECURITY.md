@@ -33,6 +33,8 @@ Helpful reports include:
 - Punctuation-only tokens should not create language evidence from fallback stopword symbols.
 - Explicit empty stopword mappings should remain no-evidence inputs instead of falling back to default corpora.
 - Sparse stopword evidence in mostly unrelated or synthetic text should return `unknown` instead of overstating confidence from a few common words.
+- Stopword entry normalization should strip, lowercase, and ignore blank corpus
+  entries before scoring so provider formatting does not change evidence.
 
 ## Service and API Notes
 

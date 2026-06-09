@@ -23,6 +23,19 @@ class FakeStopwords:
         return self.DATA[language]
 
 
+class NoisyStopwords:
+    DATA = {
+        "english": [" The ", "AND", "", "  ", "\tyou\n"],
+        "french": ["une"],
+    }
+
+    def fileids(self):
+        return list(self.DATA)
+
+    def words(self, language):
+        return self.DATA[language]
+
+
 def simple_tokenizer(text):
     return text.replace(".", " ").replace(",", " ").split()
 
@@ -142,6 +155,19 @@ class LanguageDetectionTests(unittest.TestCase):
                 tokenizer=simple_tokenizer,
             ),
             UNKNOWN_LANGUAGE,
+        )
+
+    def test_stopword_entries_are_normalized_and_blank_entries_ignored(self):
+        stopword_sets = load_stopword_sets(NoisyStopwords())
+
+        self.assertEqual(stopword_sets["english"], {"the", "and", "you"})
+        self.assertEqual(
+            detect_language(
+                "the and you",
+                stopword_sets=stopword_sets,
+                tokenizer=simple_tokenizer,
+            ),
+            "english",
         )
 
     def test_checked_in_stop_words(self):

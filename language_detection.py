@@ -45,6 +45,14 @@ def _normalise_tokens(tokens: Iterable[str]) -> Set[str]:
     }
 
 
+def _normalise_stopwords(words: Iterable[str]) -> Set[str]:
+    return {
+        word.strip().lower()
+        for word in words
+        if word.strip()
+    }
+
+
 def _normalised_text_words(
     text: str,
     tokenizer: Optional[Callable[[str], Iterable[str]]],
@@ -54,25 +62,21 @@ def _normalised_text_words(
 
 def load_checked_in_stop_words(path: Path = STOP_WORDS_PATH) -> Set[str]:
     """Load the small checked-in English stopword list."""
-    return {
-        line.strip().lower()
-        for line in path.read_text(encoding="utf-8").splitlines()
-        if line.strip()
-    }
+    return _normalise_stopwords(path.read_text(encoding="utf-8").splitlines())
 
 
 def load_stopword_sets(stopwords_provider=None) -> Dict[str, Set[str]]:
     """Load NLTK stopwords, falling back to the checked-in English list."""
     if stopwords_provider is not None:
         return {
-            language: {word.lower() for word in stopwords_provider.words(language)}
+            language: _normalise_stopwords(stopwords_provider.words(language))
             for language in stopwords_provider.fileids()
         }
 
     if _nltk_stopwords is not None:
         try:
             return {
-                language: {word.lower() for word in _nltk_stopwords.words(language)}
+                language: _normalise_stopwords(_nltk_stopwords.words(language))
                 for language in _nltk_stopwords.fileids()
             }
         except LookupError:

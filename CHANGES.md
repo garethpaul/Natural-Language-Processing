@@ -6,6 +6,8 @@
 - Returned `unknown` for near-tie stopword scores that do not clear the minimum margin.
 - Preserved explicit empty stopword mappings as no-evidence inputs instead of falling back to default corpora.
 - Returned `unknown` for sparse stopword evidence embedded in mostly unrelated text.
+- Added stopword entry normalization so provider stopwords are stripped,
+  lowercased, and blank entries are ignored before scoring.
 
 ## 2026-06-08
 
