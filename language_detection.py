@@ -91,11 +91,19 @@ def detect_language(
     if not ratios:
         return UNKNOWN_LANGUAGE
 
-    most_rated_language = max(ratios, key=ratios.get)
-    if ratios[most_rated_language] < MIN_STOPWORD_MATCHES:
+    highest_score = max(ratios.values())
+    if highest_score < MIN_STOPWORD_MATCHES:
         return UNKNOWN_LANGUAGE
 
-    return most_rated_language
+    highest_scoring_languages = [
+        language
+        for language, score in ratios.items()
+        if score == highest_score
+    ]
+    if len(highest_scoring_languages) != 1:
+        return UNKNOWN_LANGUAGE
+
+    return highest_scoring_languages[0]
 
 
 def main(argv: Optional[Iterable[str]] = None) -> int:

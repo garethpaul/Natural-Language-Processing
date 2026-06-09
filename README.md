@@ -48,6 +48,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - Run `python3 language_detection.py "the quick example and you"` to classify
   your own short text.
 - Import `detect_language` from `language_detection.py` for small experiments.
+- Ambiguous tied stopword scores return `unknown` instead of choosing by mapping
+  order.
 
 ## Testing and Verification
 
@@ -71,6 +73,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   downloading NLTK corpora.
 - If NLTK or its stopwords corpus is unavailable, the sample falls back to the
   checked-in English stop-word list and returns `unknown` for zero-score input.
+- See `docs/plans/2026-06-09-ambiguous-stopword-ties.md` for the ambiguous
+  stopword tie behavior.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
 

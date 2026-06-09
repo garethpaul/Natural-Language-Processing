@@ -76,6 +76,16 @@ class LanguageDetectionTests(unittest.TestCase):
             UNKNOWN_LANGUAGE,
         )
 
+    def test_ambiguous_top_score_returns_unknown(self):
+        self.assertEqual(
+            detect_language(
+                "the and une et",
+                stopword_sets=self.stopword_sets,
+                tokenizer=simple_tokenizer,
+            ),
+            UNKNOWN_LANGUAGE,
+        )
+
     def test_checked_in_stop_words(self):
         words = load_checked_in_stop_words()
 

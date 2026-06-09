@@ -33,6 +33,7 @@ def main():
         "stop_words.txt",
         "tests/test_language_detection.py",
         "docs/plans/2026-06-08-language-detection-baseline.md",
+        "docs/plans/2026-06-09-ambiguous-stopword-ties.md",
         "docs/readme-overview.svg",
         "scripts/check-baseline.py",
     ]
@@ -57,6 +58,9 @@ def main():
     require("UNKNOWN_LANGUAGE" in source,
             "detector must return an explicit unknown result for zero-score input",
             failures)
+    require("highest_scoring_languages" in source and "len(highest_scoring_languages) != 1" in source,
+            "detector must return unknown for ambiguous top-score ties",
+            failures)
     require("argparse" in source and "if __name__ == \"__main__\"" in source,
             "detector must expose a small CLI", failures)
 
@@ -65,6 +69,7 @@ def main():
         "test_detect_language",
         "test_unknown",
         "test_calculate_language_ratios",
+        "test_ambiguous_top_score_returns_unknown",
         "test_checked_in_stop_words",
     ]:
         require(expected in tests, f"tests must include {expected}", failures)
@@ -76,7 +81,7 @@ def main():
         require(expected in gitignore, f".gitignore must include {expected}", failures)
 
     docs = read("README.md") + "\n" + read("VISION.md") + "\n" + read("SECURITY.md")
-    for phrase in ["make check", "language_detection.py", "stopword", "private text"]:
+    for phrase in ["make check", "language_detection.py", "stopword", "ambiguous", "private text"]:
         require(phrase in docs.lower(), f"docs must mention {phrase}", failures)
 
     plan = read("docs/plans/2026-06-08-language-detection-baseline.md")
@@ -84,6 +89,9 @@ def main():
             "plan must be completed and include verification", failures)
     require("scripts/check-baseline.py" in plan,
             "plan must reference the active baseline checker", failures)
+    ambiguity_plan = read("docs/plans/2026-06-09-ambiguous-stopword-ties.md")
+    require("status: completed" in ambiguity_plan and "make check" in ambiguity_plan,
+            "ambiguity plan must be completed and include verification", failures)
 
     if failures:
         for failure in failures:

@@ -22,10 +22,11 @@ Priority:
 - Keep sample text and stop-word data reviewable
 - Keep deterministic fixture tests for clear and no-match input
 - Return an explicit unknown result when stopword evidence is absent or too weak
+- Return unknown for ambiguous tied stopword evidence
 
 Next priorities:
 
-- Add tests for ambiguous multilingual input
+- Add tests for longer mixed-language passages
 - Document known limitations compared with model-based language detection
 
 Contribution rules:
