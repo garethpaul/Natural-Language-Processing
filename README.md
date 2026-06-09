@@ -60,6 +60,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   winning language has enough density across the unique alphabetic tokens.
 - Stopword entry normalization strips and lowercases provider entries while
   ignoring blank lines before scoring.
+- Text token normalization strips and lowercases tokenizer output before
+  stopword scoring so padded tokens match corpus entries.
 
 ## Testing and Verification
 
@@ -98,6 +100,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   evidence handling.
 - See `docs/plans/2026-06-09-stopword-entry-normalization.md` for stopword
   entry normalization behavior.
+- See `docs/plans/2026-06-09-text-token-normalization.md` for text token
+  normalization behavior.
 - See `docs/plans/2026-06-09-make-gate-aliases.md` for the local verification
   gate aliases.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.

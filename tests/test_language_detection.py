@@ -40,6 +40,10 @@ def simple_tokenizer(text):
     return text.replace(".", " ").replace(",", " ").split()
 
 
+def padded_tokenizer(text):
+    return [" The ", "\tAND\n", "signal"]
+
+
 class LanguageDetectionTests(unittest.TestCase):
     def setUp(self):
         self.stopword_sets = load_stopword_sets(FakeStopwords())
@@ -166,6 +170,24 @@ class LanguageDetectionTests(unittest.TestCase):
                 "the and you",
                 stopword_sets=stopword_sets,
                 tokenizer=simple_tokenizer,
+            ),
+            "english",
+        )
+
+    def test_text_tokens_are_normalized_before_scoring(self):
+        self.assertEqual(
+            _calculate_languages_ratios(
+                "ignored input",
+                stopword_sets=self.stopword_sets,
+                tokenizer=padded_tokenizer,
+            )["english"],
+            2,
+        )
+        self.assertEqual(
+            detect_language(
+                "ignored input",
+                stopword_sets=self.stopword_sets,
+                tokenizer=padded_tokenizer,
             ),
             "english",
         )

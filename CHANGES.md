@@ -8,6 +8,8 @@
 - Returned `unknown` for sparse stopword evidence embedded in mostly unrelated text.
 - Added stopword entry normalization so provider stopwords are stripped,
   lowercased, and blank entries are ignored before scoring.
+- Added text token normalization so tokenizer output is stripped and lowercased
+  before stopword scoring.
 - Added `make lint` and `make build` aliases alongside `make test` and
   `make check` for consistent local verification.
 

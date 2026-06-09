@@ -35,6 +35,8 @@ Helpful reports include:
 - Sparse stopword evidence in mostly unrelated or synthetic text should return `unknown` instead of overstating confidence from a few common words.
 - Stopword entry normalization should strip, lowercase, and ignore blank corpus
   entries before scoring so provider formatting does not change evidence.
+- Text token normalization should strip and lowercase tokenizer output before
+  scoring so whitespace-padded input does not change evidence.
 
 ## Service and API Notes
 

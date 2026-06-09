@@ -38,11 +38,12 @@ def _default_tokenizer() -> Callable[[str], Iterable[str]]:
 
 
 def _normalise_tokens(tokens: Iterable[str]) -> Set[str]:
-    return {
-        token.lower()
-        for token in tokens
-        if any(character.isalpha() for character in token)
-    }
+    normalised_tokens = set()
+    for token in tokens:
+        normalised_token = token.strip().lower()
+        if any(character.isalpha() for character in normalised_token):
+            normalised_tokens.add(normalised_token)
+    return normalised_tokens
 
 
 def _normalise_stopwords(words: Iterable[str]) -> Set[str]:
