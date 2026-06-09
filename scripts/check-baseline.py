@@ -35,6 +35,7 @@ def main():
         "docs/plans/2026-06-08-language-detection-baseline.md",
         "docs/plans/2026-06-09-ambiguous-stopword-ties.md",
         "docs/plans/2026-06-09-empty-stopword-mapping.md",
+        "docs/plans/2026-06-09-make-gate-aliases.md",
         "docs/plans/2026-06-09-near-tie-stopword-margin.md",
         "docs/plans/2026-06-09-punctuation-token-filter.md",
         "docs/plans/2026-06-09-sparse-stopword-density.md",
@@ -105,8 +106,18 @@ def main():
     for expected in ["__pycache__/", "*.pyc", ".env"]:
         require(expected in gitignore, f".gitignore must include {expected}", failures)
 
+    makefile = read("Makefile")
+    for expected in ["build: compile", "lint: static-check", "test:", "check:", "verify: compile test static-check"]:
+        require(expected in makefile, f"Makefile must include {expected}", failures)
+    phony_line = next(
+        (line for line in makefile.splitlines() if line.startswith(".PHONY:")),
+        "",
+    )
+    for expected in ["build", "lint", "test", "check"]:
+        require(expected in phony_line.split(), f".PHONY must include {expected}", failures)
+
     docs = read("README.md") + "\n" + read("VISION.md") + "\n" + read("SECURITY.md")
-    for phrase in ["make check", "language_detection.py", "stopword", "ambiguous", "near-tie", "private text", "punctuation-only", "empty stopword", "sparse stopword", "stopword entry normalization"]:
+    for phrase in ["make lint", "make test", "make build", "make check", "language_detection.py", "stopword", "ambiguous", "near-tie", "private text", "punctuation-only", "empty stopword", "sparse stopword", "stopword entry normalization"]:
         require(phrase in docs.lower(), f"docs must mention {phrase}", failures)
 
     plan = read("docs/plans/2026-06-08-language-detection-baseline.md")
@@ -126,6 +137,9 @@ def main():
     empty_mapping_plan = read("docs/plans/2026-06-09-empty-stopword-mapping.md")
     require("status: completed" in empty_mapping_plan and "make check" in empty_mapping_plan,
             "empty stopword mapping plan must be completed and include verification", failures)
+    make_gate_plan = read("docs/plans/2026-06-09-make-gate-aliases.md")
+    require("status: completed" in make_gate_plan and "make lint" in make_gate_plan and "make build" in make_gate_plan,
+            "make gate aliases plan must be completed and include verification", failures)
     sparse_density_plan = read("docs/plans/2026-06-09-sparse-stopword-density.md")
     require("status: completed" in sparse_density_plan and "make check" in sparse_density_plan,
             "sparse stopword density plan must be completed and include verification", failures)

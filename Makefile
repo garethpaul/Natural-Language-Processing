@@ -1,4 +1,4 @@
-.PHONY: clean compile static-check test verify check
+.PHONY: build clean compile lint static-check test verify check
 
 PYTHON ?= python3
 
@@ -12,10 +12,14 @@ clean:
 compile:
 	PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m py_compile language_detection.py tests/test_language_detection.py scripts/check-baseline.py
 
+build: compile
+
 test:
 	PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m unittest discover -s tests
 
 static-check:
 	PYTHONDONTWRITEBYTECODE=1 $(PYTHON) scripts/check-baseline.py
+
+lint: static-check
 
 verify: compile test static-check

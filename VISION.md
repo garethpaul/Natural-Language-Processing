@@ -28,6 +28,7 @@ Priority:
 - Preserve explicit empty stopword mappings as no evidence
 - Return unknown when stopword evidence is too sparse for the amount of text
 - Preserve stopword entry normalization before scoring provider data
+- Keep `make lint`, `make test`, `make build`, and `make check` available
 
 Next priorities:
 
@@ -44,6 +45,7 @@ Contribution rules:
 - Preserve explicit empty stopword mappings when changing injected fixtures.
 - Preserve sparse stopword density checks when changing scoring thresholds.
 - Preserve stopword entry normalization when changing corpus loading.
+- Run the Makefile verification aliases before merging detector changes.
 
 ## Security And Responsible Use
 

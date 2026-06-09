@@ -63,6 +63,9 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 
 ## Testing and Verification
 
+- `make lint`
+- `make test`
+- `make build`
 - `make check`
 - `python3 -m unittest discover -s tests`
 - `python3 scripts/check-baseline.py`
@@ -95,6 +98,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   evidence handling.
 - See `docs/plans/2026-06-09-stopword-entry-normalization.md` for stopword
   entry normalization behavior.
+- See `docs/plans/2026-06-09-make-gate-aliases.md` for the local verification
+  gate aliases.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
 
