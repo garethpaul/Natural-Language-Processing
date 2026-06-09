@@ -56,6 +56,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   do not create language evidence.
 - Explicit empty stopword mappings stay empty and return `unknown` rather than
   falling back to the default corpus.
+- Sparse stopword evidence in mostly unrelated text returns `unknown` unless the
+  winning language has enough density across the unique alphabetic tokens.
 
 ## Testing and Verification
 
@@ -87,6 +89,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   token filtering behavior.
 - See `docs/plans/2026-06-09-empty-stopword-mapping.md` for explicit empty
   stopword mapping behavior.
+- See `docs/plans/2026-06-09-sparse-stopword-density.md` for sparse stopword
+  evidence handling.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
 

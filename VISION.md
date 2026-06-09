@@ -26,6 +26,7 @@ Priority:
 - Return unknown for near-tie stopword evidence that does not clear the margin
 - Ignore punctuation-only tokens before stopword scoring
 - Preserve explicit empty stopword mappings as no evidence
+- Return unknown when stopword evidence is too sparse for the amount of text
 
 Next priorities:
 
@@ -40,6 +41,7 @@ Contribution rules:
 - Explain accuracy claims with tests or references.
 - Preserve punctuation-only token filtering when changing tokenization.
 - Preserve explicit empty stopword mappings when changing injected fixtures.
+- Preserve sparse stopword density checks when changing scoring thresholds.
 
 ## Security And Responsible Use
 

@@ -37,6 +37,7 @@ def main():
         "docs/plans/2026-06-09-empty-stopword-mapping.md",
         "docs/plans/2026-06-09-near-tie-stopword-margin.md",
         "docs/plans/2026-06-09-punctuation-token-filter.md",
+        "docs/plans/2026-06-09-sparse-stopword-density.md",
         "docs/readme-overview.svg",
         "scripts/check-baseline.py",
     ]
@@ -70,6 +71,9 @@ def main():
     require("MIN_STOPWORD_MARGIN" in source and "runner_up_score" in source,
             "detector must return unknown for near-tie stopword scores",
             failures)
+    require("MIN_STOPWORD_DENSITY" in source and "_has_enough_stopword_density" in source,
+            "detector must return unknown for sparse stopword evidence",
+            failures)
     require("stopword_sets is not None" in source,
             "detector must preserve explicit empty stopword mappings",
             failures)
@@ -85,6 +89,7 @@ def main():
         "test_near_tie_stopword_scores_return_unknown",
         "test_empty_stopword_mapping_is_no_evidence",
         "test_punctuation_only_tokens_do_not_create_stopword_evidence",
+        "test_sparse_stopword_evidence_returns_unknown",
         "test_checked_in_stop_words",
     ]:
         require(expected in tests, f"tests must include {expected}", failures)
@@ -96,7 +101,7 @@ def main():
         require(expected in gitignore, f".gitignore must include {expected}", failures)
 
     docs = read("README.md") + "\n" + read("VISION.md") + "\n" + read("SECURITY.md")
-    for phrase in ["make check", "language_detection.py", "stopword", "ambiguous", "near-tie", "private text", "punctuation-only", "empty stopword"]:
+    for phrase in ["make check", "language_detection.py", "stopword", "ambiguous", "near-tie", "private text", "punctuation-only", "empty stopword", "sparse stopword"]:
         require(phrase in docs.lower(), f"docs must mention {phrase}", failures)
 
     plan = read("docs/plans/2026-06-08-language-detection-baseline.md")
@@ -116,6 +121,9 @@ def main():
     empty_mapping_plan = read("docs/plans/2026-06-09-empty-stopword-mapping.md")
     require("status: completed" in empty_mapping_plan and "make check" in empty_mapping_plan,
             "empty stopword mapping plan must be completed and include verification", failures)
+    sparse_density_plan = read("docs/plans/2026-06-09-sparse-stopword-density.md")
+    require("status: completed" in sparse_density_plan and "make check" in sparse_density_plan,
+            "sparse stopword density plan must be completed and include verification", failures)
 
     if failures:
         for failure in failures:

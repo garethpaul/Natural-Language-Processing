@@ -32,6 +32,7 @@ Helpful reports include:
 - Near-tie stopword scores should return `unknown` rather than overstating language confidence from weak evidence.
 - Punctuation-only tokens should not create language evidence from fallback stopword symbols.
 - Explicit empty stopword mappings should remain no-evidence inputs instead of falling back to default corpora.
+- Sparse stopword evidence in mostly unrelated or synthetic text should return `unknown` instead of overstating confidence from a few common words.
 
 ## Service and API Notes
 

@@ -20,6 +20,7 @@ except ImportError:  # pragma: no cover - covered by fallback behavior.
 UNKNOWN_LANGUAGE = "unknown"
 MIN_STOPWORD_MATCHES = 2
 MIN_STOPWORD_MARGIN = 2
+MIN_STOPWORD_DENSITY = 0.2
 STOP_WORDS_PATH = Path(__file__).with_name("stop_words.txt")
 DEFAULT_SAMPLE = """
 Une adoption plus rapide que le telephone classique et mobile.
@@ -42,6 +43,13 @@ def _normalise_tokens(tokens: Iterable[str]) -> Set[str]:
         for token in tokens
         if any(character.isalpha() for character in token)
     }
+
+
+def _normalised_text_words(
+    text: str,
+    tokenizer: Optional[Callable[[str], Iterable[str]]],
+) -> Set[str]:
+    return _normalise_tokens((tokenizer or _default_tokenizer())(text or ""))
 
 
 def load_checked_in_stop_words(path: Path = STOP_WORDS_PATH) -> Set[str]:
@@ -73,6 +81,34 @@ def load_stopword_sets(stopwords_provider=None) -> Dict[str, Set[str]]:
     return {"english": load_checked_in_stop_words()}
 
 
+def _language_stopword_sets(
+    stopword_sets: Optional[Mapping[str, Set[str]]],
+    stopwords_provider,
+) -> Mapping[str, Set[str]]:
+    return (
+        stopword_sets
+        if stopword_sets is not None
+        else load_stopword_sets(stopwords_provider)
+    )
+
+
+def _score_languages(
+    words: Set[str],
+    language_stopwords: Mapping[str, Set[str]],
+) -> Dict[str, int]:
+    return {
+        language: len(words.intersection(stopwords))
+        for language, stopwords in language_stopwords.items()
+    }
+
+
+def _has_enough_stopword_density(stopword_matches: int, word_count: int) -> bool:
+    return (
+        word_count > 0
+        and stopword_matches / word_count >= MIN_STOPWORD_DENSITY
+    )
+
+
 def _calculate_languages_ratios(
     text: str,
     stopword_sets: Optional[Mapping[str, Set[str]]] = None,
@@ -80,17 +116,9 @@ def _calculate_languages_ratios(
     tokenizer: Optional[Callable[[str], Iterable[str]]] = None,
 ) -> Dict[str, int]:
     """Return the number of unique stopwords matched for each language."""
-    words = _normalise_tokens((tokenizer or _default_tokenizer())(text or ""))
-    language_stopwords = (
-        stopword_sets
-        if stopword_sets is not None
-        else load_stopword_sets(stopwords_provider)
-    )
-
-    return {
-        language: len(words.intersection(stopwords))
-        for language, stopwords in language_stopwords.items()
-    }
+    words = _normalised_text_words(text, tokenizer)
+    language_stopwords = _language_stopword_sets(stopword_sets, stopwords_provider)
+    return _score_languages(words, language_stopwords)
 
 
 def detect_language(
@@ -100,12 +128,16 @@ def detect_language(
     tokenizer: Optional[Callable[[str], Iterable[str]]] = None,
 ) -> str:
     """Return the highest-scoring language, or ``unknown`` for zero matches."""
-    ratios = _calculate_languages_ratios(text, stopword_sets, stopwords_provider, tokenizer)
+    words = _normalised_text_words(text, tokenizer)
+    language_stopwords = _language_stopword_sets(stopword_sets, stopwords_provider)
+    ratios = _score_languages(words, language_stopwords)
     if not ratios:
         return UNKNOWN_LANGUAGE
 
     highest_score = max(ratios.values())
     if highest_score < MIN_STOPWORD_MATCHES:
+        return UNKNOWN_LANGUAGE
+    if not _has_enough_stopword_density(highest_score, len(words)):
         return UNKNOWN_LANGUAGE
 
     highest_scoring_languages = [
