@@ -174,6 +174,29 @@ class LanguageDetectionTests(unittest.TestCase):
             "english",
         )
 
+    def test_explicit_stopword_sets_are_normalized_before_scoring(self):
+        stopword_sets = {
+            "english": {" The ", "\tAND\n", "YOU", "", "  "},
+            "french": {"une"},
+        }
+
+        self.assertEqual(
+            _calculate_languages_ratios(
+                "the and you",
+                stopword_sets=stopword_sets,
+                tokenizer=simple_tokenizer,
+            ),
+            {"english": 3, "french": 0},
+        )
+        self.assertEqual(
+            detect_language(
+                "the and you",
+                stopword_sets=stopword_sets,
+                tokenizer=simple_tokenizer,
+            ),
+            "english",
+        )
+
     def test_text_tokens_are_normalized_before_scoring(self):
         self.assertEqual(
             _calculate_languages_ratios(

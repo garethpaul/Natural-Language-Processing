@@ -29,6 +29,7 @@ Priority:
 - Return unknown when stopword evidence is too sparse for the amount of text
 - Preserve stopword entry normalization before scoring provider data
 - Preserve text token normalization before stopword scoring
+- Preserve explicit stopword set normalization before scoring custom mappings
 - Keep `make lint`, `make test`, `make build`, and `make check` available
 
 Next priorities:
@@ -47,6 +48,7 @@ Contribution rules:
 - Preserve sparse stopword density checks when changing scoring thresholds.
 - Preserve stopword entry normalization when changing corpus loading.
 - Preserve text token normalization when changing tokenization.
+- Preserve explicit stopword set normalization when changing custom stopword inputs.
 - Run the Makefile verification aliases before merging detector changes.
 
 ## Security And Responsible Use
@@ -57,6 +59,8 @@ Canonical security policy and reporting:
 
 Text samples may contain personal content. Tests and examples should use public
 or synthetic text, and error output should avoid dumping private input.
+Explicit stopword set normalization should keep caller-provided mappings on the
+same normalization path as provider-loaded stopwords.
 
 ## What We Will Not Merge (For Now)
 

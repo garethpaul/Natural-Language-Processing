@@ -10,6 +10,8 @@
   lowercased, and blank entries are ignored before scoring.
 - Added text token normalization so tokenizer output is stripped and lowercased
   before stopword scoring.
+- Added explicit stopword set normalization so caller-provided stopword mappings
+  follow the same strip/lowercase rules as provider-loaded stopwords.
 - Added `make lint` and `make build` aliases alongside `make test` and
   `make check` for consistent local verification.
 

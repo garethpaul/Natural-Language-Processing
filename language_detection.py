@@ -54,6 +54,13 @@ def _normalise_stopwords(words: Iterable[str]) -> Set[str]:
     }
 
 
+def _normalise_stopword_sets(stopword_sets: Mapping[str, Iterable[str]]) -> Dict[str, Set[str]]:
+    return {
+        language: _normalise_stopwords(stopwords)
+        for language, stopwords in stopword_sets.items()
+    }
+
+
 def _normalised_text_words(
     text: str,
     tokenizer: Optional[Callable[[str], Iterable[str]]],
@@ -87,14 +94,13 @@ def load_stopword_sets(stopwords_provider=None) -> Dict[str, Set[str]]:
 
 
 def _language_stopword_sets(
-    stopword_sets: Optional[Mapping[str, Set[str]]],
+    stopword_sets: Optional[Mapping[str, Iterable[str]]],
     stopwords_provider,
 ) -> Mapping[str, Set[str]]:
-    return (
-        stopword_sets
-        if stopword_sets is not None
-        else load_stopword_sets(stopwords_provider)
-    )
+    if stopword_sets is not None:
+        return _normalise_stopword_sets(stopword_sets)
+
+    return load_stopword_sets(stopwords_provider)
 
 
 def _score_languages(
@@ -116,7 +122,7 @@ def _has_enough_stopword_density(stopword_matches: int, word_count: int) -> bool
 
 def _calculate_languages_ratios(
     text: str,
-    stopword_sets: Optional[Mapping[str, Set[str]]] = None,
+    stopword_sets: Optional[Mapping[str, Iterable[str]]] = None,
     stopwords_provider=None,
     tokenizer: Optional[Callable[[str], Iterable[str]]] = None,
 ) -> Dict[str, int]:
@@ -128,7 +134,7 @@ def _calculate_languages_ratios(
 
 def detect_language(
     text: str,
-    stopword_sets: Optional[Mapping[str, Set[str]]] = None,
+    stopword_sets: Optional[Mapping[str, Iterable[str]]] = None,
     stopwords_provider=None,
     tokenizer: Optional[Callable[[str], Iterable[str]]] = None,
 ) -> str:

@@ -62,6 +62,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   ignoring blank lines before scoring.
 - Text token normalization strips and lowercases tokenizer output before
   stopword scoring so padded tokens match corpus entries.
+- Explicit stopword set normalization applies the same strip/lowercase rules to
+  caller-provided stopword mappings before scoring.
 
 ## Testing and Verification
 
@@ -102,6 +104,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   entry normalization behavior.
 - See `docs/plans/2026-06-09-text-token-normalization.md` for text token
   normalization behavior.
+- See `docs/plans/2026-06-09-explicit-stopword-set-normalization.md` for
+  explicit stopword set normalization behavior.
 - See `docs/plans/2026-06-09-make-gate-aliases.md` for the local verification
   gate aliases.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.

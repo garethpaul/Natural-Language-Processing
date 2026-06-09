@@ -37,10 +37,15 @@ Helpful reports include:
   entries before scoring so provider formatting does not change evidence.
 - Text token normalization should strip and lowercase tokenizer output before
   scoring so whitespace-padded input does not change evidence.
+- Explicit stopword set normalization should strip, lowercase, and ignore blank
+  caller-provided entries before scoring so custom mappings match provider behavior.
 
 ## Service and API Notes
 
 For web services, APIs, sockets, or scraping workflows, prioritize reports involving authentication bypass, authorization errors, injection, server-side request forgery, unsafe deserialization, credential leakage, data exposure, or denial-of-service conditions. Use test accounts and minimal proof-of-concept traffic only.
+
+For this detector, reports involving explicit stopword set normalization should
+state whether custom mappings can bypass provider-equivalent normalization.
 
 ## Dependency and Supply Chain Security
 
