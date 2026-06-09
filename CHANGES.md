@@ -1,5 +1,9 @@
 # Changes
 
+## 2026-06-09
+
+- Ignored punctuation-only tokens before stopword scoring so fallback symbols do not create language evidence.
+
 ## 2026-06-08
 
 - Ported the stopword language detector to Python 3.

@@ -34,6 +34,7 @@ def main():
         "tests/test_language_detection.py",
         "docs/plans/2026-06-08-language-detection-baseline.md",
         "docs/plans/2026-06-09-ambiguous-stopword-ties.md",
+        "docs/plans/2026-06-09-punctuation-token-filter.md",
         "docs/readme-overview.svg",
         "scripts/check-baseline.py",
     ]
@@ -58,6 +59,9 @@ def main():
     require("UNKNOWN_LANGUAGE" in source,
             "detector must return an explicit unknown result for zero-score input",
             failures)
+    require("def _normalise_tokens" in source and "character.isalpha()" in source,
+            "detector must ignore punctuation-only tokens before stopword scoring",
+            failures)
     require("highest_scoring_languages" in source and "len(highest_scoring_languages) != 1" in source,
             "detector must return unknown for ambiguous top-score ties",
             failures)
@@ -70,6 +74,7 @@ def main():
         "test_unknown",
         "test_calculate_language_ratios",
         "test_ambiguous_top_score_returns_unknown",
+        "test_punctuation_only_tokens_do_not_create_stopword_evidence",
         "test_checked_in_stop_words",
     ]:
         require(expected in tests, f"tests must include {expected}", failures)
@@ -81,7 +86,7 @@ def main():
         require(expected in gitignore, f".gitignore must include {expected}", failures)
 
     docs = read("README.md") + "\n" + read("VISION.md") + "\n" + read("SECURITY.md")
-    for phrase in ["make check", "language_detection.py", "stopword", "ambiguous", "private text"]:
+    for phrase in ["make check", "language_detection.py", "stopword", "ambiguous", "private text", "punctuation-only"]:
         require(phrase in docs.lower(), f"docs must mention {phrase}", failures)
 
     plan = read("docs/plans/2026-06-08-language-detection-baseline.md")
@@ -92,6 +97,9 @@ def main():
     ambiguity_plan = read("docs/plans/2026-06-09-ambiguous-stopword-ties.md")
     require("status: completed" in ambiguity_plan and "make check" in ambiguity_plan,
             "ambiguity plan must be completed and include verification", failures)
+    punctuation_plan = read("docs/plans/2026-06-09-punctuation-token-filter.md")
+    require("status: completed" in punctuation_plan and "make check" in punctuation_plan,
+            "punctuation token filter plan must be completed and include verification", failures)
 
     if failures:
         for failure in failures:

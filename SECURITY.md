@@ -29,6 +29,7 @@ Helpful reports include:
 - Dependency manifest detected: requirements.txt. Dependency updates should preserve reproducible installation instructions and avoid introducing packages without a clear maintenance reason.
 - Run `make check` after changing detector code, stopword data, dependencies, tests, or security docs.
 - Text samples can contain private text. Tests and examples should use synthetic or public text, and errors should not dump private input.
+- Punctuation-only tokens should not create language evidence from fallback stopword symbols.
 
 ## Service and API Notes
 

@@ -76,6 +76,26 @@ class LanguageDetectionTests(unittest.TestCase):
             UNKNOWN_LANGUAGE,
         )
 
+    def test_punctuation_only_tokens_do_not_create_stopword_evidence(self):
+        stopword_sets = {"english": {"-", "&"}}
+
+        self.assertEqual(
+            _calculate_languages_ratios(
+                "- &",
+                stopword_sets=stopword_sets,
+                tokenizer=simple_tokenizer,
+            ),
+            {"english": 0},
+        )
+        self.assertEqual(
+            detect_language(
+                "- &",
+                stopword_sets=stopword_sets,
+                tokenizer=simple_tokenizer,
+            ),
+            UNKNOWN_LANGUAGE,
+        )
+
     def test_ambiguous_top_score_returns_unknown(self):
         self.assertEqual(
             detect_language(

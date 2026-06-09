@@ -35,6 +35,14 @@ def _default_tokenizer() -> Callable[[str], Iterable[str]]:
     return _nltk_wordpunct_tokenize or _fallback_tokenize
 
 
+def _normalise_tokens(tokens: Iterable[str]) -> Set[str]:
+    return {
+        token.lower()
+        for token in tokens
+        if any(character.isalpha() for character in token)
+    }
+
+
 def load_checked_in_stop_words(path: Path = STOP_WORDS_PATH) -> Set[str]:
     """Load the small checked-in English stopword list."""
     return {
@@ -71,7 +79,7 @@ def _calculate_languages_ratios(
     tokenizer: Optional[Callable[[str], Iterable[str]]] = None,
 ) -> Dict[str, int]:
     """Return the number of unique stopwords matched for each language."""
-    words = {word.lower() for word in (tokenizer or _default_tokenizer())(text or "")}
+    words = _normalise_tokens((tokenizer or _default_tokenizer())(text or ""))
     language_stopwords = stopword_sets or load_stopword_sets(stopwords_provider)
 
     return {

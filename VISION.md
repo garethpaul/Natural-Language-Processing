@@ -23,6 +23,7 @@ Priority:
 - Keep deterministic fixture tests for clear and no-match input
 - Return an explicit unknown result when stopword evidence is absent or too weak
 - Return unknown for ambiguous tied stopword evidence
+- Ignore punctuation-only tokens before stopword scoring
 
 Next priorities:
 
@@ -35,6 +36,7 @@ Contribution rules:
 - Use small text fixtures for examples.
 - Keep dependency changes documented.
 - Explain accuracy claims with tests or references.
+- Preserve punctuation-only token filtering when changing tokenization.
 
 ## Security And Responsible Use
 
