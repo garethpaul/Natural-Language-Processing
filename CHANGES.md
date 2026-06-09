@@ -3,6 +3,7 @@
 ## 2026-06-09
 
 - Ignored punctuation-only tokens before stopword scoring so fallback symbols do not create language evidence.
+- Returned `unknown` for near-tie stopword scores that do not clear the minimum margin.
 
 ## 2026-06-08
 

@@ -50,6 +50,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - Import `detect_language` from `language_detection.py` for small experiments.
 - Ambiguous tied stopword scores return `unknown` instead of choosing by mapping
   order.
+- Near-tie stopword scores return `unknown` unless the winning language clears
+  the minimum margin.
 - Punctuation-only tokens are ignored before stopword scoring, so symbols alone
   do not create language evidence.
 
@@ -77,6 +79,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   checked-in English stop-word list and returns `unknown` for zero-score input.
 - See `docs/plans/2026-06-09-ambiguous-stopword-ties.md` for the ambiguous
   stopword tie behavior.
+- See `docs/plans/2026-06-09-near-tie-stopword-margin.md` for the near-tie
+  stopword margin behavior.
 - See `docs/plans/2026-06-09-punctuation-token-filter.md` for punctuation-only
   token filtering behavior.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.

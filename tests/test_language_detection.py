@@ -106,6 +106,16 @@ class LanguageDetectionTests(unittest.TestCase):
             UNKNOWN_LANGUAGE,
         )
 
+    def test_near_tie_stopword_scores_return_unknown(self):
+        self.assertEqual(
+            detect_language(
+                "the and you une et",
+                stopword_sets=self.stopword_sets,
+                tokenizer=simple_tokenizer,
+            ),
+            UNKNOWN_LANGUAGE,
+        )
+
     def test_checked_in_stop_words(self):
         words = load_checked_in_stop_words()
 

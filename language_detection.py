@@ -19,6 +19,7 @@ except ImportError:  # pragma: no cover - covered by fallback behavior.
 
 UNKNOWN_LANGUAGE = "unknown"
 MIN_STOPWORD_MATCHES = 2
+MIN_STOPWORD_MARGIN = 2
 STOP_WORDS_PATH = Path(__file__).with_name("stop_words.txt")
 DEFAULT_SAMPLE = """
 Une adoption plus rapide que le telephone classique et mobile.
@@ -109,6 +110,13 @@ def detect_language(
         if score == highest_score
     ]
     if len(highest_scoring_languages) != 1:
+        return UNKNOWN_LANGUAGE
+
+    runner_up_score = max(
+        (score for score in ratios.values() if score != highest_score),
+        default=0,
+    )
+    if highest_score - runner_up_score < MIN_STOPWORD_MARGIN:
         return UNKNOWN_LANGUAGE
 
     return highest_scoring_languages[0]

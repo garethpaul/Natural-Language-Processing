@@ -23,6 +23,7 @@ Priority:
 - Keep deterministic fixture tests for clear and no-match input
 - Return an explicit unknown result when stopword evidence is absent or too weak
 - Return unknown for ambiguous tied stopword evidence
+- Return unknown for near-tie stopword evidence that does not clear the margin
 - Ignore punctuation-only tokens before stopword scoring
 
 Next priorities:
