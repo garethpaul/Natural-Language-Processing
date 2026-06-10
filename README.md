@@ -67,6 +67,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - Language label normalization strips and lowercases caller-provided or
   provider-loaded language names, merging duplicate normalized stopword
   mappings before scoring.
+- Language label validation ignores non-string or non-alphabetic mapping keys
+  so sentinel values and numeric IDs cannot become detector outputs.
 
 ## Testing and Verification
 
@@ -114,6 +116,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   explicit stopword set normalization behavior.
 - See `docs/plans/2026-06-10-stopword-language-label-normalization.md` for
   language label normalization behavior.
+- See `docs/plans/2026-06-10-stopword-language-label-validation.md` for
+  language label validation behavior.
 - See `docs/plans/2026-06-09-make-gate-aliases.md` for the local verification
   gate aliases.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.

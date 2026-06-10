@@ -44,6 +44,7 @@ def main():
         "docs/plans/2026-06-09-text-token-normalization.md",
         "docs/plans/2026-06-09-explicit-stopword-set-normalization.md",
         "docs/plans/2026-06-10-stopword-language-label-normalization.md",
+        "docs/plans/2026-06-10-stopword-language-label-validation.md",
         "docs/plans/2026-06-10-hosted-python-validation.md",
         "docs/readme-overview.svg",
         "scripts/check-baseline.py",
@@ -84,6 +85,10 @@ def main():
     require("def _normalise_language_name" in source and "normalised_sets.setdefault" in source and "return _normalise_stopword_sets({" in source,
             "detector must normalize and merge stopword language labels",
             failures)
+    require("if not isinstance(language, str)" in source and
+            "character.isalpha() for character in normalised_language" in source,
+            "detector must reject non-string and non-alphabetic language labels",
+            failures)
     require("highest_scoring_languages" in source and "len(highest_scoring_languages) != 1" in source,
             "detector must return unknown for ambiguous top-score ties",
             failures)
@@ -112,6 +117,7 @@ def main():
         "test_stopword_entries_are_normalized_and_blank_entries_ignored",
         "test_explicit_stopword_sets_are_normalized_before_scoring",
         "test_explicit_stopword_language_labels_are_normalized_before_scoring",
+        "test_invalid_language_labels_are_ignored",
         "test_provider_language_labels_are_normalized_before_scoring",
         "test_text_tokens_are_normalized_before_scoring",
         "test_checked_in_stop_words",
@@ -135,7 +141,7 @@ def main():
         require(expected in phony_line.split(), f".PHONY must include {expected}", failures)
 
     docs = read("README.md") + "\n" + read("VISION.md") + "\n" + read("SECURITY.md")
-    for phrase in ["make lint", "make test", "make build", "make check", "language_detection.py", "stopword", "ambiguous", "near-tie", "private text", "punctuation-only", "empty stopword", "sparse stopword", "stopword entry normalization", "text token normalization", "explicit stopword set normalization", "language label normalization"]:
+    for phrase in ["make lint", "make test", "make build", "make check", "language_detection.py", "stopword", "ambiguous", "near-tie", "private text", "punctuation-only", "empty stopword", "sparse stopword", "stopword entry normalization", "text token normalization", "explicit stopword set normalization", "language label normalization", "language label validation"]:
         require(phrase in docs.lower(), f"docs must mention {phrase}", failures)
 
     plan = read("docs/plans/2026-06-08-language-detection-baseline.md")
@@ -173,6 +179,9 @@ def main():
     language_label_plan = read("docs/plans/2026-06-10-stopword-language-label-normalization.md")
     require("status: completed" in language_label_plan and "make check" in language_label_plan,
             "stopword language label normalization plan must be completed and include verification", failures)
+    language_label_validation_plan = read("docs/plans/2026-06-10-stopword-language-label-validation.md")
+    require("status: completed" in language_label_validation_plan and "make check" in language_label_validation_plan,
+            "stopword language label validation plan must be completed and include verification", failures)
     hosted_plan = read("docs/plans/2026-06-10-hosted-python-validation.md")
     workflow = read(".github/workflows/check.yml")
     require("status: completed" in hosted_plan and "make check" in hosted_plan,

@@ -2,6 +2,8 @@
 
 ## 2026-06-10
 
+- Added language label validation so non-string and non-alphabetic stopword
+  mapping keys cannot become detector outputs.
 - Added pinned, read-only Python 3.12 hosted validation for dependency
   installation, `pip check`, and deterministic local tests.
 - Added language label normalization so caller-provided and provider-loaded

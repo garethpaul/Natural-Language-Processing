@@ -44,6 +44,8 @@ Helpful reports include:
 - Language label normalization should strip and lowercase caller-provided or
   provider-loaded language names, skip blank labels, and merge duplicate
   normalized labels before scoring.
+- Language label validation should prevent non-string or non-alphabetic mapping
+  keys from becoming output labels.
 
 ## Service and API Notes
 
@@ -53,6 +55,8 @@ For this detector, reports involving explicit stopword set normalization should
 state whether custom mappings can bypass provider-equivalent normalization.
 Reports involving language label normalization should state whether noisy or
 duplicate custom language labels can change the selected language.
+Reports involving language label validation should state whether sentinel or
+numeric mapping keys can escape into detector output.
 
 ## Dependency and Supply Chain Security
 
