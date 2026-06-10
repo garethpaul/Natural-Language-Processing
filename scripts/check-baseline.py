@@ -23,6 +23,7 @@ def main():
     failures = []
     required = [
         ".gitignore",
+        ".github/workflows/check.yml",
         "CHANGES.md",
         "Makefile",
         "README.md",
@@ -43,6 +44,7 @@ def main():
         "docs/plans/2026-06-09-text-token-normalization.md",
         "docs/plans/2026-06-09-explicit-stopword-set-normalization.md",
         "docs/plans/2026-06-10-stopword-language-label-normalization.md",
+        "docs/plans/2026-06-10-hosted-python-validation.md",
         "docs/readme-overview.svg",
         "scripts/check-baseline.py",
     ]
@@ -171,6 +173,24 @@ def main():
     language_label_plan = read("docs/plans/2026-06-10-stopword-language-label-normalization.md")
     require("status: completed" in language_label_plan and "make check" in language_label_plan,
             "stopword language label normalization plan must be completed and include verification", failures)
+    hosted_plan = read("docs/plans/2026-06-10-hosted-python-validation.md")
+    workflow = read(".github/workflows/check.yml")
+    require("status: completed" in hosted_plan and "make check" in hosted_plan,
+            "hosted Python validation plan must be completed and include verification", failures)
+    for expected in [
+        "permissions:\n  contents: read",
+        "cancel-in-progress: true",
+        "runs-on: ubuntu-24.04",
+        "timeout-minutes: 10",
+        "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+        "actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405",
+        'python-version: "3.12"',
+        "cache-dependency-path: requirements.txt",
+        "python -m pip install --requirement requirements.txt",
+        "python -m pip check",
+        "run: make check",
+    ]:
+        require(expected in workflow, f"Check workflow must keep {expected}", failures)
 
     if failures:
         for failure in failures:

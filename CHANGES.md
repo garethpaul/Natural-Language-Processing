@@ -2,6 +2,8 @@
 
 ## 2026-06-10
 
+- Added pinned, read-only Python 3.12 hosted validation for dependency
+  installation, `pip check`, and deterministic local tests.
 - Added language label normalization so caller-provided and provider-loaded
   stopword mappings strip and lowercase language names while merging duplicate
   normalized labels.

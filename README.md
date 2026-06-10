@@ -76,6 +76,9 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - `make check`
 - `python3 -m unittest discover -s tests`
 - `python3 scripts/check-baseline.py`
+- Pinned `ubuntu-24.04` GitHub Actions installs `requirements.txt`, runs
+  `pip check`, and executes `make check` on Python 3.12 without private text,
+  external service calls, or NLTK corpus downloads.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 

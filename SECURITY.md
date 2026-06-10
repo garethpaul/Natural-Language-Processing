@@ -28,6 +28,8 @@ Helpful reports include:
 - Review found network clients, sockets, web APIs, or service endpoints; changes in those areas should receive security-focused review before merge.
 - Dependency manifest detected: requirements.txt. Dependency updates should preserve reproducible installation instructions and avoid introducing packages without a clear maintenance reason.
 - Run `make lint`, `make test`, `make build`, and `make check` after changing detector code, stopword data, dependencies, tests, or security docs.
+- The pinned Linux workflow installs declared dependencies and runs local tests
+  without private text, external service calls, or NLTK corpus downloads.
 - Text samples can contain private text. Tests and examples should use synthetic or public text, and errors should not dump private input.
 - Near-tie stopword scores should return `unknown` rather than overstating language confidence from weak evidence.
 - Punctuation-only tokens should not create language evidence from fallback stopword symbols.
