@@ -36,6 +36,21 @@ class NoisyStopwords:
         return self.DATA[language]
 
 
+class NoisyLanguageStopwords:
+    DATA = {
+        " English ": [" The ", "AND"],
+        "ENGLISH": ["you"],
+        " French ": ["une"],
+        "  ": ["ignored"],
+    }
+
+    def fileids(self):
+        return list(self.DATA)
+
+    def words(self, language):
+        return self.DATA[language]
+
+
 def simple_tokenizer(text):
     return text.replace(".", " ").replace(",", " ").split()
 
@@ -187,6 +202,47 @@ class LanguageDetectionTests(unittest.TestCase):
                 tokenizer=simple_tokenizer,
             ),
             {"english": 3, "french": 0},
+        )
+        self.assertEqual(
+            detect_language(
+                "the and you",
+                stopword_sets=stopword_sets,
+                tokenizer=simple_tokenizer,
+            ),
+            "english",
+        )
+
+    def test_explicit_stopword_language_labels_are_normalized_before_scoring(self):
+        stopword_sets = {
+            " English ": {" The ", "AND"},
+            "ENGLISH": {"you"},
+            " French ": {"une"},
+            "  ": {"ignored"},
+        }
+
+        self.assertEqual(
+            _calculate_languages_ratios(
+                "the and you",
+                stopword_sets=stopword_sets,
+                tokenizer=simple_tokenizer,
+            ),
+            {"english": 3, "french": 0},
+        )
+        self.assertEqual(
+            detect_language(
+                "the and you",
+                stopword_sets=stopword_sets,
+                tokenizer=simple_tokenizer,
+            ),
+            "english",
+        )
+
+    def test_provider_language_labels_are_normalized_before_scoring(self):
+        stopword_sets = load_stopword_sets(NoisyLanguageStopwords())
+
+        self.assertEqual(
+            stopword_sets,
+            {"english": {"the", "and", "you"}, "french": {"une"}},
         )
         self.assertEqual(
             detect_language(

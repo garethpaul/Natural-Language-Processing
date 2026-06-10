@@ -54,11 +54,20 @@ def _normalise_stopwords(words: Iterable[str]) -> Set[str]:
     }
 
 
+def _normalise_language_name(language: str) -> str:
+    return str(language).strip().lower()
+
+
 def _normalise_stopword_sets(stopword_sets: Mapping[str, Iterable[str]]) -> Dict[str, Set[str]]:
-    return {
-        language: _normalise_stopwords(stopwords)
-        for language, stopwords in stopword_sets.items()
-    }
+    normalised_sets: Dict[str, Set[str]] = {}
+    for language, stopwords in stopword_sets.items():
+        normalised_language = _normalise_language_name(language)
+        if not normalised_language:
+            continue
+        normalised_sets.setdefault(normalised_language, set()).update(
+            _normalise_stopwords(stopwords)
+        )
+    return normalised_sets
 
 
 def _normalised_text_words(
@@ -76,17 +85,17 @@ def load_checked_in_stop_words(path: Path = STOP_WORDS_PATH) -> Set[str]:
 def load_stopword_sets(stopwords_provider=None) -> Dict[str, Set[str]]:
     """Load NLTK stopwords, falling back to the checked-in English list."""
     if stopwords_provider is not None:
-        return {
-            language: _normalise_stopwords(stopwords_provider.words(language))
+        return _normalise_stopword_sets({
+            language: stopwords_provider.words(language)
             for language in stopwords_provider.fileids()
-        }
+        })
 
     if _nltk_stopwords is not None:
         try:
-            return {
-                language: _normalise_stopwords(_nltk_stopwords.words(language))
+            return _normalise_stopword_sets({
+                language: _nltk_stopwords.words(language)
                 for language in _nltk_stopwords.fileids()
-            }
+            })
         except LookupError:
             pass
 

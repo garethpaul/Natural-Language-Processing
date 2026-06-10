@@ -64,6 +64,9 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   stopword scoring so padded tokens match corpus entries.
 - Explicit stopword set normalization applies the same strip/lowercase rules to
   caller-provided stopword mappings before scoring.
+- Language label normalization strips and lowercases caller-provided or
+  provider-loaded language names, merging duplicate normalized stopword
+  mappings before scoring.
 
 ## Testing and Verification
 
@@ -106,6 +109,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   normalization behavior.
 - See `docs/plans/2026-06-09-explicit-stopword-set-normalization.md` for
   explicit stopword set normalization behavior.
+- See `docs/plans/2026-06-10-stopword-language-label-normalization.md` for
+  language label normalization behavior.
 - See `docs/plans/2026-06-09-make-gate-aliases.md` for the local verification
   gate aliases.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.

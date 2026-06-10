@@ -30,6 +30,7 @@ Priority:
 - Preserve stopword entry normalization before scoring provider data
 - Preserve text token normalization before stopword scoring
 - Preserve explicit stopword set normalization before scoring custom mappings
+- Preserve language label normalization before scoring custom mappings
 - Keep `make lint`, `make test`, `make build`, and `make check` available
 
 Next priorities:
@@ -49,6 +50,7 @@ Contribution rules:
 - Preserve stopword entry normalization when changing corpus loading.
 - Preserve text token normalization when changing tokenization.
 - Preserve explicit stopword set normalization when changing custom stopword inputs.
+- Preserve language label normalization when changing custom stopword inputs.
 - Run the Makefile verification aliases before merging detector changes.
 
 ## Security And Responsible Use
@@ -61,6 +63,8 @@ Text samples may contain personal content. Tests and examples should use public
 or synthetic text, and error output should avoid dumping private input.
 Explicit stopword set normalization should keep caller-provided mappings on the
 same normalization path as provider-loaded stopwords.
+Language label normalization should keep caller-provided and provider-loaded
+language names deterministic and merge duplicate normalized labels before scoring.
 
 ## What We Will Not Merge (For Now)
 

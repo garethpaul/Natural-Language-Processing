@@ -39,6 +39,9 @@ Helpful reports include:
   scoring so whitespace-padded input does not change evidence.
 - Explicit stopword set normalization should strip, lowercase, and ignore blank
   caller-provided entries before scoring so custom mappings match provider behavior.
+- Language label normalization should strip and lowercase caller-provided or
+  provider-loaded language names, skip blank labels, and merge duplicate
+  normalized labels before scoring.
 
 ## Service and API Notes
 
@@ -46,6 +49,8 @@ For web services, APIs, sockets, or scraping workflows, prioritize reports invol
 
 For this detector, reports involving explicit stopword set normalization should
 state whether custom mappings can bypass provider-equivalent normalization.
+Reports involving language label normalization should state whether noisy or
+duplicate custom language labels can change the selected language.
 
 ## Dependency and Supply Chain Security
 

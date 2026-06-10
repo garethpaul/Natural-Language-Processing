@@ -1,5 +1,11 @@
 # Changes
 
+## 2026-06-10
+
+- Added language label normalization so caller-provided and provider-loaded
+  stopword mappings strip and lowercase language names while merging duplicate
+  normalized labels.
+
 ## 2026-06-09
 
 - Ignored punctuation-only tokens before stopword scoring so fallback symbols do not create language evidence.
