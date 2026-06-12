@@ -82,6 +82,9 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   `pip check`, and executes `make check` on Python 3.12 without private text,
   external service calls, or NLTK corpus downloads.
 
+GitHub Actions installs `requirements.txt` and runs the same `make check`
+baseline on pushes and pull requests.
+
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
 ## Configuration and Secrets
@@ -116,6 +119,7 @@ When the required SDK or runtime is unavailable, use static checks and source re
   explicit stopword set normalization behavior.
 - See `docs/plans/2026-06-10-stopword-language-label-normalization.md` for
   language label normalization behavior.
+- See `docs/plans/2026-06-10-ci-baseline.md` for the GitHub Actions baseline.
 - See `docs/plans/2026-06-10-stopword-language-label-validation.md` for
   language label validation behavior.
 - See `docs/plans/2026-06-09-make-gate-aliases.md` for the local verification

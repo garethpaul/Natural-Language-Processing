@@ -33,6 +33,7 @@ Priority:
 - Preserve language label normalization before scoring custom mappings
 - Preserve language label validation before exposing detector output labels
 - Keep `make lint`, `make test`, `make build`, and `make check` available
+- Keep GitHub Actions aligned with the deterministic `make check` baseline
 - Keep pinned, read-only Python 3.12 hosted validation dependency-aware and
   independent of private text or NLTK corpus downloads
 
