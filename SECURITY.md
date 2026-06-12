@@ -31,6 +31,8 @@ Helpful reports include:
 - The pinned Linux workflow installs declared dependencies and runs local tests
   without private text, external service calls, or NLTK corpus downloads.
 - Text samples can contain private text. Tests and examples should use synthetic or public text, and errors should not dump private input.
+- Bounded detector text should reject more than 100,000 characters before
+  tokenization and keep validation errors free of private input content.
 - Near-tie stopword scores should return `unknown` rather than overstating language confidence from weak evidence.
 - Punctuation-only tokens should not create language evidence from fallback stopword symbols.
 - Explicit empty stopword mappings should remain no-evidence inputs instead of falling back to default corpora.

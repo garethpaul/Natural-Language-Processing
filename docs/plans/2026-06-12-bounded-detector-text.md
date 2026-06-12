@@ -1,6 +1,6 @@
 # Bounded Detector Text
 
-status: planned
+status: completed
 
 ## Context
 
@@ -48,15 +48,19 @@ boundary.
 
 ## Verification
 
+Completed locally on 2026-06-12:
+
 - `python3 -m py_compile language_detection.py tests/test_language_detection.py scripts/check-baseline.py`
-- focused detector tests
+- focused detector tests (18 tests)
 - `make lint`
-- `make test`
+- `make test` (18 tests)
 - `make build`
 - `make check`
-- hostile mutations removing the size guard or moving it after tokenization
+- hostile mutations removing the size guard or moving validation after
+  tokenization were each rejected by the static contract
 - `git diff --check`
-- hosted push and pull-request checks
+
+Hosted push and pull-request checks will be recorded after the branch is pushed.
 
 ## Boundaries
 

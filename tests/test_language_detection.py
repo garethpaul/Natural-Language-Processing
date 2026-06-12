@@ -1,6 +1,7 @@
 import unittest
 
 from language_detection import (
+    MAXIMUM_TEXT_CHARACTERS,
     UNKNOWN_LANGUAGE,
     _calculate_languages_ratios,
     detect_language,
@@ -295,6 +296,39 @@ class LanguageDetectionTests(unittest.TestCase):
             ),
             "english",
         )
+
+    def test_text_character_limit_is_checked_before_tokenization(self):
+        tokenizer_calls = []
+
+        def recording_tokenizer(text):
+            tokenizer_calls.append(text)
+            return []
+
+        boundary_text = "x" * MAXIMUM_TEXT_CHARACTERS
+        self.assertEqual(
+            _calculate_languages_ratios(
+                boundary_text,
+                stopword_sets=self.stopword_sets,
+                tokenizer=recording_tokenizer,
+            ),
+            {"english": 0, "french": 0, "spanish": 0},
+        )
+        self.assertEqual(tokenizer_calls, [boundary_text])
+
+        with self.assertRaisesRegex(ValueError, "text exceeds 100000 character limit"):
+            detect_language(
+                boundary_text + "x",
+                stopword_sets=self.stopword_sets,
+                tokenizer=recording_tokenizer,
+            )
+        self.assertEqual(tokenizer_calls, [boundary_text])
+
+    def test_invalid_text_types_are_rejected_without_echoing_values(self):
+        with self.assertRaisesRegex(ValueError, "^text must be a string$"):
+            detect_language(123, stopword_sets=self.stopword_sets)
+
+    def test_none_text_retains_empty_text_behavior(self):
+        self.assertEqual(detect_language(None, stopword_sets=self.stopword_sets), UNKNOWN_LANGUAGE)
 
     def test_checked_in_stop_words(self):
         words = load_checked_in_stop_words()

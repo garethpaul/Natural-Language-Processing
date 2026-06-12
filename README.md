@@ -69,6 +69,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   mappings before scoring.
 - Language label validation ignores non-string or non-alphabetic mapping keys
   so sentinel values and numeric IDs cannot become detector outputs.
+- Bounded detector text accepts at most 100,000 characters before tokenization
+  and rejects invalid types without echoing private input.
 
 ## Testing and Verification
 
