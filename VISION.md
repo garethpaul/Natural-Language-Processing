@@ -18,6 +18,8 @@ Priority:
 
 - Preserve the stopword-ratio language detection example
 - Keep NLTK dependency requirements visible
+- Keep the reviewed Python 3.12 dependency graph in `constraints.txt` while
+  acknowledging that exact versions do not authenticate package artifacts
 - Avoid claiming production-level language detection accuracy
 - Keep sample text and stop-word data reviewable
 - Keep deterministic fixture tests for clear and no-match input
@@ -32,6 +34,7 @@ Priority:
 - Preserve explicit stopword set normalization before scoring custom mappings
 - Preserve language label normalization before scoring custom mappings
 - Preserve language label validation before exposing detector output labels
+- Preserve bounded detector text before invoking tokenizers
 - Keep `make lint`, `make test`, `make build`, and `make check` available
 - Keep pinned, read-only Python 3.12 hosted validation dependency-aware and
   independent of private text or NLTK corpus downloads

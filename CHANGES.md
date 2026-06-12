@@ -1,7 +1,15 @@
 # Changes
 
+## 2026-06-12
+
+- Added `constraints.txt` for the reviewed five-package Python 3.12 graph,
+  applied it to hosted installation and caching, and documented that exact
+  versions reduce resolver drift but do not authenticate package artifacts.
+
 ## 2026-06-10
 
+- Added bounded detector text validation at 100,000 characters before
+  tokenization, with generic type and size errors.
 - Added language label validation so non-string and non-alphabetic stopword
   mapping keys cannot become detector outputs.
 - Added pinned, read-only Python 3.12 hosted validation for dependency
