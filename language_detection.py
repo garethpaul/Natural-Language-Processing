@@ -21,6 +21,7 @@ UNKNOWN_LANGUAGE = "unknown"
 MIN_STOPWORD_MATCHES = 2
 MIN_STOPWORD_MARGIN = 2
 MIN_STOPWORD_DENSITY = 0.2
+MAXIMUM_TEXT_CHARACTERS = 100_000
 STOP_WORDS_PATH = Path(__file__).with_name("stop_words.txt")
 DEFAULT_SAMPLE = """
 Une adoption plus rapide que le telephone classique et mobile.
@@ -80,7 +81,13 @@ def _normalised_text_words(
     text: str,
     tokenizer: Optional[Callable[[str], Iterable[str]]],
 ) -> Set[str]:
-    return _normalise_tokens((tokenizer or _default_tokenizer())(text or ""))
+    if text is None:
+        text = ""
+    if not isinstance(text, str):
+        raise ValueError("text must be a string")
+    if len(text) > MAXIMUM_TEXT_CHARACTERS:
+        raise ValueError("text exceeds 100000 character limit")
+    return _normalise_tokens((tokenizer or _default_tokenizer())(text))
 
 
 def load_checked_in_stop_words(path: Path = STOP_WORDS_PATH) -> Set[str]:

@@ -46,6 +46,7 @@ def main():
         "docs/plans/2026-06-10-stopword-language-label-normalization.md",
         "docs/plans/2026-06-10-stopword-language-label-validation.md",
         "docs/plans/2026-06-10-hosted-python-validation.md",
+        "docs/plans/2026-06-12-bounded-detector-text.md",
         "docs/readme-overview.svg",
         "scripts/check-baseline.py",
     ]
@@ -101,6 +102,14 @@ def main():
     require("stopword_sets is not None" in source,
             "detector must preserve explicit empty stopword mappings",
             failures)
+    validation_index = source.find("if len(text) > MAXIMUM_TEXT_CHARACTERS")
+    tokenizer_index = source.find("(tokenizer or _default_tokenizer())(text)")
+    require("MAXIMUM_TEXT_CHARACTERS = 100_000" in source and
+            "if not isinstance(text, str)" in source and
+            "text exceeds 100000 character limit" in source and
+            0 <= validation_index < tokenizer_index,
+            "detector text must be typed and bounded before tokenization",
+            failures)
     require("argparse" in source and "if __name__ == \"__main__\"" in source,
             "detector must expose a small CLI", failures)
 
@@ -120,6 +129,9 @@ def main():
         "test_invalid_language_labels_are_ignored",
         "test_provider_language_labels_are_normalized_before_scoring",
         "test_text_tokens_are_normalized_before_scoring",
+        "test_text_character_limit_is_checked_before_tokenization",
+        "test_invalid_text_types_are_rejected_without_echoing_values",
+        "test_none_text_retains_empty_text_behavior",
         "test_checked_in_stop_words",
     ]:
         require(expected in tests, f"tests must include {expected}", failures)
@@ -141,7 +153,7 @@ def main():
         require(expected in phony_line.split(), f".PHONY must include {expected}", failures)
 
     docs = read("README.md") + "\n" + read("VISION.md") + "\n" + read("SECURITY.md")
-    for phrase in ["make lint", "make test", "make build", "make check", "language_detection.py", "stopword", "ambiguous", "near-tie", "private text", "punctuation-only", "empty stopword", "sparse stopword", "stopword entry normalization", "text token normalization", "explicit stopword set normalization", "language label normalization", "language label validation"]:
+    for phrase in ["make lint", "make test", "make build", "make check", "language_detection.py", "stopword", "ambiguous", "near-tie", "private text", "punctuation-only", "empty stopword", "sparse stopword", "stopword entry normalization", "text token normalization", "explicit stopword set normalization", "language label normalization", "language label validation", "bounded detector text"]:
         require(phrase in docs.lower(), f"docs must mention {phrase}", failures)
 
     plan = read("docs/plans/2026-06-08-language-detection-baseline.md")
@@ -182,6 +194,9 @@ def main():
     language_label_validation_plan = read("docs/plans/2026-06-10-stopword-language-label-validation.md")
     require("status: completed" in language_label_validation_plan and "make check" in language_label_validation_plan,
             "stopword language label validation plan must be completed and include verification", failures)
+    bounded_text_plan = read("docs/plans/2026-06-12-bounded-detector-text.md")
+    require("status: completed" in bounded_text_plan and "hostile mutations" in bounded_text_plan,
+            "bounded detector text plan must record completed verification", failures)
     hosted_plan = read("docs/plans/2026-06-10-hosted-python-validation.md")
     workflow = read(".github/workflows/check.yml")
     require("status: completed" in hosted_plan and "make check" in hosted_plan,
