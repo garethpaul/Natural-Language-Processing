@@ -32,6 +32,7 @@ Priority:
 - Preserve explicit stopword set normalization before scoring custom mappings
 - Preserve language label normalization before scoring custom mappings
 - Keep `make lint`, `make test`, `make build`, and `make check` available
+- Keep GitHub Actions aligned with the deterministic `make check` baseline
 
 Next priorities:
 

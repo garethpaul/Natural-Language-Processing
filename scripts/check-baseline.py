@@ -22,6 +22,7 @@ def require(condition, message, failures):
 def main():
     failures = []
     required = [
+        ".github/workflows/check.yml",
         ".gitignore",
         "CHANGES.md",
         "Makefile",
@@ -43,6 +44,7 @@ def main():
         "docs/plans/2026-06-09-text-token-normalization.md",
         "docs/plans/2026-06-09-explicit-stopword-set-normalization.md",
         "docs/plans/2026-06-10-stopword-language-label-normalization.md",
+        "docs/plans/2026-06-10-ci-baseline.md",
         "docs/readme-overview.svg",
         "scripts/check-baseline.py",
     ]
@@ -132,9 +134,18 @@ def main():
     for expected in ["build", "lint", "test", "check"]:
         require(expected in phony_line.split(), f".PHONY must include {expected}", failures)
 
+    workflow = read(".github/workflows/check.yml")
+    for phrase in [
+        "actions/setup-python@v5",
+        'python-version: "3.12"',
+        "python -m pip install -r requirements.txt",
+        "make check",
+    ]:
+        require(phrase in workflow, f"GitHub Actions workflow must include {phrase}", failures)
+
     docs = read("README.md") + "\n" + read("VISION.md") + "\n" + read("SECURITY.md")
-    for phrase in ["make lint", "make test", "make build", "make check", "language_detection.py", "stopword", "ambiguous", "near-tie", "private text", "punctuation-only", "empty stopword", "sparse stopword", "stopword entry normalization", "text token normalization", "explicit stopword set normalization", "language label normalization"]:
-        require(phrase in docs.lower(), f"docs must mention {phrase}", failures)
+    for phrase in ["make lint", "make test", "make build", "make check", "GitHub Actions", "language_detection.py", "stopword", "ambiguous", "near-tie", "private text", "punctuation-only", "empty stopword", "sparse stopword", "stopword entry normalization", "text token normalization", "explicit stopword set normalization", "language label normalization"]:
+        require(phrase.lower() in docs.lower(), f"docs must mention {phrase}", failures)
 
     plan = read("docs/plans/2026-06-08-language-detection-baseline.md")
     require("status: completed" in plan and "Verification" in plan,
@@ -171,6 +182,9 @@ def main():
     language_label_plan = read("docs/plans/2026-06-10-stopword-language-label-normalization.md")
     require("status: completed" in language_label_plan and "make check" in language_label_plan,
             "stopword language label normalization plan must be completed and include verification", failures)
+    ci_plan = read("docs/plans/2026-06-10-ci-baseline.md")
+    require("status: completed" in ci_plan and "GitHub Actions" in ci_plan and "make check" in ci_plan,
+            "CI baseline plan must be completed and include make check verification", failures)
 
     if failures:
         for failure in failures:

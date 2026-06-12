@@ -2,6 +2,8 @@
 
 ## 2026-06-10
 
+- Added a GitHub Actions workflow that installs detector dependencies and runs
+  the local `make check` baseline for pushes and pull requests.
 - Added language label normalization so caller-provided and provider-loaded
   stopword mappings strip and lowercase language names while merging duplicate
   normalized labels.

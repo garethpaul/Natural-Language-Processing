@@ -42,6 +42,9 @@ Helpful reports include:
 - Language label normalization should strip and lowercase caller-provided or
   provider-loaded language names, skip blank labels, and merge duplicate
   normalized labels before scoring.
+- GitHub Actions runs the same deterministic `make check` baseline as local
+  development. Keep the workflow limited to synthetic/public text tests and
+  static checks unless a separate review documents private corpus handling.
 
 ## Service and API Notes
 
