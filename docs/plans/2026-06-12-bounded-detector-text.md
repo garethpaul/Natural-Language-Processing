@@ -60,7 +60,11 @@ Completed locally on 2026-06-12:
   tokenization were each rejected by the static contract
 - `git diff --check`
 
-Hosted push and pull-request checks will be recorded after the branch is pushed.
+Completed on GitHub Actions for implementation head
+`bed1530067f9041f98322035d76724583f117603`:
+
+- push run `27397584773`: success
+- pull-request run `27397585893`: success
 
 ## Boundaries
 
