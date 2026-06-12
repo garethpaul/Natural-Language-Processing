@@ -55,7 +55,13 @@ def _normalise_stopwords(words: Iterable[str]) -> Set[str]:
 
 
 def _normalise_language_name(language: str) -> str:
-    return str(language).strip().lower()
+    if not isinstance(language, str):
+        return ""
+
+    normalised_language = language.strip().lower()
+    if not any(character.isalpha() for character in normalised_language):
+        return ""
+    return normalised_language
 
 
 def _normalise_stopword_sets(stopword_sets: Mapping[str, Iterable[str]]) -> Dict[str, Set[str]]:

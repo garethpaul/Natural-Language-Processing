@@ -22,8 +22,9 @@ def require(condition, message, failures):
 def main():
     failures = []
     required = [
-        ".github/workflows/check.yml",
+        ".github/CODEOWNERS",
         ".gitignore",
+        ".github/workflows/check.yml",
         "CHANGES.md",
         "Makefile",
         "README.md",
@@ -45,6 +46,8 @@ def main():
         "docs/plans/2026-06-09-explicit-stopword-set-normalization.md",
         "docs/plans/2026-06-10-stopword-language-label-normalization.md",
         "docs/plans/2026-06-10-ci-baseline.md",
+        "docs/plans/2026-06-10-stopword-language-label-validation.md",
+        "docs/plans/2026-06-10-hosted-python-validation.md",
         "docs/readme-overview.svg",
         "scripts/check-baseline.py",
     ]
@@ -84,6 +87,10 @@ def main():
     require("def _normalise_language_name" in source and "normalised_sets.setdefault" in source and "return _normalise_stopword_sets({" in source,
             "detector must normalize and merge stopword language labels",
             failures)
+    require("if not isinstance(language, str)" in source and
+            "character.isalpha() for character in normalised_language" in source,
+            "detector must reject non-string and non-alphabetic language labels",
+            failures)
     require("highest_scoring_languages" in source and "len(highest_scoring_languages) != 1" in source,
             "detector must return unknown for ambiguous top-score ties",
             failures)
@@ -112,6 +119,7 @@ def main():
         "test_stopword_entries_are_normalized_and_blank_entries_ignored",
         "test_explicit_stopword_sets_are_normalized_before_scoring",
         "test_explicit_stopword_language_labels_are_normalized_before_scoring",
+        "test_invalid_language_labels_are_ignored",
         "test_provider_language_labels_are_normalized_before_scoring",
         "test_text_tokens_are_normalized_before_scoring",
         "test_checked_in_stop_words",
@@ -134,17 +142,8 @@ def main():
     for expected in ["build", "lint", "test", "check"]:
         require(expected in phony_line.split(), f".PHONY must include {expected}", failures)
 
-    workflow = read(".github/workflows/check.yml")
-    for phrase in [
-        "actions/setup-python@v5",
-        'python-version: "3.12"',
-        "python -m pip install -r requirements.txt",
-        "make check",
-    ]:
-        require(phrase in workflow, f"GitHub Actions workflow must include {phrase}", failures)
-
     docs = read("README.md") + "\n" + read("VISION.md") + "\n" + read("SECURITY.md")
-    for phrase in ["make lint", "make test", "make build", "make check", "GitHub Actions", "language_detection.py", "stopword", "ambiguous", "near-tie", "private text", "punctuation-only", "empty stopword", "sparse stopword", "stopword entry normalization", "text token normalization", "explicit stopword set normalization", "language label normalization"]:
+    for phrase in ["make lint", "make test", "make build", "make check", "GitHub Actions", "language_detection.py", "stopword", "ambiguous", "near-tie", "private text", "punctuation-only", "empty stopword", "sparse stopword", "stopword entry normalization", "text token normalization", "explicit stopword set normalization", "language label normalization", "language label validation"]:
         require(phrase.lower() in docs.lower(), f"docs must mention {phrase}", failures)
 
     plan = read("docs/plans/2026-06-08-language-detection-baseline.md")
@@ -185,6 +184,31 @@ def main():
     ci_plan = read("docs/plans/2026-06-10-ci-baseline.md")
     require("status: completed" in ci_plan and "GitHub Actions" in ci_plan and "make check" in ci_plan,
             "CI baseline plan must be completed and include make check verification", failures)
+    language_label_validation_plan = read("docs/plans/2026-06-10-stopword-language-label-validation.md")
+    require("status: completed" in language_label_validation_plan and "make check" in language_label_validation_plan,
+            "stopword language label validation plan must be completed and include verification", failures)
+    hosted_plan = read("docs/plans/2026-06-10-hosted-python-validation.md")
+    workflow = read(".github/workflows/check.yml")
+    require("status: completed" in hosted_plan and "make check" in hosted_plan,
+            "hosted Python validation plan must be completed and include verification", failures)
+    for expected in [
+        "permissions:\n  contents: read",
+        "cancel-in-progress: true",
+        "runs-on: ubuntu-24.04",
+        "timeout-minutes: 10",
+        "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+        "persist-credentials: false",
+        "actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405",
+        'python-version: "3.12"',
+        "cache-dependency-path: requirements.txt",
+        "python -m pip install --requirement requirements.txt",
+        "python -m pip check",
+        "run: make check",
+    ]:
+        require(expected in workflow, f"Check workflow must keep {expected}", failures)
+    workflow_files = sorted(str(path.relative_to(ROOT)) for path in (ROOT / ".github/workflows").rglob("*") if path.is_file())
+    require(workflow_files == [".github/workflows/check.yml"], "check.yml must be the repository's only hosted workflow", failures)
+    require(read(".github/CODEOWNERS").strip() == "* @garethpaul", "CODEOWNERS must assign the repository to @garethpaul", failures)
 
     if failures:
         for failure in failures:

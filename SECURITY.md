@@ -28,6 +28,8 @@ Helpful reports include:
 - Review found network clients, sockets, web APIs, or service endpoints; changes in those areas should receive security-focused review before merge.
 - Dependency manifest detected: requirements.txt. Dependency updates should preserve reproducible installation instructions and avoid introducing packages without a clear maintenance reason.
 - Run `make lint`, `make test`, `make build`, and `make check` after changing detector code, stopword data, dependencies, tests, or security docs.
+- The pinned Linux workflow installs declared dependencies and runs local tests
+  without private text, external service calls, or NLTK corpus downloads.
 - Text samples can contain private text. Tests and examples should use synthetic or public text, and errors should not dump private input.
 - Near-tie stopword scores should return `unknown` rather than overstating language confidence from weak evidence.
 - Punctuation-only tokens should not create language evidence from fallback stopword symbols.
@@ -45,6 +47,8 @@ Helpful reports include:
 - GitHub Actions runs the same deterministic `make check` baseline as local
   development. Keep the workflow limited to synthetic/public text tests and
   static checks unless a separate review documents private corpus handling.
+- Language label validation should prevent non-string or non-alphabetic mapping
+  keys from becoming output labels.
 
 ## Service and API Notes
 
@@ -54,6 +58,8 @@ For this detector, reports involving explicit stopword set normalization should
 state whether custom mappings can bypass provider-equivalent normalization.
 Reports involving language label normalization should state whether noisy or
 duplicate custom language labels can change the selected language.
+Reports involving language label validation should state whether sentinel or
+numeric mapping keys can escape into detector output.
 
 ## Dependency and Supply Chain Security
 

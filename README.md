@@ -67,6 +67,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - Language label normalization strips and lowercases caller-provided or
   provider-loaded language names, merging duplicate normalized stopword
   mappings before scoring.
+- Language label validation ignores non-string or non-alphabetic mapping keys
+  so sentinel values and numeric IDs cannot become detector outputs.
 
 ## Testing and Verification
 
@@ -76,6 +78,9 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - `make check`
 - `python3 -m unittest discover -s tests`
 - `python3 scripts/check-baseline.py`
+- Pinned `ubuntu-24.04` GitHub Actions installs `requirements.txt`, runs
+  `pip check`, and executes `make check` on Python 3.12 without private text,
+  external service calls, or NLTK corpus downloads.
 
 GitHub Actions installs `requirements.txt` and runs the same `make check`
 baseline on pushes and pull requests.
@@ -115,6 +120,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - See `docs/plans/2026-06-10-stopword-language-label-normalization.md` for
   language label normalization behavior.
 - See `docs/plans/2026-06-10-ci-baseline.md` for the GitHub Actions baseline.
+- See `docs/plans/2026-06-10-stopword-language-label-validation.md` for
+  language label validation behavior.
 - See `docs/plans/2026-06-09-make-gate-aliases.md` for the local verification
   gate aliases.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.

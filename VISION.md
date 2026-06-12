@@ -31,8 +31,11 @@ Priority:
 - Preserve text token normalization before stopword scoring
 - Preserve explicit stopword set normalization before scoring custom mappings
 - Preserve language label normalization before scoring custom mappings
+- Preserve language label validation before exposing detector output labels
 - Keep `make lint`, `make test`, `make build`, and `make check` available
 - Keep GitHub Actions aligned with the deterministic `make check` baseline
+- Keep pinned, read-only Python 3.12 hosted validation dependency-aware and
+  independent of private text or NLTK corpus downloads
 
 Next priorities:
 
@@ -52,6 +55,7 @@ Contribution rules:
 - Preserve text token normalization when changing tokenization.
 - Preserve explicit stopword set normalization when changing custom stopword inputs.
 - Preserve language label normalization when changing custom stopword inputs.
+- Preserve language label validation when changing provider or custom mapping keys.
 - Run the Makefile verification aliases before merging detector changes.
 
 ## Security And Responsible Use
@@ -66,6 +70,8 @@ Explicit stopword set normalization should keep caller-provided mappings on the
 same normalization path as provider-loaded stopwords.
 Language label normalization should keep caller-provided and provider-loaded
 language names deterministic and merge duplicate normalized labels before scoring.
+Language label validation should ignore non-string or non-alphabetic labels
+before they can appear in detector output.
 
 ## What We Will Not Merge (For Now)
 
