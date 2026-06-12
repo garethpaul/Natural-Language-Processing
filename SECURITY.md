@@ -27,6 +27,9 @@ Helpful reports include:
 - This repository appears to be a public sample, documentation, or utility project. The active security scope is the code and documentation on the default branch.
 - Review found network clients, sockets, web APIs, or service endpoints; changes in those areas should receive security-focused review before merge.
 - Dependency manifest detected: requirements.txt. Dependency updates should preserve reproducible installation instructions and avoid introducing packages without a clear maintenance reason.
+- `constraints.txt` records the reviewed exact Python 3.12 dependency graph
+  used by CI. Exact versions reduce resolver drift but do not authenticate
+  downloaded package artifacts; review package provenance separately.
 - Run `make lint`, `make test`, `make build`, and `make check` after changing detector code, stopword data, dependencies, tests, or security docs.
 - The pinned Linux workflow installs declared dependencies and runs local tests
   without private text, external service calls, or NLTK corpus downloads.

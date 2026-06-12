@@ -35,11 +35,16 @@ Additional scan context:
 ```bash
 git clone https://github.com/garethpaul/Natural-Language-Processing.git
 cd Natural-Language-Processing
-python3 -m pip install -r requirements.txt
+python3 -m pip install -r requirements.txt -c constraints.txt
 python3 -m nltk.downloader stopwords  # optional; falls back to stop_words.txt when absent
 ```
 
 The setup commands above are derived from repository files. Legacy mobile, Python, or JavaScript samples may require older SDKs or package versions than a modern workstation uses by default.
+
+`requirements.txt` keeps the supported NLTK 3.x compatibility range public,
+while `constraints.txt` records the reviewed exact Python 3.12 graph used by
+CI. These version constraints reduce resolver drift but do not authenticate
+downloaded package artifacts or make installation offline-reproducible.
 
 ## Running or Using the Project
 
@@ -80,7 +85,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - `make check`
 - `python3 -m unittest discover -s tests`
 - `python3 scripts/check-baseline.py`
-- Pinned `ubuntu-24.04` GitHub Actions installs `requirements.txt`, runs
+- Pinned `ubuntu-24.04` GitHub Actions installs `requirements.txt` through
+  `constraints.txt`, runs
   `pip check`, and executes `make check` on Python 3.12 without private text,
   external service calls, or NLTK corpus downloads.
 

@@ -3,6 +3,7 @@
 
 from pathlib import Path
 import ast
+import re
 import sys
 import xml.etree.ElementTree as ET
 
@@ -19,6 +20,14 @@ def require(condition, message, failures):
         failures.append(message)
 
 
+def markdown_section(document, heading):
+    match = re.search(
+        rf"(?ms)^## {re.escape(heading)}\s*$\n(.*?)(?=^## |\Z)",
+        document,
+    )
+    return match.group(1).strip() if match else ""
+
+
 def main():
     failures = []
     required = [
@@ -29,6 +38,7 @@ def main():
         "README.md",
         "SECURITY.md",
         "VISION.md",
+        "constraints.txt",
         "requirements.txt",
         "language_detection.py",
         "stop_words.txt",
@@ -47,6 +57,7 @@ def main():
         "docs/plans/2026-06-10-stopword-language-label-validation.md",
         "docs/plans/2026-06-10-hosted-python-validation.md",
         "docs/plans/2026-06-12-bounded-detector-text.md",
+        "docs/plans/2026-06-12-python-dependency-constraints.md",
         "docs/readme-overview.svg",
         "scripts/check-baseline.py",
     ]
@@ -198,6 +209,10 @@ def main():
     require("status: completed" in bounded_text_plan and "hostile mutations" in bounded_text_plan,
             "bounded detector text plan must record completed verification", failures)
     hosted_plan = read("docs/plans/2026-06-10-hosted-python-validation.md")
+    constraints_plan = read("docs/plans/2026-06-12-python-dependency-constraints.md")
+    requirements = read("requirements.txt")
+    constraints = read("constraints.txt")
+    docs = "\n".join(read(path) for path in ["README.md", "SECURITY.md", "VISION.md", "CHANGES.md"])
     workflow = read(".github/workflows/check.yml")
     require("status: completed" in hosted_plan and "make check" in hosted_plan,
             "hosted Python validation plan must be completed and include verification", failures)
@@ -209,12 +224,50 @@ def main():
         "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
         "actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405",
         'python-version: "3.12"',
-        "cache-dependency-path: requirements.txt",
-        "python -m pip install --requirement requirements.txt",
+        "persist-credentials: false",
+        "cache-dependency-path: |\n            requirements.txt\n            constraints.txt",
+        "python -m pip install --requirement requirements.txt --constraint constraints.txt",
         "python -m pip check",
         "run: make check",
     ]:
         require(expected in workflow, f"Check workflow must keep {expected}", failures)
+    expected_constraints = """# Reviewed CI resolution for Python 3.12.
+click==8.4.1
+joblib==1.5.3
+nltk==3.9.4
+regex==2026.5.9
+tqdm==4.68.1
+"""
+    require(requirements == "nltk>=3.8,<4\n",
+            "requirements.txt must preserve the NLTK 3.x compatibility range", failures)
+    require(constraints == expected_constraints,
+            "constraints.txt must match the reviewed Python 3.12 graph exactly", failures)
+    require(workflow.count("python -m pip install") == 1,
+            "Check workflow must contain exactly one constrained dependency installation", failures)
+    require("constraints.txt" in docs,
+            "README, security, vision, or change docs must describe dependency constraints", failures)
+    require("do not authenticate" in docs.lower(),
+            "docs must describe the constraints artifact-authentication boundary", failures)
+    status = re.findall(r"(?mi)^status:\s*(.+?)\s*$", constraints_plan)
+    completed_work = markdown_section(constraints_plan, "Work Completed")
+    completed_verification = markdown_section(constraints_plan, "Verification Completed")
+    require(status == ["completed"] and completed_work and "Pending" not in completed_work,
+            "dependency constraints plan must record one completed status and completed work", failures)
+    verification_evidence = [
+        "Official PyPI metadata",
+        "Python 3.12.8",
+        "pip check",
+        "pip-audit -r constraints.txt --no-deps",
+        "make lint",
+        "make test",
+        "make build",
+        "make check",
+        "hostile mutations",
+        "git diff --check",
+    ]
+    require(completed_verification and "Pending" not in completed_verification and
+            all(item in completed_verification for item in verification_evidence),
+            "dependency constraints plan must record finished local verification", failures)
 
     if failures:
         for failure in failures:
