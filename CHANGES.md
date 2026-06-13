@@ -2,6 +2,8 @@
 
 ## 2026-06-13
 
+- Made cleanup, compilation, tests, static checks, and recursive verification
+  resolve from the checkout for absolute Makefile invocations.
 - Added a language label control character guard so newline and terminal escape
   labels cannot become detector or CLI output.
 

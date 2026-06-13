@@ -85,6 +85,9 @@ downloaded package artifacts or make installation offline-reproducible.
 - `make test`
 - `make build`
 - `make check`
+- The Make gates are location-independent. From another directory, pass the
+  checkout's Makefile by absolute path, such as
+  `make -f /path/to/Natural-Language-Processing/Makefile check`.
 - `python3 -m unittest discover -s tests`
 - `python3 scripts/check-baseline.py`
 - Pinned `ubuntu-24.04` GitHub Actions installs `requirements.txt` through
@@ -106,6 +109,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 - The unit tests use small injected stopword fixtures, so they do not require
   downloading NLTK corpora.
+- Use an absolute Makefile path when running the verification gates outside the
+  checkout.
 - If NLTK or its stopwords corpus is unavailable, the sample falls back to the
   checked-in English stop-word list and returns `unknown` for zero-score input.
 - See `docs/plans/2026-06-09-ambiguous-stopword-ties.md` for the ambiguous

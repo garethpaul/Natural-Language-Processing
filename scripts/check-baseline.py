@@ -9,6 +9,34 @@ import xml.etree.ElementTree as ET
 
 
 ROOT = Path(__file__).resolve().parents[1]
+EXPECTED_MAKEFILE = """ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+
+.PHONY: build clean compile lint static-check test verify check
+
+PYTHON ?= python3
+
+check: clean verify
+\t$(MAKE) -f "$(ROOT)/Makefile" clean
+
+clean:
+\tfind "$(ROOT)" -type f \\( -name '*.pyc' -o -name '*.pyo' \\) -delete
+\tfind "$(ROOT)" -type d -name '__pycache__' -prune -exec rm -rf {} +
+
+compile:
+\tcd "$(ROOT)" && PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m py_compile language_detection.py tests/test_language_detection.py scripts/check-baseline.py
+
+build: compile
+
+test:
+\tcd "$(ROOT)" && PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m unittest discover -s tests
+
+static-check:
+\tPYTHONDONTWRITEBYTECODE=1 $(PYTHON) "$(ROOT)/scripts/check-baseline.py"
+
+lint: static-check
+
+verify: compile test static-check
+"""
 
 
 def read(relative_path):
@@ -59,6 +87,7 @@ def main():
         "docs/plans/2026-06-12-bounded-detector-text.md",
         "docs/plans/2026-06-12-python-dependency-constraints.md",
         "docs/plans/2026-06-13-language-label-control-guard.md",
+        "docs/plans/2026-06-13-location-independent-make.md",
         "docs/readme-overview.svg",
         "scripts/check-baseline.py",
     ]
@@ -157,16 +186,24 @@ def main():
         require(expected in gitignore, f".gitignore must include {expected}", failures)
 
     makefile = read("Makefile")
-    for expected in ["build: compile", "lint: static-check", "test:", "check:", "verify: compile test static-check"]:
-        require(expected in makefile, f"Makefile must include {expected}", failures)
-    phony_line = next(
-        (line for line in makefile.splitlines() if line.startswith(".PHONY:")),
-        "",
-    )
-    for expected in ["build", "lint", "test", "check"]:
-        require(expected in phony_line.split(), f".PHONY must include {expected}", failures)
+    require(makefile == EXPECTED_MAKEFILE,
+            "Makefile must exactly preserve rooted compile, test, check, and cleanup gates",
+            failures)
 
-    docs = read("README.md") + "\n" + read("VISION.md") + "\n" + read("SECURITY.md")
+    readme = read("README.md")
+    docs = readme + "\n" + read("VISION.md") + "\n" + read("SECURITY.md")
+    location_independent_make_plan = read(
+        "docs/plans/2026-06-13-location-independent-make.md"
+    )
+    require("make -f /path/to/Natural-Language-Processing/Makefile check" in readme,
+            "README must document location-independent Makefile invocation", failures)
+    require(all(evidence in location_independent_make_plan.lower() for evidence in [
+        "status: completed",
+        "root and external-directory",
+        "eight isolated hostile mutations",
+    ]),
+            "location-independent Make plan must record completed root, external, and mutation verification",
+            failures)
     for phrase in ["make lint", "make test", "make build", "make check", "language_detection.py", "stopword", "ambiguous", "near-tie", "private text", "punctuation-only", "empty stopword", "sparse stopword", "stopword entry normalization", "text token normalization", "explicit stopword set normalization", "language label normalization", "language label validation", "language label control character guard", "bounded detector text"]:
         require(phrase in docs.lower(), f"docs must mention {phrase}", failures)
 
