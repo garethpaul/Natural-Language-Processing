@@ -60,7 +60,10 @@ def _normalise_language_name(language: str) -> str:
         return ""
 
     normalised_language = language.strip().lower()
-    if not any(character.isalpha() for character in normalised_language):
+    if (
+        not normalised_language.isprintable()
+        or not any(character.isalpha() for character in normalised_language)
+    ):
         return ""
     return normalised_language
 

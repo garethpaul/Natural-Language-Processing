@@ -51,6 +51,8 @@ Helpful reports include:
   normalized labels before scoring.
 - Language label validation should prevent non-string or non-alphabetic mapping
   keys from becoming output labels.
+- The language label control character guard should prevent newline, terminal
+  escape, and other non-printable mapping keys from becoming output labels.
 
 ## Service and API Notes
 

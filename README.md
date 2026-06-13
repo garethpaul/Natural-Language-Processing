@@ -74,6 +74,8 @@ downloaded package artifacts or make installation offline-reproducible.
   mappings before scoring.
 - Language label validation ignores non-string or non-alphabetic mapping keys
   so sentinel values and numeric IDs cannot become detector outputs.
+- The language label control character guard ignores labels containing newline,
+  terminal escape, or other non-printable characters before scoring or CLI output.
 - Bounded detector text accepts at most 100,000 characters before tokenization
   and rejects invalid types without echoing private input.
 

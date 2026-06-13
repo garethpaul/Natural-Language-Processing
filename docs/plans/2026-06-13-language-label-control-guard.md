@@ -1,6 +1,6 @@
 # Language Label Control Character Guard
 
-status: planned
+status: completed
 
 ## Context
 
@@ -26,3 +26,21 @@ content but still accepts embedded newline or terminal escape controls.
 
 - Run all Make gates, focused unit tests, Python compilation, hostile
   mutations, diff checks, artifact scans, and secret scans.
+
+## Work Completed
+
+- Rejected normalized language labels containing non-printable characters
+  before stopword-set merging or scoring.
+- Added focused newline and terminal escape cases while preserving printable
+  labels, duplicate merging, and unknown-result behavior.
+- Added mutation-sensitive static contracts and matching output-safety docs.
+
+## Verification Completed
+
+- `make lint`, `make test`, `make build`, and `make check` passed with nineteen
+  offline tests.
+- Focused unit tests, Python compilation, dependency constraint contracts, diff
+  checks, artifact scans, and secret scans passed.
+- Six hostile mutations covering the printable-label guard, newline case,
+  escape case, focused test contract, documentation contract, and completed
+  plan evidence were rejected.

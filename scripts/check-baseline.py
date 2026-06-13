@@ -58,6 +58,7 @@ def main():
         "docs/plans/2026-06-10-hosted-python-validation.md",
         "docs/plans/2026-06-12-bounded-detector-text.md",
         "docs/plans/2026-06-12-python-dependency-constraints.md",
+        "docs/plans/2026-06-13-language-label-control-guard.md",
         "docs/readme-overview.svg",
         "scripts/check-baseline.py",
     ]
@@ -98,8 +99,9 @@ def main():
             "detector must normalize and merge stopword language labels",
             failures)
     require("if not isinstance(language, str)" in source and
+            "not normalised_language.isprintable()" in source and
             "character.isalpha() for character in normalised_language" in source,
-            "detector must reject non-string and non-alphabetic language labels",
+            "detector must reject non-string, control-bearing, and non-alphabetic language labels",
             failures)
     require("highest_scoring_languages" in source and "len(highest_scoring_languages) != 1" in source,
             "detector must return unknown for ambiguous top-score ties",
@@ -138,6 +140,7 @@ def main():
         "test_explicit_stopword_sets_are_normalized_before_scoring",
         "test_explicit_stopword_language_labels_are_normalized_before_scoring",
         "test_invalid_language_labels_are_ignored",
+        "test_control_character_language_labels_are_ignored",
         "test_provider_language_labels_are_normalized_before_scoring",
         "test_text_tokens_are_normalized_before_scoring",
         "test_text_character_limit_is_checked_before_tokenization",
@@ -164,7 +167,7 @@ def main():
         require(expected in phony_line.split(), f".PHONY must include {expected}", failures)
 
     docs = read("README.md") + "\n" + read("VISION.md") + "\n" + read("SECURITY.md")
-    for phrase in ["make lint", "make test", "make build", "make check", "language_detection.py", "stopword", "ambiguous", "near-tie", "private text", "punctuation-only", "empty stopword", "sparse stopword", "stopword entry normalization", "text token normalization", "explicit stopword set normalization", "language label normalization", "language label validation", "bounded detector text"]:
+    for phrase in ["make lint", "make test", "make build", "make check", "language_detection.py", "stopword", "ambiguous", "near-tie", "private text", "punctuation-only", "empty stopword", "sparse stopword", "stopword entry normalization", "text token normalization", "explicit stopword set normalization", "language label normalization", "language label validation", "language label control character guard", "bounded detector text"]:
         require(phrase in docs.lower(), f"docs must mention {phrase}", failures)
 
     plan = read("docs/plans/2026-06-08-language-detection-baseline.md")
@@ -208,6 +211,11 @@ def main():
     bounded_text_plan = read("docs/plans/2026-06-12-bounded-detector-text.md")
     require("status: completed" in bounded_text_plan and "hostile mutations" in bounded_text_plan,
             "bounded detector text plan must record completed verification", failures)
+    language_label_control_plan = read("docs/plans/2026-06-13-language-label-control-guard.md")
+    require("status: completed" in language_label_control_plan and "hostile mutations" in language_label_control_plan,
+            "language label control character plan must record completed verification", failures)
+    require('"eng\\nlish"' in tests and '"eng\\x1b[31m"' in tests,
+            "tests must cover newline and terminal escape language labels", failures)
     hosted_plan = read("docs/plans/2026-06-10-hosted-python-validation.md")
     constraints_plan = read("docs/plans/2026-06-12-python-dependency-constraints.md")
     requirements = read("requirements.txt")

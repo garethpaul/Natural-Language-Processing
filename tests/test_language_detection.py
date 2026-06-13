@@ -263,6 +263,30 @@ class LanguageDetectionTests(unittest.TestCase):
             "english",
         )
 
+    def test_control_character_language_labels_are_ignored(self):
+        stopword_sets = {
+            "eng\nlish": {"the", "and", "you"},
+            "eng\x1b[31m": {"the", "and", "you"},
+            " English ": {"the", "and", "you"},
+        }
+
+        self.assertEqual(
+            _calculate_languages_ratios(
+                "the and you",
+                stopword_sets=stopword_sets,
+                tokenizer=simple_tokenizer,
+            ),
+            {"english": 3},
+        )
+        self.assertEqual(
+            detect_language(
+                "the and you",
+                stopword_sets=stopword_sets,
+                tokenizer=simple_tokenizer,
+            ),
+            "english",
+        )
+
     def test_provider_language_labels_are_normalized_before_scoring(self):
         stopword_sets = load_stopword_sets(NoisyLanguageStopwords())
 
