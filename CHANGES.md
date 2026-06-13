@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-13
+
+- Added a language label control character guard so newline and terminal escape
+  labels cannot become detector or CLI output.
+
 ## 2026-06-12
 
 - Added `constraints.txt` for the reviewed five-package Python 3.12 graph,
