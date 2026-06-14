@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-14
+
+- Added a stopword entry type guard so non-string provider and explicit values
+  are ignored before normalization instead of raising.
+
 ## 2026-06-13
 
 - Made cleanup, compilation, tests, static checks, and recursive verification

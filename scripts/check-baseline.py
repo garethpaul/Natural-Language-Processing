@@ -88,6 +88,7 @@ def main():
         "docs/plans/2026-06-12-python-dependency-constraints.md",
         "docs/plans/2026-06-13-language-label-control-guard.md",
         "docs/plans/2026-06-13-location-independent-make.md",
+        "docs/plans/2026-06-14-stopword-entry-type-guard.md",
         "docs/readme-overview.svg",
         "scripts/check-baseline.py",
     ]
@@ -120,6 +121,9 @@ def main():
             failures)
     require("def _normalise_stopwords" in source and "word.strip().lower()" in source,
             "detector must strip, lowercase, and drop blank stopword entries",
+            failures)
+    require("if not isinstance(word, str):" in source and "normalised_word = word.strip().lower()" in source,
+            "detector must ignore non-string stopword entries before normalization",
             failures)
     require("def _normalise_stopword_sets" in source and "_normalise_stopword_sets(stopword_sets)" in source,
             "detector must normalize explicit stopword set mappings",
@@ -206,6 +210,10 @@ def main():
             failures)
     for phrase in ["make lint", "make test", "make build", "make check", "language_detection.py", "stopword", "ambiguous", "near-tie", "private text", "punctuation-only", "empty stopword", "sparse stopword", "stopword entry normalization", "text token normalization", "explicit stopword set normalization", "language label normalization", "language label validation", "language label control character guard", "bounded detector text"]:
         require(phrase in docs.lower(), f"docs must mention {phrase}", failures)
+    for relative_path in ["README.md", "SECURITY.md", "VISION.md", "CHANGES.md"]:
+        require("stopword entry type guard" in read(relative_path).lower(),
+                f"{relative_path} must document the stopword entry type guard",
+                failures)
 
     plan = read("docs/plans/2026-06-08-language-detection-baseline.md")
     require("status: completed" in plan and "Verification" in plan,
@@ -253,6 +261,11 @@ def main():
             "language label control character plan must record completed verification", failures)
     require('"eng\\nlish"' in tests and '"eng\\x1b[31m"' in tests,
             "tests must cover newline and terminal escape language labels", failures)
+    require('"\\tyou\\n", None, 123' in tests and '"YOU", "", "  ", None, 123' in tests,
+            "tests must cover non-string provider and explicit stopword entries", failures)
+    stopword_entry_type_plan = read("docs/plans/2026-06-14-stopword-entry-type-guard.md")
+    require("status: completed" in stopword_entry_type_plan and "hostile mutations" in stopword_entry_type_plan,
+            "stopword entry type guard plan must record completed verification", failures)
     hosted_plan = read("docs/plans/2026-06-10-hosted-python-validation.md")
     constraints_plan = read("docs/plans/2026-06-12-python-dependency-constraints.md")
     requirements = read("requirements.txt")
