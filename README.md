@@ -69,6 +69,8 @@ downloaded package artifacts or make installation offline-reproducible.
   stopword scoring so padded tokens match corpus entries.
 - Explicit stopword set normalization applies the same strip/lowercase rules to
   caller-provided stopword mappings before scoring.
+- The stopword entry type guard ignores non-string provider and explicit values
+  before normalization instead of raising or coercing them.
 - Language label normalization strips and lowercases caller-provided or
   provider-loaded language names, merging duplicate normalized stopword
   mappings before scoring.
@@ -125,6 +127,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   evidence handling.
 - See `docs/plans/2026-06-09-stopword-entry-normalization.md` for stopword
   entry normalization behavior.
+- See `docs/plans/2026-06-14-stopword-entry-type-guard.md` for stopword entry
+  type validation behavior.
 - See `docs/plans/2026-06-09-text-token-normalization.md` for text token
   normalization behavior.
 - See `docs/plans/2026-06-09-explicit-stopword-set-normalization.md` for

@@ -26,7 +26,7 @@ class FakeStopwords:
 
 class NoisyStopwords:
     DATA = {
-        "english": [" The ", "AND", "", "  ", "\tyou\n"],
+        "english": [" The ", "AND", "", "  ", "\tyou\n", None, 123],
         "french": ["une"],
     }
 
@@ -192,7 +192,7 @@ class LanguageDetectionTests(unittest.TestCase):
 
     def test_explicit_stopword_sets_are_normalized_before_scoring(self):
         stopword_sets = {
-            "english": {" The ", "\tAND\n", "YOU", "", "  "},
+            "english": [" The ", "\tAND\n", "YOU", "", "  ", None, 123],
             "french": {"une"},
         }
 
