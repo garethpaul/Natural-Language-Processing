@@ -387,6 +387,31 @@ class LanguageDetectionTests(unittest.TestCase):
             "english",
         )
 
+    def test_malformed_tokenizer_output_collections_return_unknown(self):
+        malformed_outputs = [None, 123, object(), "the and you", b"the and you"]
+
+        for malformed_output in malformed_outputs:
+            with self.subTest(output_type=type(malformed_output).__name__):
+                def malformed_output_tokenizer(_text):
+                    return malformed_output
+
+                self.assertEqual(
+                    _calculate_languages_ratios(
+                        "ignored input",
+                        stopword_sets=self.stopword_sets,
+                        tokenizer=malformed_output_tokenizer,
+                    ),
+                    {"english": 0, "french": 0, "spanish": 0},
+                )
+                self.assertEqual(
+                    detect_language(
+                        "ignored input",
+                        stopword_sets=self.stopword_sets,
+                        tokenizer=malformed_output_tokenizer,
+                    ),
+                    UNKNOWN_LANGUAGE,
+                )
+
     def test_text_character_limit_is_checked_before_tokenization(self):
         tokenizer_calls = []
 

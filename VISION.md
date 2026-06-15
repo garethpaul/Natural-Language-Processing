@@ -33,6 +33,7 @@ Priority:
 - Preserve the stopword entry type guard for provider and explicit collections
 - Preserve text token normalization before stopword scoring
 - Preserve the token entry type guard for injected tokenizer output
+- Preserve the tokenizer output type guard before token iteration
 - Preserve explicit stopword set normalization before scoring custom mappings
 - Preserve language label normalization before scoring custom mappings
 - Preserve language label validation before exposing detector output labels

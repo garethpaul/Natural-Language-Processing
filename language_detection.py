@@ -39,8 +39,15 @@ def _default_tokenizer() -> Callable[[str], Iterable[str]]:
 
 
 def _normalise_tokens(tokens: Iterable[str]) -> Set[str]:
+    if isinstance(tokens, (str, bytes)):
+        return set()
+    try:
+        token_iterator = iter(tokens)
+    except TypeError:
+        return set()
+
     normalised_tokens = set()
-    for token in tokens:
+    for token in token_iterator:
         if not isinstance(token, str):
             continue
         normalised_token = token.strip().lower()

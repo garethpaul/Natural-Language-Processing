@@ -48,6 +48,8 @@ Helpful reports include:
   scoring so whitespace-padded input does not change evidence.
 - The token entry type guard should ignore non-string tokenizer output without
   logging or coercing attacker-controlled object values.
+- The tokenizer output type guard should reject scalar and non-iterable return
+  values without logging, coercing, or exposing their representations.
 - Explicit stopword set normalization should strip, lowercase, and ignore blank
   caller-provided entries before scoring so custom mappings match provider behavior.
 - Language label normalization should strip and lowercase caller-provided or

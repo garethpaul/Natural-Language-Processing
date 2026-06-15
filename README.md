@@ -73,6 +73,8 @@ downloaded package artifacts or make installation offline-reproducible.
   before normalization instead of raising or coercing them.
 - The token entry type guard ignores non-string tokenizer output before string
   normalization and scoring.
+- The tokenizer output type guard treats scalar strings, bytes, and
+  non-iterable return values as empty evidence instead of iterating or raising.
 - Language label normalization strips and lowercases caller-provided or
   provider-loaded language names, merging duplicate normalized stopword
   mappings before scoring.

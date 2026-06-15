@@ -125,6 +125,14 @@ def main():
             source.find("if not isinstance(token, str):") < source.find("normalised_token = token.strip().lower()"),
             "detector must ignore non-string tokenizer entries before normalization",
             failures)
+    token_normalizer = source.split("def _normalise_tokens", 1)[1].split("def _normalise_stopwords", 1)[0]
+    require("if isinstance(tokens, (str, bytes)):" in token_normalizer and
+            "token_iterator = iter(tokens)" in token_normalizer and
+            "except TypeError:" in token_normalizer and
+            "for token in token_iterator:" in token_normalizer and
+            "for token in tokens:" not in token_normalizer,
+            "detector must reject scalar and non-iterable tokenizer output before entry normalization",
+            failures)
     require("def _normalise_stopwords" in source and "word.strip().lower()" in source,
             "detector must strip, lowercase, and drop blank stopword entries",
             failures)
@@ -183,6 +191,7 @@ def main():
         "test_provider_language_labels_are_normalized_before_scoring",
         "test_text_tokens_are_normalized_before_scoring",
         "test_non_string_tokenizer_entries_are_ignored",
+        "test_malformed_tokenizer_output_collections_return_unknown",
         "test_text_character_limit_is_checked_before_tokenization",
         "test_invalid_text_types_are_rejected_without_echoing_values",
         "test_none_text_retains_empty_text_behavior",
@@ -223,6 +232,9 @@ def main():
                 failures)
         require("token entry type guard" in read(relative_path).lower(),
                 f"{relative_path} must document the token entry type guard",
+                failures)
+        require("tokenizer output type guard" in read(relative_path).lower(),
+                f"{relative_path} must document the tokenizer output type guard",
                 failures)
 
     plan = read("docs/plans/2026-06-08-language-detection-baseline.md")
@@ -312,6 +324,25 @@ def main():
             "detect_language(" in token_entry_test and
             '            "english",' in token_entry_test,
             "tests must cover malformed tokenizer entries through ratios and detection", failures)
+    tokenizer_output_plan = read("docs/plans/2026-06-15-tokenizer-output-type-guard.md")
+    tokenizer_output_verification = markdown_section(tokenizer_output_plan, "Verification Completed")
+    require("status: completed" in tokenizer_output_plan and
+            "All four Make gates passed" in tokenizer_output_verification and
+            "Seven isolated hostile mutations were rejected" in tokenizer_output_verification and
+            "23 offline tests passed" in tokenizer_output_verification and
+            "external directory" in tokenizer_output_verification and
+            not re.search(r"(?i)\b(?:pending|todo|tbd|not run)\b", tokenizer_output_verification),
+            "tokenizer output type guard plan must record completed verification", failures)
+    tokenizer_output_test_match = re.search(
+        r"(?ms)^    def test_malformed_tokenizer_output_collections_return_unknown\(self\):\n(.*?)(?=^    def test_|\Z)",
+        tests,
+    )
+    tokenizer_output_test = tokenizer_output_test_match.group(1) if tokenizer_output_test_match else ""
+    require('malformed_outputs = [None, 123, object(), "the and you", b"the and you"]' in tokenizer_output_test and
+            "tokenizer=malformed_output_tokenizer" in tokenizer_output_test and
+            '{"english": 0, "french": 0, "spanish": 0}' in tokenizer_output_test and
+            "UNKNOWN_LANGUAGE" in tokenizer_output_test,
+            "tests must cover malformed tokenizer output collections through ratios and detection", failures)
     hosted_plan = read("docs/plans/2026-06-10-hosted-python-validation.md")
     constraints_plan = read("docs/plans/2026-06-12-python-dependency-constraints.md")
     requirements = read("requirements.txt")

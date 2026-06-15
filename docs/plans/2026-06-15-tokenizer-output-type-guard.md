@@ -1,6 +1,6 @@
 # Tokenizer Output Type Guard
 
-status: in progress
+status: completed
 
 ## Problem
 
@@ -50,3 +50,25 @@ before scoring or is incorrectly consumed as individual characters.
   iterable; this change only guards the returned collection shape.
 - Malformed output becomes unknown language rather than an implementation error.
 - The stacked base pull request must remain available and merge first.
+
+## Work Completed
+
+- Rejected scalar string and bytes tokenizer results before token iteration.
+- Probed other tokenizer results with `iter()` and converted non-iterable values
+  to empty token evidence without logging or coercion.
+- Added ratio and final-detection coverage for `None`, integer, object, string,
+  and bytes results while preserving valid iterable behavior.
+- Extended checker contracts and synchronized maintainer guidance.
+
+## Verification Completed
+
+- The focused regression and all 23 offline tests passed.
+- All four Make gates passed from the checkout with broad cleanup explicitly
+  disabled; the same non-destructive canonical gate passed from an external directory.
+- Seven isolated hostile mutations were rejected: missing scalar rejection,
+  missing iterable guard, restored direct iteration, weakened ratio assertion,
+  weakened detection assertion, missing guidance, and stale plan status.
+- Checker compilation, `git diff --check`, and exact intended-path,
+  generated-artifact, credential-pattern, conflict-marker, binary, large-file,
+  and dependency audits passed.
+- No NLTK corpus download, network access, or private text was used.
