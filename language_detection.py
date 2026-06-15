@@ -60,13 +60,21 @@ def _normalise_tokens(tokens: Iterable[str]) -> Set[str]:
 
 
 def _normalise_stopwords(words: Iterable[str]) -> Set[str]:
+    try:
+        word_iterator = iter(words)
+    except Exception:
+        return set()
+
     normalised_words = set()
-    for word in words:
-        if not isinstance(word, str):
-            continue
-        normalised_word = word.strip().lower()
-        if normalised_word:
-            normalised_words.add(normalised_word)
+    try:
+        for word in word_iterator:
+            if not isinstance(word, str):
+                continue
+            normalised_word = word.strip().lower()
+            if normalised_word:
+                normalised_words.add(normalised_word)
+    except Exception:
+        return set()
     return normalised_words
 
 

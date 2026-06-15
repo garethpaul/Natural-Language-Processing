@@ -2,6 +2,8 @@
 
 ## 2026-06-15
 
+- Discarded partial stopword evidence when explicit or provider collections fail
+  during iteration.
 - Added a tokenizer output type guard so scalar and non-iterable return values
   become empty evidence instead of raising or being split into characters.
 - Added a tokenizer iteration failure guard so failed generators discard

@@ -77,6 +77,13 @@ def malformed_entry_tokenizer(text):
     return [" The ", None, 123, b"and", object(), "AND", "you", "", "!!!"]
 
 
+class FailingStopwordIterable:
+    def __iter__(self):
+        yield "the"
+        yield "and"
+        raise RuntimeError("private stopword iteration failure")
+
+
 class LanguageDetectionTests(unittest.TestCase):
     def setUp(self):
         self.stopword_sets = load_stopword_sets(FakeStopwords())
@@ -385,6 +392,29 @@ class LanguageDetectionTests(unittest.TestCase):
                 tokenizer=malformed_entry_tokenizer,
             ),
             "english",
+        )
+
+    def test_stopword_iteration_failure_discards_partial_language_evidence(self):
+        stopword_sets = {
+            "english": FailingStopwordIterable(),
+            "french": {"une", "deux", "trois"},
+        }
+
+        self.assertEqual(
+            _calculate_languages_ratios(
+                "the and une deux trois",
+                stopword_sets=stopword_sets,
+                tokenizer=simple_tokenizer,
+            ),
+            {"english": 0, "french": 3},
+        )
+        self.assertEqual(
+            detect_language(
+                "the and une deux trois",
+                stopword_sets=stopword_sets,
+                tokenizer=simple_tokenizer,
+            ),
+            "french",
         )
 
     def test_malformed_tokenizer_output_collections_return_unknown(self):

@@ -79,6 +79,8 @@ downloaded package artifacts or make installation offline-reproducible.
   tokenizer raises while its returned iterator is being consumed.
 - The tokenizer invocation failure guard converts custom tokenizer call errors
   to empty evidence without exposing provider diagnostics.
+- Stopword iterable failures discard that language's partial normalized entries
+  without exposing provider diagnostics or corrupting other language evidence.
 - Language label normalization strips and lowercases caller-provided or
   provider-loaded language names, merging duplicate normalized stopword
   mappings before scoring.

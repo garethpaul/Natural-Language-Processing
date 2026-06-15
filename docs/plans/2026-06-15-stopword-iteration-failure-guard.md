@@ -1,7 +1,7 @@
 ---
 title: Stopword Iteration Failure Guard
 type: reliability
-status: in_progress
+status: completed
 date: 2026-06-15
 execution: code
 ---
@@ -52,4 +52,24 @@ that language as having no trustworthy stopword evidence.
 - Keep this change stacked on PR #11; do not merge or close stacked pull
   requests without explicit authorization.
 
-## Status: In Progress
+## Status: Completed
+
+## Work Completed
+
+- Acquire and consume every explicit or provider-backed stopword iterable behind
+  one fail-closed normalization boundary.
+- Discard the affected language's partial normalized entries when iterator
+  acquisition or iteration raises while preserving other language evidence.
+- Add ratio, detection, source, guidance, and completed-plan contracts.
+
+## Verification Completed
+
+- All four Make gates passed from the repository, and `make check` passed from
+  an external directory.
+- 26 offline tests passed without corpus downloads or network access.
+- Six isolated hostile mutations were rejected for uncaught iteration, retained
+  partial evidence, weakened ratio and detection assertions, missing guidance,
+  and reopened plan status.
+- Checker compilation, exact diff, artifact, credential, dependency, conflict,
+  binary, large-file, mode, whitespace, and intended-path audits passed.
+- No NLTK corpus download, network provider, or private text was used.

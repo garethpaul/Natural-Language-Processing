@@ -94,6 +94,7 @@ def main():
         "docs/plans/2026-06-15-tokenizer-output-type-guard.md",
         "docs/plans/2026-06-15-tokenizer-iteration-failure-guard.md",
         "docs/plans/2026-06-15-tokenizer-invocation-failure-guard.md",
+        "docs/plans/2026-06-15-stopword-iteration-failure-guard.md",
         "docs/readme-overview.svg",
         "scripts/check-baseline.py",
     ]
@@ -403,6 +404,40 @@ def main():
             "detect_language(" in tokenizer_invocation_test and
             "UNKNOWN_LANGUAGE" in tokenizer_invocation_test,
             "tests must prove tokenizer invocation failures return empty evidence", failures)
+    stopword_normalizer = source.split("def _normalise_stopwords", 1)[1].split("def _normalise_language_name", 1)[0]
+    require("word_iterator = iter(words)" in stopword_normalizer and
+            stopword_normalizer.count("except Exception:") == 2 and
+            stopword_normalizer.count("return set()") == 2 and
+            "for word in word_iterator:" in stopword_normalizer,
+            "stopword normalization must discard failed iterable evidence", failures)
+    stopword_iteration_test_match = re.search(
+        r"(?ms)^    def test_stopword_iteration_failure_discards_partial_language_evidence\(self\):\n(.*?)(?=^    def test_|\Z)",
+        tests,
+    )
+    stopword_iteration_test = stopword_iteration_test_match.group(1) if stopword_iteration_test_match else ""
+    require('raise RuntimeError("private stopword iteration failure")' in tests and
+            '"english": FailingStopwordIterable()' in stopword_iteration_test and
+            '{"english": 0, "french": 3}' in stopword_iteration_test and
+            '            "french",' in stopword_iteration_test,
+            "tests must prove stopword iteration failure discards partial language evidence", failures)
+    stopword_iteration_plan = read("docs/plans/2026-06-15-stopword-iteration-failure-guard.md")
+    stopword_iteration_verification = markdown_section(stopword_iteration_plan, "Verification Completed")
+    stopword_iteration_frontmatter = stopword_iteration_plan.split("---", 2)[1]
+    stopword_iteration_statuses = re.findall(
+        r"^status: .+$", stopword_iteration_frontmatter, flags=re.MULTILINE
+    )
+    require(stopword_iteration_statuses == ["status: completed"] and
+            "All four Make gates passed" in stopword_iteration_verification and
+            "Six isolated hostile mutations were rejected" in stopword_iteration_verification and
+            "26 offline tests passed" in stopword_iteration_verification and
+            "external directory" in stopword_iteration_verification and
+            not re.search(r"(?i)\b(?:pending|todo|tbd|not run)\b", stopword_iteration_verification),
+            "stopword iteration failure guard plan must record completed verification", failures)
+    require("Stopword iterable failures discard" in read("README.md") and
+            "Stopword iterable failures should discard" in read("SECURITY.md") and
+            "all-or-nothing stopword normalization" in read("VISION.md") and
+            "Discarded partial stopword evidence" in read("CHANGES.md"),
+            "project guidance must document stopword iteration failure handling", failures)
     hosted_plan = read("docs/plans/2026-06-10-hosted-python-validation.md")
     constraints_plan = read("docs/plans/2026-06-12-python-dependency-constraints.md")
     requirements = read("requirements.txt")
