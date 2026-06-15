@@ -9,6 +9,34 @@ import xml.etree.ElementTree as ET
 
 
 ROOT = Path(__file__).resolve().parents[1]
+EXPECTED_MAKEFILE = """ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+
+.PHONY: build clean compile lint static-check test verify check
+
+PYTHON ?= python3
+
+check: clean verify
+\t$(MAKE) -f "$(ROOT)/Makefile" clean
+
+clean:
+\tfind "$(ROOT)" -type f \\( -name '*.pyc' -o -name '*.pyo' \\) -delete
+\tfind "$(ROOT)" -type d -name '__pycache__' -prune -exec rm -rf {} +
+
+compile:
+\tcd "$(ROOT)" && PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m py_compile language_detection.py tests/test_language_detection.py scripts/check-baseline.py
+
+build: compile
+
+test:
+\tcd "$(ROOT)" && PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m unittest discover -s tests
+
+static-check:
+\tPYTHONDONTWRITEBYTECODE=1 $(PYTHON) "$(ROOT)/scripts/check-baseline.py"
+
+lint: static-check
+
+verify: compile test static-check
+"""
 
 
 def read(relative_path):
@@ -59,6 +87,9 @@ def main():
         "docs/plans/2026-06-12-bounded-detector-text.md",
         "docs/plans/2026-06-12-python-dependency-constraints.md",
         "docs/plans/2026-06-13-language-label-control-guard.md",
+        "docs/plans/2026-06-13-location-independent-make.md",
+        "docs/plans/2026-06-14-stopword-entry-type-guard.md",
+        "docs/plans/2026-06-15-stopword-entry-type-guard.md",
         "docs/readme-overview.svg",
         "scripts/check-baseline.py",
     ]
@@ -89,11 +120,11 @@ def main():
     require("def _normalise_tokens" in source and "token.strip().lower()" in source,
             "detector must strip and lowercase text tokens before stopword scoring",
             failures)
-    require("def _normalise_stopwords" in source and
-            "if not isinstance(word, str):" in source and
-            "normalised_word = word.strip().lower()" in source and
-            "normalised_stopwords.add(normalised_word)" in source,
-            "detector must ignore non-string stopwords and normalize valid entries",
+    require("def _normalise_stopwords" in source and "word.strip().lower()" in source,
+            "detector must strip, lowercase, and drop blank stopword entries",
+            failures)
+    require("if not isinstance(word, str):" in source and "normalised_word = word.strip().lower()" in source,
+            "detector must ignore non-string stopword entries before normalization",
             failures)
     require("def _normalise_stopword_sets" in source and "_normalise_stopword_sets(stopword_sets)" in source,
             "detector must normalize explicit stopword set mappings",
@@ -160,18 +191,30 @@ def main():
         require(expected in gitignore, f".gitignore must include {expected}", failures)
 
     makefile = read("Makefile")
-    for expected in ["build: compile", "lint: static-check", "test:", "check:", "verify: compile test static-check"]:
-        require(expected in makefile, f"Makefile must include {expected}", failures)
-    phony_line = next(
-        (line for line in makefile.splitlines() if line.startswith(".PHONY:")),
-        "",
-    )
-    for expected in ["build", "lint", "test", "check"]:
-        require(expected in phony_line.split(), f".PHONY must include {expected}", failures)
+    require(makefile == EXPECTED_MAKEFILE,
+            "Makefile must exactly preserve rooted compile, test, check, and cleanup gates",
+            failures)
 
-    docs = read("README.md") + "\n" + read("VISION.md") + "\n" + read("SECURITY.md")
-    for phrase in ["make lint", "make test", "make build", "make check", "language_detection.py", "stopword", "ambiguous", "near-tie", "private text", "punctuation-only", "empty stopword", "sparse stopword", "stopword entry normalization", "stopword entry type guard", "text token normalization", "explicit stopword set normalization", "language label normalization", "language label validation", "language label control character guard", "bounded detector text"]:
+    readme = read("README.md")
+    docs = readme + "\n" + read("VISION.md") + "\n" + read("SECURITY.md")
+    location_independent_make_plan = read(
+        "docs/plans/2026-06-13-location-independent-make.md"
+    )
+    require("make -f /path/to/Natural-Language-Processing/Makefile check" in readme,
+            "README must document location-independent Makefile invocation", failures)
+    require(all(evidence in location_independent_make_plan.lower() for evidence in [
+        "status: completed",
+        "root and external-directory",
+        "eight isolated hostile mutations",
+    ]),
+            "location-independent Make plan must record completed root, external, and mutation verification",
+            failures)
+    for phrase in ["make lint", "make test", "make build", "make check", "language_detection.py", "stopword", "ambiguous", "near-tie", "private text", "punctuation-only", "empty stopword", "sparse stopword", "stopword entry normalization", "text token normalization", "explicit stopword set normalization", "language label normalization", "language label validation", "language label control character guard", "bounded detector text"]:
         require(phrase in docs.lower(), f"docs must mention {phrase}", failures)
+    for relative_path in ["README.md", "SECURITY.md", "VISION.md", "CHANGES.md"]:
+        require("stopword entry type guard" in read(relative_path).lower(),
+                f"{relative_path} must document the stopword entry type guard",
+                failures)
 
     plan = read("docs/plans/2026-06-08-language-detection-baseline.md")
     require("status: completed" in plan and "Verification" in plan,
@@ -223,6 +266,22 @@ def main():
             "test_non_string_provider_stopword_entries_are_ignored" in tests and
             'b"and"' in tests and "object()" in tests,
             "tests must cover malformed mapping and provider stopword entries", failures)
+    require('"\\tyou\\n", None, 123' in tests and '"YOU", "", "  ", None, 123' in tests,
+            "tests must cover non-string provider and explicit stopword entries", failures)
+    stopword_entry_type_plan = read("docs/plans/2026-06-14-stopword-entry-type-guard.md")
+    require("status: completed" in stopword_entry_type_plan and "hostile mutations" in stopword_entry_type_plan,
+            "stopword entry type guard plan must record completed verification", failures)
+    heterogeneous_entry_plan = read("docs/plans/2026-06-15-stopword-entry-type-guard.md")
+    heterogeneous_entry_verification = markdown_section(
+        heterogeneous_entry_plan, "Verification Completed"
+    )
+    require("status: completed" in heterogeneous_entry_plan and
+            "All four Make gates passed" in heterogeneous_entry_verification and
+            "Six isolated hostile mutations were rejected" in heterogeneous_entry_verification and
+            "21 offline tests passed" in heterogeneous_entry_verification and
+            "external directory" in heterogeneous_entry_verification and
+            not re.search(r"(?i)\b(?:pending|todo|tbd|not run)\b", heterogeneous_entry_verification),
+            "heterogeneous stopword entry coverage plan must record completed verification", failures)
     hosted_plan = read("docs/plans/2026-06-10-hosted-python-validation.md")
     constraints_plan = read("docs/plans/2026-06-12-python-dependency-constraints.md")
     requirements = read("requirements.txt")

@@ -2,11 +2,18 @@
 
 ## 2026-06-15
 
-- Added a stopword entry type guard so malformed non-string mapping and provider
-  values are ignored before normalization and scoring.
+- Expanded stopword entry type guard coverage to include bytes and arbitrary
+  object values on both explicit mapping and provider paths.
+
+## 2026-06-14
+
+- Added a stopword entry type guard so non-string provider and explicit values
+  are ignored before normalization instead of raising.
 
 ## 2026-06-13
 
+- Made cleanup, compilation, tests, static checks, and recursive verification
+  resolve from the checkout for absolute Makefile invocations.
 - Added a language label control character guard so newline and terminal escape
   labels cannot become detector or CLI output.
 

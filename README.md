@@ -65,12 +65,12 @@ downloaded package artifacts or make installation offline-reproducible.
   winning language has enough density across the unique alphabetic tokens.
 - Stopword entry normalization strips and lowercases provider entries while
   ignoring blank lines before scoring.
-- The stopword entry type guard ignores non-string mapping and corpus values
-  before normalization so malformed providers cannot crash detection.
 - Text token normalization strips and lowercases tokenizer output before
   stopword scoring so padded tokens match corpus entries.
 - Explicit stopword set normalization applies the same strip/lowercase rules to
   caller-provided stopword mappings before scoring.
+- The stopword entry type guard ignores non-string provider and explicit values
+  before normalization instead of raising or coercing them.
 - Language label normalization strips and lowercases caller-provided or
   provider-loaded language names, merging duplicate normalized stopword
   mappings before scoring.
@@ -87,6 +87,9 @@ downloaded package artifacts or make installation offline-reproducible.
 - `make test`
 - `make build`
 - `make check`
+- The Make gates are location-independent. From another directory, pass the
+  checkout's Makefile by absolute path, such as
+  `make -f /path/to/Natural-Language-Processing/Makefile check`.
 - `python3 -m unittest discover -s tests`
 - `python3 scripts/check-baseline.py`
 - Pinned `ubuntu-24.04` GitHub Actions installs `requirements.txt` through
@@ -108,6 +111,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 - The unit tests use small injected stopword fixtures, so they do not require
   downloading NLTK corpora.
+- Use an absolute Makefile path when running the verification gates outside the
+  checkout.
 - If NLTK or its stopwords corpus is unavailable, the sample falls back to the
   checked-in English stop-word list and returns `unknown` for zero-score input.
 - See `docs/plans/2026-06-09-ambiguous-stopword-ties.md` for the ambiguous
@@ -122,6 +127,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   evidence handling.
 - See `docs/plans/2026-06-09-stopword-entry-normalization.md` for stopword
   entry normalization behavior.
+- See `docs/plans/2026-06-14-stopword-entry-type-guard.md` for stopword entry
+  type validation behavior.
 - See `docs/plans/2026-06-09-text-token-normalization.md` for text token
   normalization behavior.
 - See `docs/plans/2026-06-09-explicit-stopword-set-normalization.md` for

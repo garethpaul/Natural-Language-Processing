@@ -1,30 +1,31 @@
-# Stopword Entry Type Guard
+# Heterogeneous Stopword Entry Coverage
 
-status: in progress
+status: completed
 
 ## Context
 
-Stopword normalization calls `.strip()` on every provider or mapping entry.
-Malformed corpus data containing `None`, numbers, bytes, or other non-string
-values therefore raises before language scoring instead of being ignored.
+The existing stopword entry type guard is terminal-green and covers `None` and
+integer values on explicit mapping and provider paths. Bytes and arbitrary
+objects are also non-string values, but those heterogeneous cases are not
+represented directly in the maintained tests or static contract.
 
 ## Requirements
 
-- Ignore non-string stopword entries before stripping or lowercasing.
-- Preserve normalization and deduplication for valid string entries.
-- Apply the behavior consistently to explicit mappings, injected providers,
-  NLTK corpora, and the checked-in fallback loader.
-- Add focused mixed-entry tests, static contracts, and maintenance guidance.
+- Preserve the existing production type guard without changing detector logic.
+- Cover bytes and arbitrary objects alongside valid strings, blanks, `None`,
+  and numeric entries.
+- Exercise both explicit mapping and injected provider loading paths.
+- Add mutation-sensitive static contracts and a changelog record.
 - Do not change scoring thresholds, tokenization, language-label validation, or
   dependency resolution.
 
 ## Implementation
 
-1. Add an explicit string type guard inside `_normalise_stopwords`.
-2. Cover mixed valid, blank, `None`, numeric, bytes, and object entries.
-3. Verify both explicit mapping and provider loading paths continue scoring with
+1. Add mixed valid, blank, `None`, numeric, bytes, and object fixtures.
+2. Verify both explicit mapping and provider loading paths continue scoring with
    only normalized valid strings.
-4. Extend the checker and project guidance with exact contracts.
+3. Extend the checker with exact test-name and heterogeneous-value contracts.
+4. Record that the existing production guard is unchanged.
 
 ## Verification
 
@@ -38,14 +39,29 @@ values therefore raises before language scoring instead of being ignored.
 
 ## Risks
 
-- Invalid corpus entries are skipped rather than surfaced; operators should use
-  corpus validation when malformed upstream data must be diagnosed.
+- The tests strengthen supported input coverage but do not add corpus diagnostics.
 - The stacked base pull request must remain available and merge first.
 
 ## Work Completed
 
-- Pending implementation.
+- Integrated the existing terminal-green stopword type guard and
+  location-independent Makefile branch without changing production detector
+  behavior.
+- Added bytes and arbitrary object values to dedicated explicit mapping and
+  provider regression paths.
+- Added static contracts for both test paths and heterogeneous values.
+- Recorded the incremental coverage in the changelog.
 
 ## Verification Completed
 
-- Pending validation.
+- Both focused heterogeneous-entry tests and all 21 offline tests passed.
+- All four Make gates passed from the checkout with broad cleanup explicitly
+  disabled; the same non-destructive canonical gate passed from an external directory
+  through the absolute Makefile path.
+- Six isolated hostile mutations were rejected: missing mapping coverage,
+  missing provider coverage, missing bytes, missing arbitrary objects, missing
+  production type guard, and stale plan status.
+- Checker compilation and `git diff --check` passed. Exact intended-path,
+  generated-artifact, secret-pattern, conflict-marker, binary, and large-file
+  audits found no issues.
+- No NLTK corpus download, network access, or private text was used.

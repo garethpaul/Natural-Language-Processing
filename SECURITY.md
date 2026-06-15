@@ -42,8 +42,8 @@ Helpful reports include:
 - Sparse stopword evidence in mostly unrelated or synthetic text should return `unknown` instead of overstating confidence from a few common words.
 - Stopword entry normalization should strip, lowercase, and ignore blank corpus
   entries before scoring so provider formatting does not change evidence.
-- The stopword entry type guard should ignore non-string corpus values before
-  normalization so malformed provider data cannot abort classification.
+- The stopword entry type guard should ignore non-string provider and explicit
+  values without logging or coercing their contents.
 - Text token normalization should strip and lowercase tokenizer output before
   scoring so whitespace-padded input does not change evidence.
 - Explicit stopword set normalization should strip, lowercase, and ignore blank

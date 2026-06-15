@@ -30,7 +30,7 @@ Priority:
 - Preserve explicit empty stopword mappings as no evidence
 - Return unknown when stopword evidence is too sparse for the amount of text
 - Preserve stopword entry normalization before scoring provider data
-- Preserve the stopword entry type guard before corpus normalization
+- Preserve the stopword entry type guard for provider and explicit collections
 - Preserve text token normalization before stopword scoring
 - Preserve explicit stopword set normalization before scoring custom mappings
 - Preserve language label normalization before scoring custom mappings
