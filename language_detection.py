@@ -41,6 +41,8 @@ def _default_tokenizer() -> Callable[[str], Iterable[str]]:
 def _normalise_tokens(tokens: Iterable[str]) -> Set[str]:
     normalised_tokens = set()
     for token in tokens:
+        if not isinstance(token, str):
+            continue
         normalised_token = token.strip().lower()
         if any(character.isalpha() for character in normalised_token):
             normalised_tokens.add(normalised_token)

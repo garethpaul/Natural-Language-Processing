@@ -1,6 +1,6 @@
 # Ignore Non-String Tokenizer Entries
 
-status: planned
+status: completed
 
 ## Problem
 
@@ -70,3 +70,23 @@ and maintainer guidance.
 - Silently ignoring malformed entries matches stopword normalization and keeps
   errors independent of attacker-controlled object representations.
 - The stacked base pull request must remain available and merge first.
+
+## Work Completed
+
+- Added a string-only boundary before tokenizer entries reach string methods.
+- Added a mixed tokenizer fixture covering valid strings, blanks, punctuation,
+  `None`, numeric, bytes, and arbitrary object values.
+- Covered both ratio calculation and final language detection.
+- Extended checker contracts and maintainer guidance.
+
+## Verification Completed
+
+- The focused regression and all 22 offline tests passed.
+- All four Make gates passed from the checkout with broad cleanup explicitly
+  disabled; the same non-destructive canonical gate passed from an external directory.
+- Six isolated hostile mutations were rejected: missing type guard, coercion,
+  weakened ratio and detection assertions, missing guidance, and stale plan status.
+- Checker compilation, `git diff --check`, and exact intended-path,
+  generated-artifact, secret-pattern, conflict-marker, binary, and large-file
+  audits passed.
+- No NLTK corpus download, network access, or private text was used.

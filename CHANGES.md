@@ -2,6 +2,8 @@
 
 ## 2026-06-15
 
+- Added a token entry type guard so non-string injected tokenizer output is
+  ignored before string normalization instead of raising.
 - Expanded stopword entry type guard coverage to include bytes and arbitrary
   object values on both explicit mapping and provider paths.
 

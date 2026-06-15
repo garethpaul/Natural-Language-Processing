@@ -71,6 +71,8 @@ downloaded package artifacts or make installation offline-reproducible.
   caller-provided stopword mappings before scoring.
 - The stopword entry type guard ignores non-string provider and explicit values
   before normalization instead of raising or coercing them.
+- The token entry type guard ignores non-string tokenizer output before string
+  normalization and scoring.
 - Language label normalization strips and lowercases caller-provided or
   provider-loaded language names, merging duplicate normalized stopword
   mappings before scoring.

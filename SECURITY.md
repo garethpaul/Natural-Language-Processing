@@ -46,6 +46,8 @@ Helpful reports include:
   values without logging or coercing their contents.
 - Text token normalization should strip and lowercase tokenizer output before
   scoring so whitespace-padded input does not change evidence.
+- The token entry type guard should ignore non-string tokenizer output without
+  logging or coercing attacker-controlled object values.
 - Explicit stopword set normalization should strip, lowercase, and ignore blank
   caller-provided entries before scoring so custom mappings match provider behavior.
 - Language label normalization should strip and lowercase caller-provided or

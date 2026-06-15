@@ -90,6 +90,7 @@ def main():
         "docs/plans/2026-06-13-location-independent-make.md",
         "docs/plans/2026-06-14-stopword-entry-type-guard.md",
         "docs/plans/2026-06-15-stopword-entry-type-guard.md",
+        "docs/plans/2026-06-15-token-entry-type-guard.md",
         "docs/readme-overview.svg",
         "scripts/check-baseline.py",
     ]
@@ -119,6 +120,10 @@ def main():
             failures)
     require("def _normalise_tokens" in source and "token.strip().lower()" in source,
             "detector must strip and lowercase text tokens before stopword scoring",
+            failures)
+    require("if not isinstance(token, str):" in source and
+            source.find("if not isinstance(token, str):") < source.find("normalised_token = token.strip().lower()"),
+            "detector must ignore non-string tokenizer entries before normalization",
             failures)
     require("def _normalise_stopwords" in source and "word.strip().lower()" in source,
             "detector must strip, lowercase, and drop blank stopword entries",
@@ -177,6 +182,7 @@ def main():
         "test_control_character_language_labels_are_ignored",
         "test_provider_language_labels_are_normalized_before_scoring",
         "test_text_tokens_are_normalized_before_scoring",
+        "test_non_string_tokenizer_entries_are_ignored",
         "test_text_character_limit_is_checked_before_tokenization",
         "test_invalid_text_types_are_rejected_without_echoing_values",
         "test_none_text_retains_empty_text_behavior",
@@ -214,6 +220,9 @@ def main():
     for relative_path in ["README.md", "SECURITY.md", "VISION.md", "CHANGES.md"]:
         require("stopword entry type guard" in read(relative_path).lower(),
                 f"{relative_path} must document the stopword entry type guard",
+                failures)
+        require("token entry type guard" in read(relative_path).lower(),
+                f"{relative_path} must document the token entry type guard",
                 failures)
 
     plan = read("docs/plans/2026-06-08-language-detection-baseline.md")
@@ -282,6 +291,27 @@ def main():
             "external directory" in heterogeneous_entry_verification and
             not re.search(r"(?i)\b(?:pending|todo|tbd|not run)\b", heterogeneous_entry_verification),
             "heterogeneous stopword entry coverage plan must record completed verification", failures)
+    token_entry_plan = read("docs/plans/2026-06-15-token-entry-type-guard.md")
+    token_entry_verification = markdown_section(token_entry_plan, "Verification Completed")
+    require("status: completed" in token_entry_plan and
+            "All four Make gates passed" in token_entry_verification and
+            "Six isolated hostile mutations were rejected" in token_entry_verification and
+            "22 offline tests passed" in token_entry_verification and
+            "external directory" in token_entry_verification and
+            not re.search(r"(?i)\b(?:pending|todo|tbd|not run)\b", token_entry_verification),
+            "token entry type guard plan must record completed verification", failures)
+    token_entry_test_match = re.search(
+        r"(?ms)^    def test_non_string_tokenizer_entries_are_ignored\(self\):\n(.*?)(?=^    def test_|\Z)",
+        tests,
+    )
+    token_entry_test = token_entry_test_match.group(1) if token_entry_test_match else ""
+    require("def malformed_entry_tokenizer" in tests and
+            'b"and"' in tests and "object()" in tests and
+            "_calculate_languages_ratios(" in token_entry_test and
+            '{"english": 3, "french": 0, "spanish": 0}' in token_entry_test and
+            "detect_language(" in token_entry_test and
+            '            "english",' in token_entry_test,
+            "tests must cover malformed tokenizer entries through ratios and detection", failures)
     hosted_plan = read("docs/plans/2026-06-10-hosted-python-validation.md")
     constraints_plan = read("docs/plans/2026-06-12-python-dependency-constraints.md")
     requirements = read("requirements.txt")

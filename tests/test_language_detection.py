@@ -73,6 +73,10 @@ def padded_tokenizer(text):
     return [" The ", "\tAND\n", "signal"]
 
 
+def malformed_entry_tokenizer(text):
+    return [" The ", None, 123, b"and", object(), "AND", "you", "", "!!!"]
+
+
 class LanguageDetectionTests(unittest.TestCase):
     def setUp(self):
         self.stopword_sets = load_stopword_sets(FakeStopwords())
@@ -361,6 +365,24 @@ class LanguageDetectionTests(unittest.TestCase):
                 "ignored input",
                 stopword_sets=self.stopword_sets,
                 tokenizer=padded_tokenizer,
+            ),
+            "english",
+        )
+
+    def test_non_string_tokenizer_entries_are_ignored(self):
+        self.assertEqual(
+            _calculate_languages_ratios(
+                "ignored input",
+                stopword_sets=self.stopword_sets,
+                tokenizer=malformed_entry_tokenizer,
+            ),
+            {"english": 3, "french": 0, "spanish": 0},
+        )
+        self.assertEqual(
+            detect_language(
+                "ignored input",
+                stopword_sets=self.stopword_sets,
+                tokenizer=malformed_entry_tokenizer,
             ),
             "english",
         )
