@@ -65,6 +65,8 @@ downloaded package artifacts or make installation offline-reproducible.
   winning language has enough density across the unique alphabetic tokens.
 - Stopword entry normalization strips and lowercases provider entries while
   ignoring blank lines before scoring.
+- The stopword entry type guard ignores non-string mapping and corpus values
+  before normalization so malformed providers cannot crash detection.
 - Text token normalization strips and lowercases tokenizer output before
   stopword scoring so padded tokens match corpus entries.
 - Explicit stopword set normalization applies the same strip/lowercase rules to

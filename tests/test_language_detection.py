@@ -52,6 +52,19 @@ class NoisyLanguageStopwords:
         return self.DATA[language]
 
 
+class MalformedEntryStopwords:
+    DATA = {
+        "english": [" The ", None, 123, b"and", object(), "AND", "you"],
+        "french": ["une"],
+    }
+
+    def fileids(self):
+        return list(self.DATA)
+
+    def words(self, language):
+        return self.DATA[language]
+
+
 def simple_tokenizer(text):
     return text.replace(".", " ").replace(",", " ").split()
 
@@ -289,6 +302,37 @@ class LanguageDetectionTests(unittest.TestCase):
 
     def test_provider_language_labels_are_normalized_before_scoring(self):
         stopword_sets = load_stopword_sets(NoisyLanguageStopwords())
+
+        self.assertEqual(
+            stopword_sets,
+            {"english": {"the", "and", "you"}, "french": {"une"}},
+        )
+        self.assertEqual(
+            detect_language(
+                "the and you",
+                stopword_sets=stopword_sets,
+                tokenizer=simple_tokenizer,
+            ),
+            "english",
+        )
+
+    def test_non_string_mapping_stopword_entries_are_ignored(self):
+        stopword_sets = {
+            "english": [" The ", None, 123, b"and", object(), "AND", "you"],
+            "french": ["une"],
+        }
+
+        self.assertEqual(
+            _calculate_languages_ratios(
+                "the and you",
+                stopword_sets=stopword_sets,
+                tokenizer=simple_tokenizer,
+            ),
+            {"english": 3, "french": 0},
+        )
+
+    def test_non_string_provider_stopword_entries_are_ignored(self):
+        stopword_sets = load_stopword_sets(MalformedEntryStopwords())
 
         self.assertEqual(
             stopword_sets,

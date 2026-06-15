@@ -89,8 +89,11 @@ def main():
     require("def _normalise_tokens" in source and "token.strip().lower()" in source,
             "detector must strip and lowercase text tokens before stopword scoring",
             failures)
-    require("def _normalise_stopwords" in source and "word.strip().lower()" in source,
-            "detector must strip, lowercase, and drop blank stopword entries",
+    require("def _normalise_stopwords" in source and
+            "if not isinstance(word, str):" in source and
+            "normalised_word = word.strip().lower()" in source and
+            "normalised_stopwords.add(normalised_word)" in source,
+            "detector must ignore non-string stopwords and normalize valid entries",
             failures)
     require("def _normalise_stopword_sets" in source and "_normalise_stopword_sets(stopword_sets)" in source,
             "detector must normalize explicit stopword set mappings",
@@ -167,7 +170,7 @@ def main():
         require(expected in phony_line.split(), f".PHONY must include {expected}", failures)
 
     docs = read("README.md") + "\n" + read("VISION.md") + "\n" + read("SECURITY.md")
-    for phrase in ["make lint", "make test", "make build", "make check", "language_detection.py", "stopword", "ambiguous", "near-tie", "private text", "punctuation-only", "empty stopword", "sparse stopword", "stopword entry normalization", "text token normalization", "explicit stopword set normalization", "language label normalization", "language label validation", "language label control character guard", "bounded detector text"]:
+    for phrase in ["make lint", "make test", "make build", "make check", "language_detection.py", "stopword", "ambiguous", "near-tie", "private text", "punctuation-only", "empty stopword", "sparse stopword", "stopword entry normalization", "stopword entry type guard", "text token normalization", "explicit stopword set normalization", "language label normalization", "language label validation", "language label control character guard", "bounded detector text"]:
         require(phrase in docs.lower(), f"docs must mention {phrase}", failures)
 
     plan = read("docs/plans/2026-06-08-language-detection-baseline.md")
@@ -216,6 +219,10 @@ def main():
             "language label control character plan must record completed verification", failures)
     require('"eng\\nlish"' in tests and '"eng\\x1b[31m"' in tests,
             "tests must cover newline and terminal escape language labels", failures)
+    require("test_non_string_mapping_stopword_entries_are_ignored" in tests and
+            "test_non_string_provider_stopword_entries_are_ignored" in tests and
+            'b"and"' in tests and "object()" in tests,
+            "tests must cover malformed mapping and provider stopword entries", failures)
     hosted_plan = read("docs/plans/2026-06-10-hosted-python-validation.md")
     constraints_plan = read("docs/plans/2026-06-12-python-dependency-constraints.md")
     requirements = read("requirements.txt")

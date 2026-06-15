@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-15
+
+- Added a stopword entry type guard so malformed non-string mapping and provider
+  values are ignored before normalization and scoring.
+
 ## 2026-06-13
 
 - Added a language label control character guard so newline and terminal escape
