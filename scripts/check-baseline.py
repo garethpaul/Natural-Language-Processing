@@ -95,6 +95,7 @@ def main():
         "docs/plans/2026-06-15-tokenizer-iteration-failure-guard.md",
         "docs/plans/2026-06-15-tokenizer-invocation-failure-guard.md",
         "docs/plans/2026-06-15-stopword-iteration-failure-guard.md",
+        "docs/plans/2026-06-15-stopword-mapping-iteration-failure-guard.md",
         "docs/readme-overview.svg",
         "scripts/check-baseline.py",
     ]
@@ -162,6 +163,11 @@ def main():
     require("def _normalise_stopword_sets" in source and "_normalise_stopword_sets(stopword_sets)" in source,
             "detector must normalize explicit stopword set mappings",
             failures)
+    stopword_set_normalizer = source.split("def _normalise_stopword_sets", 1)[1].split("def _normalised_text_words", 1)[0]
+    require("try:\n        for language, stopwords in stopword_sets.items():" in stopword_set_normalizer and
+            "except Exception:\n        return {}" in stopword_set_normalizer,
+            "detector must discard partial evidence when stopword mapping iteration fails",
+            failures)
     require("def _normalise_language_name" in source and "normalised_sets.setdefault" in source and "return _normalise_stopword_sets({" in source,
             "detector must normalize and merge stopword language labels",
             failures)
@@ -201,6 +207,7 @@ def main():
         "test_ambiguous_top_score_returns_unknown",
         "test_near_tie_stopword_scores_return_unknown",
         "test_empty_stopword_mapping_is_no_evidence",
+        "test_stopword_mapping_iteration_failure_discards_partial_evidence",
         "test_punctuation_only_tokens_do_not_create_stopword_evidence",
         "test_sparse_stopword_evidence_returns_unknown",
         "test_stopword_entries_are_normalized_and_blank_entries_ignored",
@@ -433,11 +440,41 @@ def main():
             "external directory" in stopword_iteration_verification and
             not re.search(r"(?i)\b(?:pending|todo|tbd|not run)\b", stopword_iteration_verification),
             "stopword iteration failure guard plan must record completed verification", failures)
+    stopword_mapping_test_match = re.search(
+        r"(?ms)^    def test_stopword_mapping_iteration_failure_discards_partial_evidence\(self\):\n(.*?)(?=^    def test_|\Z)",
+        tests,
+    )
+    stopword_mapping_test = stopword_mapping_test_match.group(1) if stopword_mapping_test_match else ""
+    require('raise RuntimeError("private stopword mapping iteration failure")' in tests and
+            stopword_mapping_test.count("FailingStopwordMapping()") == 2 and
+            "_calculate_languages_ratios(" in stopword_mapping_test and
+            "            {}," in stopword_mapping_test and
+            "detect_language(" in stopword_mapping_test and
+            "UNKNOWN_LANGUAGE" in stopword_mapping_test,
+            "tests must prove stopword mapping failures discard partial evidence", failures)
+    stopword_mapping_plan = read("docs/plans/2026-06-15-stopword-mapping-iteration-failure-guard.md")
+    stopword_mapping_verification = markdown_section(stopword_mapping_plan, "Verification Completed")
+    stopword_mapping_frontmatter = stopword_mapping_plan.split("---", 2)[1]
+    stopword_mapping_statuses = re.findall(
+        r"^status: .+$", stopword_mapping_frontmatter, flags=re.MULTILINE
+    )
+    require(stopword_mapping_statuses == ["status: completed"] and
+            "All four Make gates passed" in stopword_mapping_verification and
+            "Six isolated hostile mutations were rejected" in stopword_mapping_verification and
+            "27 offline tests passed" in stopword_mapping_verification and
+            "external directory" in stopword_mapping_verification and
+            not re.search(r"(?i)\b(?:pending|todo|tbd|not run)\b", stopword_mapping_verification),
+            "stopword mapping iteration failure plan must record completed verification", failures)
     require("Stopword iterable failures discard" in read("README.md") and
             "Stopword iterable failures should discard" in read("SECURITY.md") and
             "all-or-nothing stopword normalization" in read("VISION.md") and
             "Discarded partial stopword evidence" in read("CHANGES.md"),
             "project guidance must document stopword iteration failure handling", failures)
+    require("Stopword mapping iteration failures discard" in read("README.md") and
+            "Stopword mapping iteration failures should discard" in read("SECURITY.md") and
+            "Preserve stopword mapping iteration failure isolation" in read("VISION.md") and
+            "Discarded all partial language evidence" in read("CHANGES.md"),
+            "project guidance must document stopword mapping iteration failure handling", failures)
     hosted_plan = read("docs/plans/2026-06-10-hosted-python-validation.md")
     constraints_plan = read("docs/plans/2026-06-12-python-dependency-constraints.md")
     requirements = read("requirements.txt")

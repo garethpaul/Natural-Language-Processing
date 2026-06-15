@@ -38,6 +38,7 @@ Priority:
 - Preserve the tokenizer invocation failure guard around provider calls
 - Preserve all-or-nothing stopword normalization when iterables fail
 - Preserve explicit stopword set normalization before scoring custom mappings
+- Preserve stopword mapping iteration failure isolation before scoring partial data
 - Preserve language label normalization before scoring custom mappings
 - Preserve language label validation before exposing detector output labels
 - Preserve the language label control character guard before CLI output

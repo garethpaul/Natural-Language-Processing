@@ -2,6 +2,8 @@
 
 ## 2026-06-15
 
+- Discarded all partial language evidence when explicit stopword mapping
+  enumeration fails instead of leaking diagnostics or retaining order-dependent data.
 - Discarded partial stopword evidence when explicit or provider collections fail
   during iteration.
 - Added a tokenizer output type guard so scalar and non-iterable return values

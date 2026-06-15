@@ -1,7 +1,7 @@
 ---
 title: Stopword Mapping Iteration Failure Guard
 type: reliability
-status: in_progress
+status: completed
 date: 2026-06-15
 execution: code
 ---
@@ -51,3 +51,23 @@ language evidence has already been accumulated.
 - No NLTK corpus download, network provider, or private text will be used.
 - Keep this change stacked on PR #12; do not merge or close stacked pull
   requests without explicit authorization.
+
+## Status: Completed
+
+## Work Completed
+
+- Consume explicit stopword mapping entries behind one fail-closed boundary.
+- Discard all partially normalized languages when mapping enumeration raises.
+- Add ratio, detection, source, guidance, and completed-plan contracts.
+
+## Verification Completed
+
+- All four Make gates passed from the repository, and `make check` passed from
+  an external directory.
+- 27 offline tests passed without corpus downloads or network access.
+- Six isolated hostile mutations were rejected for retained partial evidence,
+  narrowed exception handling, weakened ratio and detection assertions,
+  missing guidance, and reopened plan status.
+- Checker compilation, exact diff, artifact, credential, dependency, conflict,
+  binary, large-file, mode, whitespace, and intended-path audits passed.
+- No NLTK corpus download, network provider, or private text was used.

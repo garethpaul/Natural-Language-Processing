@@ -84,6 +84,12 @@ class FailingStopwordIterable:
         raise RuntimeError("private stopword iteration failure")
 
 
+class FailingStopwordMapping:
+    def items(self):
+        yield "english", ["the", "and"]
+        raise RuntimeError("private stopword mapping iteration failure")
+
+
 class LanguageDetectionTests(unittest.TestCase):
     def setUp(self):
         self.stopword_sets = load_stopword_sets(FakeStopwords())
@@ -146,6 +152,24 @@ class LanguageDetectionTests(unittest.TestCase):
             detect_language(
                 "the and you",
                 stopword_sets={},
+                tokenizer=simple_tokenizer,
+            ),
+            UNKNOWN_LANGUAGE,
+        )
+
+    def test_stopword_mapping_iteration_failure_discards_partial_evidence(self):
+        self.assertEqual(
+            _calculate_languages_ratios(
+                "the example and signal",
+                stopword_sets=FailingStopwordMapping(),
+                tokenizer=simple_tokenizer,
+            ),
+            {},
+        )
+        self.assertEqual(
+            detect_language(
+                "the example and signal",
+                stopword_sets=FailingStopwordMapping(),
                 tokenizer=simple_tokenizer,
             ),
             UNKNOWN_LANGUAGE,

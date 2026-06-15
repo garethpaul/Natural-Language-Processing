@@ -56,6 +56,8 @@ Helpful reports include:
   provider raises before returning tokens, without exposing its diagnostics.
 - Stopword iterable failures should discard partial language evidence without
   exposing provider diagnostics.
+- Stopword mapping iteration failures should discard all partial language
+  evidence without exposing caller diagnostics or retaining order-dependent data.
 - Explicit stopword set normalization should strip, lowercase, and ignore blank
   caller-provided entries before scoring so custom mappings match provider behavior.
 - Language label normalization should strip and lowercase caller-provided or

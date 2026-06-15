@@ -93,13 +93,16 @@ def _normalise_language_name(language: str) -> str:
 
 def _normalise_stopword_sets(stopword_sets: Mapping[str, Iterable[str]]) -> Dict[str, Set[str]]:
     normalised_sets: Dict[str, Set[str]] = {}
-    for language, stopwords in stopword_sets.items():
-        normalised_language = _normalise_language_name(language)
-        if not normalised_language:
-            continue
-        normalised_sets.setdefault(normalised_language, set()).update(
-            _normalise_stopwords(stopwords)
-        )
+    try:
+        for language, stopwords in stopword_sets.items():
+            normalised_language = _normalise_language_name(language)
+            if not normalised_language:
+                continue
+            normalised_sets.setdefault(normalised_language, set()).update(
+                _normalise_stopwords(stopwords)
+            )
+    except Exception:
+        return {}
     return normalised_sets
 
 

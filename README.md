@@ -81,6 +81,8 @@ downloaded package artifacts or make installation offline-reproducible.
   to empty evidence without exposing provider diagnostics.
 - Stopword iterable failures discard that language's partial normalized entries
   without exposing provider diagnostics or corrupting other language evidence.
+- Stopword mapping iteration failures discard all partial language evidence
+  without exposing caller diagnostics or allowing mapping order to affect output.
 - Language label normalization strips and lowercases caller-provided or
   provider-loaded language names, merging duplicate normalized stopword
   mappings before scoring.
