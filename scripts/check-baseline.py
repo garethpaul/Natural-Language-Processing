@@ -91,6 +91,8 @@ def main():
         "docs/plans/2026-06-14-stopword-entry-type-guard.md",
         "docs/plans/2026-06-15-stopword-entry-type-guard.md",
         "docs/plans/2026-06-15-token-entry-type-guard.md",
+        "docs/plans/2026-06-15-tokenizer-output-type-guard.md",
+        "docs/plans/2026-06-15-tokenizer-iteration-failure-guard.md",
         "docs/readme-overview.svg",
         "scripts/check-baseline.py",
     ]
@@ -132,6 +134,10 @@ def main():
             "for token in token_iterator:" in token_normalizer and
             "for token in tokens:" not in token_normalizer,
             "detector must reject scalar and non-iterable tokenizer output before entry normalization",
+            failures)
+    require("try:\n        for token in token_iterator:" in token_normalizer and
+            "except Exception:\n        return set()" in token_normalizer,
+            "detector must discard partial evidence when tokenizer iteration fails",
             failures)
     require("def _normalise_stopwords" in source and "word.strip().lower()" in source,
             "detector must strip, lowercase, and drop blank stopword entries",
@@ -343,11 +349,32 @@ def main():
             '{"english": 0, "french": 0, "spanish": 0}' in tokenizer_output_test and
             "UNKNOWN_LANGUAGE" in tokenizer_output_test,
             "tests must cover malformed tokenizer output collections through ratios and detection", failures)
+    tokenizer_iteration_plan = read("docs/plans/2026-06-15-tokenizer-iteration-failure-guard.md")
+    tokenizer_iteration_verification = markdown_section(tokenizer_iteration_plan, "Verification Completed")
+    require("status: completed" in tokenizer_iteration_plan.lower() and
+            "All four Make gates passed" in tokenizer_iteration_verification and
+            "Six isolated hostile mutations were rejected" in tokenizer_iteration_verification and
+            "24 offline tests passed" in tokenizer_iteration_verification and
+            "external directory" in tokenizer_iteration_verification and
+            not re.search(r"(?i)\b(?:pending|todo|tbd|not run)\b", tokenizer_iteration_verification),
+            "tokenizer iteration failure guard plan must record completed verification", failures)
+    tokenizer_iteration_test_match = re.search(
+        r"(?ms)^    def test_tokenizer_iteration_failure_discards_partial_evidence\(self\):\n(.*?)(?=^    def test_|\Z)",
+        tests,
+    )
+    tokenizer_iteration_test = tokenizer_iteration_test_match.group(1) if tokenizer_iteration_test_match else ""
+    require('raise RuntimeError("private tokenizer failure")' in tokenizer_iteration_test and
+            '{"english": 0, "french": 0, "spanish": 0}' in tokenizer_iteration_test and
+            "UNKNOWN_LANGUAGE" in tokenizer_iteration_test,
+            "tests must prove tokenizer iteration failures discard partial evidence", failures)
     hosted_plan = read("docs/plans/2026-06-10-hosted-python-validation.md")
     constraints_plan = read("docs/plans/2026-06-12-python-dependency-constraints.md")
     requirements = read("requirements.txt")
     constraints = read("constraints.txt")
     docs = "\n".join(read(path) for path in ["README.md", "SECURITY.md", "VISION.md", "CHANGES.md"])
+    require(all("tokenizer iteration failure guard" in read(path).lower()
+                for path in ["README.md", "SECURITY.md", "VISION.md", "CHANGES.md"]),
+            "project guidance must document the tokenizer iteration failure guard", failures)
     workflow = read(".github/workflows/check.yml")
     require("status: completed" in hosted_plan and "make check" in hosted_plan,
             "hosted Python validation plan must be completed and include verification", failures)

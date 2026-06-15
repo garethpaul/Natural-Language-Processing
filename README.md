@@ -75,6 +75,8 @@ downloaded package artifacts or make installation offline-reproducible.
   normalization and scoring.
 - The tokenizer output type guard treats scalar strings, bytes, and
   non-iterable return values as empty evidence instead of iterating or raising.
+- The tokenizer iteration failure guard discards partial evidence when a custom
+  tokenizer raises while its returned iterator is being consumed.
 - Language label normalization strips and lowercases caller-provided or
   provider-loaded language names, merging duplicate normalized stopword
   mappings before scoring.

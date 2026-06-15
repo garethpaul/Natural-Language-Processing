@@ -50,6 +50,8 @@ Helpful reports include:
   logging or coercing attacker-controlled object values.
 - The tokenizer output type guard should reject scalar and non-iterable return
   values without logging, coercing, or exposing their representations.
+- The tokenizer iteration failure guard should discard partial token evidence
+  without exposing iterator diagnostics.
 - Explicit stopword set normalization should strip, lowercase, and ignore blank
   caller-provided entries before scoring so custom mappings match provider behavior.
 - Language label normalization should strip and lowercase caller-provided or

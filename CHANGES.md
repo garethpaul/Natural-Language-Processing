@@ -4,6 +4,8 @@
 
 - Added a tokenizer output type guard so scalar and non-iterable return values
   become empty evidence instead of raising or being split into characters.
+- Added a tokenizer iteration failure guard so failed generators discard
+  partial language evidence and return `unknown`.
 - Added a token entry type guard so non-string injected tokenizer output is
   ignored before string normalization instead of raising.
 - Expanded stopword entry type guard coverage to include bytes and arbitrary

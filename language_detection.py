@@ -47,12 +47,15 @@ def _normalise_tokens(tokens: Iterable[str]) -> Set[str]:
         return set()
 
     normalised_tokens = set()
-    for token in token_iterator:
-        if not isinstance(token, str):
-            continue
-        normalised_token = token.strip().lower()
-        if any(character.isalpha() for character in normalised_token):
-            normalised_tokens.add(normalised_token)
+    try:
+        for token in token_iterator:
+            if not isinstance(token, str):
+                continue
+            normalised_token = token.strip().lower()
+            if any(character.isalpha() for character in normalised_token):
+                normalised_tokens.add(normalised_token)
+    except Exception:
+        return set()
     return normalised_tokens
 
 
