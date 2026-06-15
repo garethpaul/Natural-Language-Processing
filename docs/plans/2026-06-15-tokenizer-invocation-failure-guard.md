@@ -1,6 +1,6 @@
 # Tokenizer Invocation Failure Guard
 
-Status: planned
+Status: completed
 
 ## Problem
 
@@ -53,3 +53,22 @@ detection instead of producing the detector's fail-closed unknown result.
 - Text validation still runs before tokenizer selection and invocation.
 - Existing malformed-output, iterator-failure, and successful-tokenizer behavior
   remains unchanged.
+
+## Work Completed
+
+- Wrapped tokenizer selection and invocation in a fail-closed exception boundary
+  after text validation and before output normalization.
+- Added ratio and final-detection coverage for a tokenizer that raises before
+  returning an iterable.
+- Added mutation-sensitive contracts and synchronized maintenance guidance.
+
+## Verification Completed
+
+- All four Make gates passed from the repository and the canonical check passed
+  from an external directory.
+- 25 offline tests passed with no corpus download or network access.
+- Seven isolated hostile mutations were rejected for uncaught invocation,
+  ordering drift, weakened ratio coverage, weakened detection coverage, missing
+  guidance, and stale plan status.
+- Checker compilation, exact diff, artifact, credential, dependency, conflict,
+  binary, large-file, mode, whitespace, and intended-path audits passed.

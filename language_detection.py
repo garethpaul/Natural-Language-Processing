@@ -105,7 +105,11 @@ def _normalised_text_words(
         raise ValueError("text must be a string")
     if len(text) > MAXIMUM_TEXT_CHARACTERS:
         raise ValueError("text exceeds 100000 character limit")
-    return _normalise_tokens((tokenizer or _default_tokenizer())(text))
+    try:
+        tokens = (tokenizer or _default_tokenizer())(text)
+    except Exception:
+        return set()
+    return _normalise_tokens(tokens)
 
 
 def load_checked_in_stop_words(path: Path = STOP_WORDS_PATH) -> Set[str]:

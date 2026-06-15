@@ -93,6 +93,7 @@ def main():
         "docs/plans/2026-06-15-token-entry-type-guard.md",
         "docs/plans/2026-06-15-tokenizer-output-type-guard.md",
         "docs/plans/2026-06-15-tokenizer-iteration-failure-guard.md",
+        "docs/plans/2026-06-15-tokenizer-invocation-failure-guard.md",
         "docs/readme-overview.svg",
         "scripts/check-baseline.py",
     ]
@@ -138,6 +139,18 @@ def main():
     require("try:\n        for token in token_iterator:" in token_normalizer and
             "except Exception:\n        return set()" in token_normalizer,
             "detector must discard partial evidence when tokenizer iteration fails",
+            failures)
+    text_word_normalizer = source.split("def _normalised_text_words", 1)[1].split("def load_checked_in_stop_words", 1)[0]
+    text_type_index = text_word_normalizer.find("if not isinstance(text, str):")
+    text_size_index = text_word_normalizer.find("if len(text) > MAXIMUM_TEXT_CHARACTERS:")
+    tokenizer_try_index = text_word_normalizer.find("try:")
+    tokenizer_call_index = text_word_normalizer.find("tokens = (tokenizer or _default_tokenizer())(text)")
+    tokenizer_except_index = text_word_normalizer.find("except Exception:")
+    tokenizer_empty_index = text_word_normalizer.find("return set()", tokenizer_except_index)
+    token_normalise_index = text_word_normalizer.find("return _normalise_tokens(tokens)")
+    require(0 <= text_type_index < text_size_index < tokenizer_try_index < tokenizer_call_index and
+            tokenizer_call_index < tokenizer_except_index < tokenizer_empty_index < token_normalise_index,
+            "detector must fail closed around tokenizer invocation after text validation",
             failures)
     require("def _normalise_stopwords" in source and "word.strip().lower()" in source,
             "detector must strip, lowercase, and drop blank stopword entries",
@@ -241,6 +254,9 @@ def main():
                 failures)
         require("tokenizer output type guard" in read(relative_path).lower(),
                 f"{relative_path} must document the tokenizer output type guard",
+                failures)
+        require("tokenizer invocation failure guard" in read(relative_path).lower(),
+                f"{relative_path} must document the tokenizer invocation failure guard",
                 failures)
 
     plan = read("docs/plans/2026-06-08-language-detection-baseline.md")
@@ -367,6 +383,26 @@ def main():
             '{"english": 0, "french": 0, "spanish": 0}' in tokenizer_iteration_test and
             "UNKNOWN_LANGUAGE" in tokenizer_iteration_test,
             "tests must prove tokenizer iteration failures discard partial evidence", failures)
+    tokenizer_invocation_plan = read("docs/plans/2026-06-15-tokenizer-invocation-failure-guard.md")
+    tokenizer_invocation_verification = markdown_section(tokenizer_invocation_plan, "Verification Completed")
+    require("status: completed" in tokenizer_invocation_plan.lower() and
+            "All four Make gates passed" in tokenizer_invocation_verification and
+            "Seven isolated hostile mutations were rejected" in tokenizer_invocation_verification and
+            "25 offline tests passed" in tokenizer_invocation_verification and
+            "external directory" in tokenizer_invocation_verification and
+            not re.search(r"(?i)\b(?:pending|todo|tbd|not run)\b", tokenizer_invocation_verification),
+            "tokenizer invocation failure guard plan must record completed verification", failures)
+    tokenizer_invocation_test_match = re.search(
+        r"(?ms)^    def test_tokenizer_invocation_failure_returns_unknown\(self\):\n(.*?)(?=^    def test_|\Z)",
+        tests,
+    )
+    tokenizer_invocation_test = tokenizer_invocation_test_match.group(1) if tokenizer_invocation_test_match else ""
+    require('raise RuntimeError("private tokenizer invocation failure")' in tokenizer_invocation_test and
+            "_calculate_languages_ratios(" in tokenizer_invocation_test and
+            '{"english": 0, "french": 0, "spanish": 0}' in tokenizer_invocation_test and
+            "detect_language(" in tokenizer_invocation_test and
+            "UNKNOWN_LANGUAGE" in tokenizer_invocation_test,
+            "tests must prove tokenizer invocation failures return empty evidence", failures)
     hosted_plan = read("docs/plans/2026-06-10-hosted-python-validation.md")
     constraints_plan = read("docs/plans/2026-06-12-python-dependency-constraints.md")
     requirements = read("requirements.txt")

@@ -435,6 +435,27 @@ class LanguageDetectionTests(unittest.TestCase):
             UNKNOWN_LANGUAGE,
         )
 
+    def test_tokenizer_invocation_failure_returns_unknown(self):
+        def failing_tokenizer(_text):
+            raise RuntimeError("private tokenizer invocation failure")
+
+        self.assertEqual(
+            _calculate_languages_ratios(
+                "private input",
+                stopword_sets=self.stopword_sets,
+                tokenizer=failing_tokenizer,
+            ),
+            {"english": 0, "french": 0, "spanish": 0},
+        )
+        self.assertEqual(
+            detect_language(
+                "private input",
+                stopword_sets=self.stopword_sets,
+                tokenizer=failing_tokenizer,
+            ),
+            UNKNOWN_LANGUAGE,
+        )
+
     def test_text_character_limit_is_checked_before_tokenization(self):
         tokenizer_calls = []
 

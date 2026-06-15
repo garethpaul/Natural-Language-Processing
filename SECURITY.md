@@ -52,6 +52,8 @@ Helpful reports include:
   values without logging, coercing, or exposing their representations.
 - The tokenizer iteration failure guard should discard partial token evidence
   without exposing iterator diagnostics.
+- The tokenizer invocation failure guard should return empty evidence when a
+  provider raises before returning tokens, without exposing its diagnostics.
 - Explicit stopword set normalization should strip, lowercase, and ignore blank
   caller-provided entries before scoring so custom mappings match provider behavior.
 - Language label normalization should strip and lowercase caller-provided or

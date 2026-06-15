@@ -6,6 +6,8 @@
   become empty evidence instead of raising or being split into characters.
 - Added a tokenizer iteration failure guard so failed generators discard
   partial language evidence and return `unknown`.
+- Added a tokenizer invocation failure guard so provider call errors become
+  empty evidence instead of leaking diagnostics or aborting detection.
 - Added a token entry type guard so non-string injected tokenizer output is
   ignored before string normalization instead of raising.
 - Expanded stopword entry type guard coverage to include bytes and arbitrary
