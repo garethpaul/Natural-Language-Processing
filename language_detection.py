@@ -128,22 +128,28 @@ def load_checked_in_stop_words(path: Path = STOP_WORDS_PATH) -> Set[str]:
     return _normalise_stopwords(path.read_text(encoding="utf-8").splitlines())
 
 
+def _load_provider_stopword_sets(stopwords_provider) -> Dict[str, Set[str]]:
+    return _normalise_stopword_sets({
+        language: stopwords_provider.words(language)
+        for language in stopwords_provider.fileids()
+    })
+
+
 def load_stopword_sets(stopwords_provider=None) -> Dict[str, Set[str]]:
     """Load NLTK stopwords, falling back to the checked-in English list."""
     if stopwords_provider is not None:
-        return _normalise_stopword_sets({
-            language: stopwords_provider.words(language)
-            for language in stopwords_provider.fileids()
-        })
+        try:
+            return _load_provider_stopword_sets(stopwords_provider)
+        except Exception:
+            return {}
 
     if _nltk_stopwords is not None:
         try:
-            return _normalise_stopword_sets({
-                language: _nltk_stopwords.words(language)
-                for language in _nltk_stopwords.fileids()
-            })
+            return _load_provider_stopword_sets(_nltk_stopwords)
         except LookupError:
             pass
+        except Exception:
+            return {}
 
     return {"english": load_checked_in_stop_words()}
 

@@ -1,4 +1,7 @@
 import unittest
+from unittest.mock import patch
+
+import language_detection
 
 from language_detection import (
     MAXIMUM_TEXT_CHARACTERS,
@@ -90,6 +93,31 @@ class FailingStopwordMapping:
         raise RuntimeError("private stopword mapping iteration failure")
 
 
+class FailingProviderFileids:
+    def fileids(self):
+        raise RuntimeError("private provider fileids failure")
+
+
+class FailingProviderWords:
+    def fileids(self):
+        return ["english", "french"]
+
+    def words(self, language):
+        if language == "english":
+            return ["the", "and", "you"]
+        raise RuntimeError("private provider words failure")
+
+
+class MissingCorpusStopwords:
+    def fileids(self):
+        raise LookupError("missing private corpus path")
+
+
+class BrokenDefaultStopwords:
+    def fileids(self):
+        raise RuntimeError("private default provider failure")
+
+
 class LanguageDetectionTests(unittest.TestCase):
     def setUp(self):
         self.stopword_sets = load_stopword_sets(FakeStopwords())
@@ -174,6 +202,38 @@ class LanguageDetectionTests(unittest.TestCase):
             ),
             UNKNOWN_LANGUAGE,
         )
+
+    def test_explicit_stopword_provider_invocation_failures_discard_all_evidence(self):
+        for provider in (FailingProviderFileids(), FailingProviderWords()):
+            with self.subTest(provider=type(provider).__name__):
+                self.assertEqual(load_stopword_sets(provider), {})
+                self.assertEqual(
+                    _calculate_languages_ratios(
+                        "the and you",
+                        stopwords_provider=provider,
+                        tokenizer=simple_tokenizer,
+                    ),
+                    {},
+                )
+                self.assertEqual(
+                    detect_language(
+                        "the and you",
+                        stopwords_provider=provider,
+                        tokenizer=simple_tokenizer,
+                    ),
+                    UNKNOWN_LANGUAGE,
+                )
+
+    def test_missing_default_stopword_corpus_uses_checked_in_fallback(self):
+        with patch.object(language_detection, "_nltk_stopwords", MissingCorpusStopwords()), \
+                patch.object(language_detection, "load_checked_in_stop_words", return_value={"the", "and"}):
+            self.assertEqual(load_stopword_sets(), {"english": {"the", "and"}})
+
+    def test_unexpected_default_stopword_provider_failure_returns_empty_evidence(self):
+        with patch.object(language_detection, "_nltk_stopwords", BrokenDefaultStopwords()), \
+                patch.object(language_detection, "load_checked_in_stop_words") as fallback:
+            self.assertEqual(load_stopword_sets(), {})
+            fallback.assert_not_called()
 
     def test_punctuation_only_tokens_do_not_create_stopword_evidence(self):
         stopword_sets = {"english": {"-", "&"}}

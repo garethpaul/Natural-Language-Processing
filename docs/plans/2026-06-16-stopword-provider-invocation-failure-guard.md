@@ -1,6 +1,6 @@
 ---
 title: Stopword Provider Invocation Failure Guard
-status: planned
+status: completed
 date: 2026-06-16
 ---
 
@@ -70,3 +70,18 @@ therefore bypass the existing mapping and iterable failure guards.
 - Explicit provider failures produce empty ratios and `unknown` detection.
 - A missing optional default NLTK corpus still uses the checked-in English
   stopword list.
+
+## Verification Completed
+
+- Three focused provider tests passed, and the complete suite passed all 30
+  offline tests without a corpus download or network provider.
+- All four Make gates passed from the repository root.
+- The absolute Makefile `check` gate passed from an external directory.
+- Application, test, and checker sources compiled with bytecode redirected
+  outside the repository.
+- Eight isolated hostile mutations were rejected across explicit provider
+  failure handling, partial word evidence, default-provider behavior,
+  missing-corpus fallback, executable test contracts, maintained guidance,
+  changelog evidence, and plan completion.
+- Exact diff, generated-artifact, credential-pattern, conflict-marker, binary,
+  large-file, and whitespace audits passed.

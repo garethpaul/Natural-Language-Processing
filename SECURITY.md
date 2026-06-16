@@ -58,6 +58,8 @@ Helpful reports include:
   exposing provider diagnostics.
 - Stopword mapping iteration failures should discard all partial language
   evidence without exposing caller diagnostics or retaining order-dependent data.
+- The stopword provider invocation failure guard should discard all provider
+  evidence when `fileids()` or `words()` raises, without exposing diagnostics.
 - Explicit stopword set normalization should strip, lowercase, and ignore blank
   caller-provided entries before scoring so custom mappings match provider behavior.
 - Language label normalization should strip and lowercase caller-provided or

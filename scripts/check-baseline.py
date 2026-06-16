@@ -96,6 +96,7 @@ def main():
         "docs/plans/2026-06-15-tokenizer-invocation-failure-guard.md",
         "docs/plans/2026-06-15-stopword-iteration-failure-guard.md",
         "docs/plans/2026-06-15-stopword-mapping-iteration-failure-guard.md",
+        "docs/plans/2026-06-16-stopword-provider-invocation-failure-guard.md",
         "docs/readme-overview.svg",
         "scripts/check-baseline.py",
     ]
@@ -475,6 +476,47 @@ def main():
             "Preserve stopword mapping iteration failure isolation" in read("VISION.md") and
             "Discarded all partial language evidence" in read("CHANGES.md"),
             "project guidance must document stopword mapping iteration failure handling", failures)
+    provider_loader = source.split("def _load_provider_stopword_sets", 1)[1].split("def load_stopword_sets", 1)[0]
+    provider_entry = source.split("def load_stopword_sets", 1)[1].split("def _language_stopword_sets", 1)[0]
+    require("stopwords_provider.fileids()" in provider_loader and
+            "stopwords_provider.words(language)" in provider_loader and
+            provider_entry.count("return _load_provider_stopword_sets") == 2 and
+            "if stopwords_provider is not None:\n        try:" in provider_entry and
+            "except LookupError:\n            pass\n        except Exception:\n            return {}" in provider_entry,
+            "stopword provider invocation failures must discard evidence while preserving missing-corpus fallback",
+            failures)
+    provider_failure_test_match = re.search(
+        r"(?ms)^    def test_explicit_stopword_provider_invocation_failures_discard_all_evidence\(self\):\n(.*?)(?=^    def test_|\Z)",
+        tests,
+    )
+    provider_failure_test = provider_failure_test_match.group(1) if provider_failure_test_match else ""
+    require("FailingProviderFileids()" in provider_failure_test and
+            "FailingProviderWords()" in provider_failure_test and
+            "load_stopword_sets(provider), {}" in provider_failure_test and
+            "stopwords_provider=provider" in provider_failure_test and
+            "UNKNOWN_LANGUAGE" in provider_failure_test and
+            "test_missing_default_stopword_corpus_uses_checked_in_fallback" in tests and
+            "test_unexpected_default_stopword_provider_failure_returns_empty_evidence" in tests,
+            "tests must cover explicit and default stopword provider invocation failures",
+            failures)
+    require(all("stopword provider invocation failure guard" in read(path).lower()
+                for path in ["README.md", "SECURITY.md", "VISION.md", "CHANGES.md"]),
+            "project guidance must document the stopword provider invocation failure guard",
+            failures)
+    provider_failure_plan = read("docs/plans/2026-06-16-stopword-provider-invocation-failure-guard.md")
+    provider_failure_verification = markdown_section(provider_failure_plan, "Verification Completed")
+    provider_failure_frontmatter = provider_failure_plan.split("---", 2)[1]
+    provider_failure_statuses = re.findall(
+        r"^status: .+$", provider_failure_frontmatter, flags=re.MULTILINE
+    )
+    require(provider_failure_statuses == ["status: completed"] and
+            "All four Make gates passed" in provider_failure_verification and
+            "Eight isolated hostile mutations were rejected" in provider_failure_verification and
+            "all 30" in provider_failure_verification and
+            "external directory" in provider_failure_verification and
+            not re.search(r"(?i)\b(?:pending|todo|tbd|not run)\b", provider_failure_verification),
+            "stopword provider invocation failure guard plan must record completed verification",
+            failures)
     hosted_plan = read("docs/plans/2026-06-10-hosted-python-validation.md")
     constraints_plan = read("docs/plans/2026-06-12-python-dependency-constraints.md")
     requirements = read("requirements.txt")

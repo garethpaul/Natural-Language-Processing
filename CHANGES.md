@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-16
+
+- Added a stopword provider invocation failure guard so `fileids()` and
+  `words()` errors discard all provider evidence without leaking diagnostics.
+
 ## 2026-06-15
 
 - Discarded all partial language evidence when explicit stopword mapping

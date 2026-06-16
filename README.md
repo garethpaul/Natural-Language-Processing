@@ -83,6 +83,8 @@ downloaded package artifacts or make installation offline-reproducible.
   without exposing provider diagnostics or corrupting other language evidence.
 - Stopword mapping iteration failures discard all partial language evidence
   without exposing caller diagnostics or allowing mapping order to affect output.
+- The stopword provider invocation failure guard converts `fileids()` and
+  `words()` errors to empty evidence while preserving missing-corpus fallback.
 - Language label normalization strips and lowercases caller-provided or
   provider-loaded language names, merging duplicate normalized stopword
   mappings before scoring.
