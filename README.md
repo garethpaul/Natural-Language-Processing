@@ -71,6 +71,8 @@ downloaded package artifacts or make installation offline-reproducible.
   caller-provided stopword mappings before scoring.
 - The stopword entry type guard ignores non-string provider and explicit values
   before normalization instead of raising or coercing them.
+- Scalar stopword collections are rejected before iteration so malformed
+  strings cannot become character-level language evidence.
 - The token entry type guard ignores non-string tokenizer output before string
   normalization and scoring.
 - The tokenizer output type guard treats scalar strings, bytes, and

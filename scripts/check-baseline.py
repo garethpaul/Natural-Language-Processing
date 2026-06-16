@@ -97,6 +97,7 @@ def main():
         "docs/plans/2026-06-15-stopword-iteration-failure-guard.md",
         "docs/plans/2026-06-15-stopword-mapping-iteration-failure-guard.md",
         "docs/plans/2026-06-16-stopword-provider-invocation-failure-guard.md",
+        "docs/plans/2026-06-16-stopword-collection-type-guard.md",
         "docs/readme-overview.svg",
         "scripts/check-baseline.py",
     ]
@@ -413,11 +414,39 @@ def main():
             "UNKNOWN_LANGUAGE" in tokenizer_invocation_test,
             "tests must prove tokenizer invocation failures return empty evidence", failures)
     stopword_normalizer = source.split("def _normalise_stopwords", 1)[1].split("def _normalise_language_name", 1)[0]
-    require("word_iterator = iter(words)" in stopword_normalizer and
+    scalar_stopword_guard = "if isinstance(words, (str, bytes)):\n        return set()"
+    require(scalar_stopword_guard in stopword_normalizer and
+            stopword_normalizer.index(scalar_stopword_guard) < stopword_normalizer.index("word_iterator = iter(words)") and
+            "word_iterator = iter(words)" in stopword_normalizer and
             stopword_normalizer.count("except Exception:") == 2 and
-            stopword_normalizer.count("return set()") == 2 and
+            stopword_normalizer.count("return set()") == 3 and
             "for word in word_iterator:" in stopword_normalizer,
-            "stopword normalization must discard failed iterable evidence", failures)
+            "stopword normalization must reject scalar collections before iteration and discard failed iterable evidence", failures)
+    stopword_collection_test_match = re.search(
+        r"(?ms)^    def test_scalar_stopword_collections_are_empty_evidence\(self\):\n(.*?)(?=^    def test_|\Z)",
+        tests,
+    )
+    stopword_collection_test = stopword_collection_test_match.group(1) if stopword_collection_test_match else ""
+    require('for malformed_collection in ("the", b"the"):' in stopword_collection_test and
+            "ScalarCollectionStopwords(malformed_collection)" in stopword_collection_test and
+            'explicit_sets = {"english": malformed_collection}' in stopword_collection_test and
+            'self.assertEqual(provider_sets, {"english": set()})' in stopword_collection_test and
+            '{"english": 0}' in stopword_collection_test and
+            "UNKNOWN_LANGUAGE" in stopword_collection_test,
+            "tests must prove scalar stopword collections are empty evidence on explicit and provider paths", failures)
+    stopword_collection_plan = read("docs/plans/2026-06-16-stopword-collection-type-guard.md")
+    stopword_collection_verification = markdown_section(stopword_collection_plan, "Verification Completed")
+    require("status: completed" in stopword_collection_plan.lower() and
+            "31 offline tests passed" in stopword_collection_verification and
+            "hostile mutations were rejected" in stopword_collection_verification and
+            "external directory" in stopword_collection_verification and
+            not re.search(r"(?i)\b(?:pending|todo|tbd|not run)\b", stopword_collection_verification),
+            "stopword collection type guard plan must record completed verification", failures)
+    require("Scalar stopword collections are rejected" in read("README.md") and
+            "Scalar stopword collections should be rejected" in read("SECURITY.md") and
+            "Preserve scalar stopword collection rejection" in read("VISION.md") and
+            "scalar stopword collection type guard" in read("CHANGES.md"),
+            "stopword collection type guard guidance and changelog must remain documented", failures)
     stopword_iteration_test_match = re.search(
         r"(?ms)^    def test_stopword_iteration_failure_discards_partial_language_evidence\(self\):\n(.*?)(?=^    def test_|\Z)",
         tests,

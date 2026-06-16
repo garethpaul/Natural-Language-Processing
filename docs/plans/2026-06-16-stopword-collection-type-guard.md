@@ -1,6 +1,6 @@
 ---
 title: Stopword Collection Type Guard
-status: planned
+status: completed
 date: 2026-06-16
 ---
 
@@ -68,4 +68,15 @@ provider or explicit mapping strings create character-level language evidence.
 
 ## Verification Completed
 
-Pending implementation and bounded verification.
+- The focused scalar-collection regression passed for explicit mappings and
+  provider-loaded `str` and `bytes` values.
+- The complete suite confirmed that 31 offline tests passed without a corpus
+  download or network provider.
+- Application, test, and checker sources compiled with bytecode disabled.
+- Seven isolated hostile mutations were rejected across runtime guard removal,
+  disabled guard behavior, bytes coverage, provider coverage, guidance,
+  changelog evidence, and completed plan status.
+- All repository Make gates and the absolute Makefile `check` gate from an
+  external directory passed.
+- Exact diff, generated-artifact, credential-pattern, conflict-marker, binary,
+  large-file, and whitespace audits passed.

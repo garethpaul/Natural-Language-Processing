@@ -31,6 +31,7 @@ Priority:
 - Return unknown when stopword evidence is too sparse for the amount of text
 - Preserve stopword entry normalization before scoring provider data
 - Preserve the stopword entry type guard for provider and explicit collections
+- Preserve scalar stopword collection rejection before iterable normalization
 - Preserve text token normalization before stopword scoring
 - Preserve the token entry type guard for injected tokenizer output
 - Preserve the tokenizer output type guard before token iteration

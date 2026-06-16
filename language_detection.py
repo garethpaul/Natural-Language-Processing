@@ -60,6 +60,8 @@ def _normalise_tokens(tokens: Iterable[str]) -> Set[str]:
 
 
 def _normalise_stopwords(words: Iterable[str]) -> Set[str]:
+    if isinstance(words, (str, bytes)):
+        return set()
     try:
         word_iterator = iter(words)
     except Exception:

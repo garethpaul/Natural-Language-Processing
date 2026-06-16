@@ -44,6 +44,8 @@ Helpful reports include:
   entries before scoring so provider formatting does not change evidence.
 - The stopword entry type guard should ignore non-string provider and explicit
   values without logging or coercing their contents.
+- Scalar stopword collections should be rejected before iteration so malformed
+  strings cannot create character-level language evidence.
 - Text token normalization should strip and lowercase tokenizer output before
   scoring so whitespace-padded input does not change evidence.
 - The token entry type guard should ignore non-string tokenizer output without

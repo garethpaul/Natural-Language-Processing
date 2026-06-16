@@ -2,6 +2,8 @@
 
 ## 2026-06-16
 
+- Added a scalar stopword collection type guard so malformed strings and bytes
+  become empty evidence instead of being iterated as stopword entries.
 - Added a stopword provider invocation failure guard so `fileids()` and
   `words()` errors discard all provider evidence without leaking diagnostics.
 

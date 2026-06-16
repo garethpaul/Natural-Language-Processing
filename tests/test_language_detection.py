@@ -68,6 +68,17 @@ class MalformedEntryStopwords:
         return self.DATA[language]
 
 
+class ScalarCollectionStopwords:
+    def __init__(self, words):
+        self.words_value = words
+
+    def fileids(self):
+        return ["english"]
+
+    def words(self, language):
+        return self.words_value
+
+
 def simple_tokenizer(text):
     return text.replace(".", " ").replace(",", " ").split()
 
@@ -441,6 +452,33 @@ class LanguageDetectionTests(unittest.TestCase):
             ),
             "english",
         )
+
+    def test_scalar_stopword_collections_are_empty_evidence(self):
+        for malformed_collection in ("the", b"the"):
+            with self.subTest(collection_type=type(malformed_collection).__name__):
+                explicit_sets = {"english": malformed_collection}
+                provider_sets = load_stopword_sets(
+                    ScalarCollectionStopwords(malformed_collection)
+                )
+
+                self.assertEqual(provider_sets, {"english": set()})
+                for stopword_sets in (explicit_sets, provider_sets):
+                    self.assertEqual(
+                        _calculate_languages_ratios(
+                            "t h",
+                            stopword_sets=stopword_sets,
+                            tokenizer=simple_tokenizer,
+                        ),
+                        {"english": 0},
+                    )
+                    self.assertEqual(
+                        detect_language(
+                            "t h",
+                            stopword_sets=stopword_sets,
+                            tokenizer=simple_tokenizer,
+                        ),
+                        UNKNOWN_LANGUAGE,
+                    )
 
     def test_text_tokens_are_normalized_before_scoring(self):
         self.assertEqual(
