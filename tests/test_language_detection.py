@@ -79,6 +79,19 @@ class ScalarCollectionStopwords:
         return self.words_value
 
 
+class ScalarLanguageCollectionStopwords:
+    def __init__(self, languages):
+        self.languages = languages
+        self.words_calls = []
+
+    def fileids(self):
+        return self.languages
+
+    def words(self, language):
+        self.words_calls.append(language)
+        return ["the", "and", "you"]
+
+
 def simple_tokenizer(text):
     return text.replace(".", " ").replace(",", " ").split()
 
@@ -234,6 +247,32 @@ class LanguageDetectionTests(unittest.TestCase):
                     ),
                     UNKNOWN_LANGUAGE,
                 )
+
+    def test_scalar_provider_language_collections_are_empty_evidence(self):
+        for malformed_collection in ("english", b"english"):
+            with self.subTest(collection_type=type(malformed_collection).__name__):
+                provider = ScalarLanguageCollectionStopwords(malformed_collection)
+
+                self.assertEqual(load_stopword_sets(provider), {})
+                self.assertEqual(provider.words_calls, [])
+                self.assertEqual(
+                    _calculate_languages_ratios(
+                        "the and you",
+                        stopwords_provider=provider,
+                        tokenizer=simple_tokenizer,
+                    ),
+                    {},
+                )
+                self.assertEqual(provider.words_calls, [])
+                self.assertEqual(
+                    detect_language(
+                        "the and you",
+                        stopwords_provider=provider,
+                        tokenizer=simple_tokenizer,
+                    ),
+                    UNKNOWN_LANGUAGE,
+                )
+                self.assertEqual(provider.words_calls, [])
 
     def test_missing_default_stopword_corpus_uses_checked_in_fallback(self):
         with patch.object(language_detection, "_nltk_stopwords", MissingCorpusStopwords()), \

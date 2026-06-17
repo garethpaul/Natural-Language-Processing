@@ -87,6 +87,8 @@ downloaded package artifacts or make installation offline-reproducible.
   without exposing caller diagnostics or allowing mapping order to affect output.
 - The stopword provider invocation failure guard converts `fileids()` and
   `words()` errors to empty evidence while preserving missing-corpus fallback.
+- Scalar provider language collections are rejected before iteration so a
+  malformed `fileids()` string cannot create one-character language buckets.
 - Language label normalization strips and lowercases caller-provided or
   provider-loaded language names, merging duplicate normalized stopword
   mappings before scoring.

@@ -98,6 +98,7 @@ def main():
         "docs/plans/2026-06-15-stopword-mapping-iteration-failure-guard.md",
         "docs/plans/2026-06-16-stopword-provider-invocation-failure-guard.md",
         "docs/plans/2026-06-16-stopword-collection-type-guard.md",
+        "docs/plans/2026-06-17-provider-language-collection-type-guard.md",
         "docs/readme-overview.svg",
         "scripts/check-baseline.py",
     ]
@@ -508,11 +509,51 @@ def main():
     provider_loader = source.split("def _load_provider_stopword_sets", 1)[1].split("def load_stopword_sets", 1)[0]
     provider_entry = source.split("def load_stopword_sets", 1)[1].split("def _language_stopword_sets", 1)[0]
     require("stopwords_provider.fileids()" in provider_loader and
+            "languages = stopwords_provider.fileids()" in provider_loader and
+            "isinstance(languages, (str, bytes))" in provider_loader and
             "stopwords_provider.words(language)" in provider_loader and
             provider_entry.count("return _load_provider_stopword_sets") == 2 and
             "if stopwords_provider is not None:\n        try:" in provider_entry and
             "except LookupError:\n            pass\n        except Exception:\n            return {}" in provider_entry,
             "stopword provider invocation failures must discard evidence while preserving missing-corpus fallback",
+            failures)
+    provider_language_collection_test_match = re.search(
+        r"(?ms)^    def test_scalar_provider_language_collections_are_empty_evidence\(self\):\n(.*?)(?=^    def test_|\Z)",
+        tests,
+    )
+    provider_language_collection_test = (
+        provider_language_collection_test_match.group(1)
+        if provider_language_collection_test_match else ""
+    )
+    require('for malformed_collection in ("english", b"english"):' in
+            provider_language_collection_test and
+            "ScalarLanguageCollectionStopwords(malformed_collection)" in
+            provider_language_collection_test and
+            "load_stopword_sets(provider), {}" in provider_language_collection_test and
+            provider_language_collection_test.count("provider.words_calls, []") == 3 and
+            "stopwords_provider=provider" in provider_language_collection_test and
+            "UNKNOWN_LANGUAGE" in provider_language_collection_test,
+            "tests must prove scalar provider language collections are empty evidence",
+            failures)
+    require("Scalar provider language collections are rejected" in read("README.md") and
+            "Scalar provider language collections should be rejected" in read("SECURITY.md") and
+            "Preserve scalar provider language collection rejection" in read("VISION.md") and
+            "provider language collection type guard" in read("CHANGES.md"),
+            "provider language collection type guard guidance must remain documented",
+            failures)
+    provider_language_collection_plan = read(
+        "docs/plans/2026-06-17-provider-language-collection-type-guard.md"
+    )
+    provider_language_collection_verification = markdown_section(
+        provider_language_collection_plan, "Verification Completed"
+    )
+    require("status: completed" in provider_language_collection_plan.lower() and
+            "32 offline tests passed" in provider_language_collection_verification and
+            "hostile mutations were rejected" in provider_language_collection_verification and
+            "external directory" in provider_language_collection_verification and
+            not re.search(r"(?i)\b(?:pending|todo|tbd|not run)\b",
+                          provider_language_collection_verification),
+            "provider language collection type guard plan must record completed verification",
             failures)
     provider_failure_test_match = re.search(
         r"(?ms)^    def test_explicit_stopword_provider_invocation_failures_discard_all_evidence\(self\):\n(.*?)(?=^    def test_|\Z)",

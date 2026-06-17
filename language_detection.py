@@ -131,9 +131,12 @@ def load_checked_in_stop_words(path: Path = STOP_WORDS_PATH) -> Set[str]:
 
 
 def _load_provider_stopword_sets(stopwords_provider) -> Dict[str, Set[str]]:
+    languages = stopwords_provider.fileids()
+    if isinstance(languages, (str, bytes)):
+        return {}
     return _normalise_stopword_sets({
         language: stopwords_provider.words(language)
-        for language in stopwords_provider.fileids()
+        for language in languages
     })
 
 

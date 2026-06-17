@@ -62,6 +62,8 @@ Helpful reports include:
   evidence without exposing caller diagnostics or retaining order-dependent data.
 - The stopword provider invocation failure guard should discard all provider
   evidence when `fileids()` or `words()` raises, without exposing diagnostics.
+- Scalar provider language collections should be rejected before iteration so
+  malformed `fileids()` strings cannot create fabricated language evidence.
 - Explicit stopword set normalization should strip, lowercase, and ignore blank
   caller-provided entries before scoring so custom mappings match provider behavior.
 - Language label normalization should strip and lowercase caller-provided or

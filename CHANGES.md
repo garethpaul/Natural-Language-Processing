@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-17
+
+- Added a provider language collection type guard so malformed scalar
+  `fileids()` results become empty evidence instead of language identifiers.
+
 ## 2026-06-16
 
 - Added a scalar stopword collection type guard so malformed strings and bytes

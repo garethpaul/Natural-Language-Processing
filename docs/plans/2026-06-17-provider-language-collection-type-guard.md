@@ -1,6 +1,6 @@
 ---
 title: Provider Language Collection Type Guard
-status: planned
+status: completed
 date: 2026-06-17
 ---
 
@@ -70,4 +70,15 @@ expanded into one-character language buckets and can expose fabricated ratios.
 
 ## Verification Completed
 
-Pending implementation and bounded verification.
+- The focused scalar provider-language regression passed for `str` and `bytes`
+  `fileids()` results and proved that `words()` is never invoked.
+- The complete suite confirmed that 32 offline tests passed without a corpus
+  download or network provider.
+- Application, test, and checker sources compiled with bytecode disabled.
+- Seven isolated hostile mutations were rejected across runtime guard removal,
+  bytes-guard weakening, static guard enforcement, provider-call assertions,
+  guidance, changelog evidence, and completed plan status.
+- All four Make gates passed from the repository root, and the absolute
+  Makefile `check` gate passed from an external directory.
+- Exact diff, generated-artifact, credential-pattern, conflict-marker, binary,
+  large-file, and whitespace audits passed.
