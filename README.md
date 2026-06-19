@@ -27,7 +27,7 @@ Additional scan context:
 ### Prerequisites
 
 - Git
-- Python 3
+- Python 3.10 or newer
 - NLTK for running the sample against the built-in stopword corpus
 
 ### Setup

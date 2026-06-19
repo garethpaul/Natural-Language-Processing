@@ -769,7 +769,7 @@ class LanguageDetectionTests(unittest.TestCase):
 
         self.assertTrue(language_detection._nltk_pathsec.ENFORCE)
         encoded_path = quote(str(Path(__file__).resolve()), safe="")
-        with self.assertRaises((LookupError, PermissionError, ValueError)):
+        with self.assertRaises(PermissionError):
             data.load(f"nltk:{encoded_path}", format="raw")
 
 

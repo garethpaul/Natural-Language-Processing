@@ -38,7 +38,8 @@ Helpful reports include:
   This sample does not accept resource URLs: user text reaches only
   `wordpunct_tokenize`, and the default corpus loader resolves the fixed
   `corpora/stopwords` path. The module still enables `nltk.pathsec.ENFORCE`
-  before using NLTK so encoded absolute or traversal paths fail closed.
+  before using NLTK so unauthorized encoded absolute or traversal paths fail
+  closed outside configured NLTK data roots.
 - Keep `nltk>=3.9.4` while strict enforcement is required. Do not weaken the
   setting or add caller-controlled NLTK resource names. Replace the constraint
   with the first stable patched NLTK release after compatibility validation.
