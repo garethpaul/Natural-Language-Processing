@@ -775,7 +775,7 @@ class LanguageDetectionTests(unittest.TestCase):
             return_value=set(),
         ):
             with self.assertRaises((PermissionError, ValueError)) as blocked:
-                data.load(f"nltk:{encoded_path}", format="raw")
+                data.load(f"file://{encoded_path}", format="raw")
 
         self.assertRegex(
             str(blocked.exception),

@@ -128,7 +128,7 @@ def main():
             "_nltk_pathsec.ENFORCE = True" in source,
             "detector must enable NLTK strict path enforcement", failures)
     require("test_nltk_strict_path_enforcement_blocks_encoded_absolute_paths" in tests and
-            'data.load(f"nltk:{encoded_path}", format="raw")' in tests,
+            'data.load(f"file://{encoded_path}", format="raw")' in tests,
             "tests must reject encoded absolute NLTK resource paths", failures)
     require("UNKNOWN_LANGUAGE" in source,
             "detector must return an explicit unknown result for zero-score input",
