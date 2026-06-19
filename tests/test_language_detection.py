@@ -769,8 +769,18 @@ class LanguageDetectionTests(unittest.TestCase):
 
         self.assertTrue(language_detection._nltk_pathsec.ENFORCE)
         encoded_path = quote(str(Path(__file__).resolve()), safe="")
-        with self.assertRaises(PermissionError):
-            data.load(f"nltk:{encoded_path}", format="raw")
+        with patch.object(
+            language_detection._nltk_pathsec,
+            "_get_allowed_roots",
+            return_value=set(),
+        ):
+            with self.assertRaises((PermissionError, ValueError)) as blocked:
+                data.load(f"nltk:{encoded_path}", format="raw")
+
+        self.assertRegex(
+            str(blocked.exception),
+            r"Unauthorized path|Unsafe resource path",
+        )
 
 
 if __name__ == "__main__":
