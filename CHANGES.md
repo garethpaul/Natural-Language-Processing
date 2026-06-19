@@ -1,7 +1,63 @@
 # Changes
 
+## 2026-06-19
+
+- Rejected mapping-shaped tokenizer output, stopword collections, and provider
+  language collections before iteration so mapping keys cannot become evidence.
+- Integrated the read-only hosted CI ownership contract with CODEOWNERS, agent
+  guidance, and a completed CI baseline plan.
+
+## 2026-06-17
+
+- Added a provider language collection type guard so malformed scalar
+  `fileids()` results become empty evidence instead of language identifiers.
+
+## 2026-06-16
+
+- Added a scalar stopword collection type guard so malformed strings and bytes
+  become empty evidence instead of being iterated as stopword entries.
+- Added a stopword provider invocation failure guard so `fileids()` and
+  `words()` errors discard all provider evidence without leaking diagnostics.
+
+## 2026-06-15
+
+- Discarded all partial language evidence when explicit stopword mapping
+  enumeration fails instead of leaking diagnostics or retaining order-dependent data.
+- Discarded partial stopword evidence when explicit or provider collections fail
+  during iteration.
+- Added a tokenizer output type guard so scalar and non-iterable return values
+  become empty evidence instead of raising or being split into characters.
+- Added a tokenizer iteration failure guard so failed generators discard
+  partial language evidence and return `unknown`.
+- Added a tokenizer invocation failure guard so provider call errors become
+  empty evidence instead of leaking diagnostics or aborting detection.
+- Added a token entry type guard so non-string injected tokenizer output is
+  ignored before string normalization instead of raising.
+- Expanded stopword entry type guard coverage to include bytes and arbitrary
+  object values on both explicit mapping and provider paths.
+
+## 2026-06-14
+
+- Added a stopword entry type guard so non-string provider and explicit values
+  are ignored before normalization instead of raising.
+
+## 2026-06-13
+
+- Made cleanup, compilation, tests, static checks, and recursive verification
+  resolve from the checkout for absolute Makefile invocations.
+- Added a language label control character guard so newline and terminal escape
+  labels cannot become detector or CLI output.
+
+## 2026-06-12
+
+- Added `constraints.txt` for the reviewed five-package Python 3.12 graph,
+  applied it to hosted installation and caching, and documented that exact
+  versions reduce resolver drift but do not authenticate package artifacts.
+
 ## 2026-06-10
 
+- Added bounded detector text validation at 100,000 characters before
+  tokenization, with generic type and size errors.
 - Added language label validation so non-string and non-alphabetic stopword
   mapping keys cannot become detector outputs.
 - Added pinned, read-only Python 3.12 hosted validation for dependency

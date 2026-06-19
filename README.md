@@ -35,11 +35,16 @@ Additional scan context:
 ```bash
 git clone https://github.com/garethpaul/Natural-Language-Processing.git
 cd Natural-Language-Processing
-python3 -m pip install -r requirements.txt
+python3 -m pip install -r requirements.txt -c constraints.txt
 python3 -m nltk.downloader stopwords  # optional; falls back to stop_words.txt when absent
 ```
 
 The setup commands above are derived from repository files. Legacy mobile, Python, or JavaScript samples may require older SDKs or package versions than a modern workstation uses by default.
+
+`requirements.txt` keeps the supported NLTK 3.x compatibility range public,
+while `constraints.txt` records the reviewed exact Python 3.12 graph used by
+CI. These version constraints reduce resolver drift but do not authenticate
+downloaded package artifacts or make installation offline-reproducible.
 
 ## Running or Using the Project
 
@@ -64,11 +69,41 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   stopword scoring so padded tokens match corpus entries.
 - Explicit stopword set normalization applies the same strip/lowercase rules to
   caller-provided stopword mappings before scoring.
+- The stopword entry type guard ignores non-string provider and explicit values
+  before normalization instead of raising or coercing them.
+- Scalar stopword collections are rejected before iteration so malformed
+  strings cannot become character-level language evidence.
+- Mapping-shaped stopword collections are rejected before iteration so mapping
+  keys cannot become stopword evidence.
+- The token entry type guard ignores non-string tokenizer output before string
+  normalization and scoring.
+- The tokenizer output type guard treats scalar strings, bytes, and
+  non-iterable return values as empty evidence instead of iterating or raising.
+- Mapping-shaped tokenizer output is rejected before iteration so mapping keys
+  cannot become token evidence.
+- The tokenizer iteration failure guard discards partial evidence when a custom
+  tokenizer raises while its returned iterator is being consumed.
+- The tokenizer invocation failure guard converts custom tokenizer call errors
+  to empty evidence without exposing provider diagnostics.
+- Stopword iterable failures discard that language's partial normalized entries
+  without exposing provider diagnostics or corrupting other language evidence.
+- Stopword mapping iteration failures discard all partial language evidence
+  without exposing caller diagnostics or allowing mapping order to affect output.
+- The stopword provider invocation failure guard converts `fileids()` and
+  `words()` errors to empty evidence while preserving missing-corpus fallback.
+- Scalar provider language collections are rejected before iteration so a
+  malformed `fileids()` string cannot create one-character language buckets.
+- Mapping-shaped provider language collections are rejected before iteration so
+  `fileids()` mapping keys cannot trigger `words()` lookups.
 - Language label normalization strips and lowercases caller-provided or
   provider-loaded language names, merging duplicate normalized stopword
   mappings before scoring.
 - Language label validation ignores non-string or non-alphabetic mapping keys
   so sentinel values and numeric IDs cannot become detector outputs.
+- The language label control character guard ignores labels containing newline,
+  terminal escape, or other non-printable characters before scoring or CLI output.
+- Bounded detector text accepts at most 100,000 characters before tokenization
+  and rejects invalid types without echoing private input.
 
 ## Testing and Verification
 
@@ -76,9 +111,13 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - `make test`
 - `make build`
 - `make check`
+- The Make gates are location-independent. From another directory, pass the
+  checkout's Makefile by absolute path, such as
+  `make -f /path/to/Natural-Language-Processing/Makefile check`.
 - `python3 -m unittest discover -s tests`
 - `python3 scripts/check-baseline.py`
-- Pinned `ubuntu-24.04` GitHub Actions installs `requirements.txt`, runs
+- Pinned `ubuntu-24.04` GitHub Actions installs `requirements.txt` through
+  `constraints.txt`, runs
   `pip check`, and executes `make check` on Python 3.12 without private text,
   external service calls, or NLTK corpus downloads.
 
@@ -96,6 +135,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 - The unit tests use small injected stopword fixtures, so they do not require
   downloading NLTK corpora.
+- Use an absolute Makefile path when running the verification gates outside the
+  checkout.
 - If NLTK or its stopwords corpus is unavailable, the sample falls back to the
   checked-in English stop-word list and returns `unknown` for zero-score input.
 - See `docs/plans/2026-06-09-ambiguous-stopword-ties.md` for the ambiguous
@@ -110,12 +151,15 @@ When the required SDK or runtime is unavailable, use static checks and source re
   evidence handling.
 - See `docs/plans/2026-06-09-stopword-entry-normalization.md` for stopword
   entry normalization behavior.
+- See `docs/plans/2026-06-14-stopword-entry-type-guard.md` for stopword entry
+  type validation behavior.
 - See `docs/plans/2026-06-09-text-token-normalization.md` for text token
   normalization behavior.
 - See `docs/plans/2026-06-09-explicit-stopword-set-normalization.md` for
   explicit stopword set normalization behavior.
 - See `docs/plans/2026-06-10-stopword-language-label-normalization.md` for
   language label normalization behavior.
+- See `docs/plans/2026-06-10-ci-baseline.md` for the GitHub Actions baseline.
 - See `docs/plans/2026-06-10-stopword-language-label-validation.md` for
   language label validation behavior.
 - See `docs/plans/2026-06-09-make-gate-aliases.md` for the local verification

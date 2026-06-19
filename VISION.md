@@ -18,6 +18,8 @@ Priority:
 
 - Preserve the stopword-ratio language detection example
 - Keep NLTK dependency requirements visible
+- Keep the reviewed Python 3.12 dependency graph in `constraints.txt` while
+  acknowledging that exact versions do not authenticate package artifacts
 - Avoid claiming production-level language detection accuracy
 - Keep sample text and stop-word data reviewable
 - Keep deterministic fixture tests for clear and no-match input
@@ -28,10 +30,25 @@ Priority:
 - Preserve explicit empty stopword mappings as no evidence
 - Return unknown when stopword evidence is too sparse for the amount of text
 - Preserve stopword entry normalization before scoring provider data
+- Preserve the stopword entry type guard for provider and explicit collections
+- Preserve scalar stopword collection rejection before iterable normalization
+- Preserve mapping-shaped stopword collection rejection before iterable normalization
 - Preserve text token normalization before stopword scoring
+- Preserve the token entry type guard for injected tokenizer output
+- Preserve the tokenizer output type guard before token iteration
+- Preserve mapping-shaped tokenizer output rejection before token iteration
+- Preserve the tokenizer iteration failure guard during token consumption
+- Preserve the tokenizer invocation failure guard around provider calls
+- Preserve all-or-nothing stopword normalization when iterables fail
 - Preserve explicit stopword set normalization before scoring custom mappings
+- Preserve stopword mapping iteration failure isolation before scoring partial data
+- Preserve the stopword provider invocation failure guard around corpus calls
+- Preserve scalar provider language collection rejection before iteration
+- Preserve mapping-shaped provider language collection rejection before iteration
 - Preserve language label normalization before scoring custom mappings
 - Preserve language label validation before exposing detector output labels
+- Preserve the language label control character guard before CLI output
+- Preserve bounded detector text before invoking tokenizers
 - Keep `make lint`, `make test`, `make build`, and `make check` available
 - Keep pinned, read-only Python 3.12 hosted validation dependency-aware and
   independent of private text or NLTK corpus downloads

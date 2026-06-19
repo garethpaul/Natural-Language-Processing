@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import argparse
 import re
+from collections.abc import Mapping as RuntimeMapping
 from pathlib import Path
 from typing import Callable, Dict, Iterable, Mapping, Optional, Set
 
@@ -21,6 +22,7 @@ UNKNOWN_LANGUAGE = "unknown"
 MIN_STOPWORD_MATCHES = 2
 MIN_STOPWORD_MARGIN = 2
 MIN_STOPWORD_DENSITY = 0.2
+MAXIMUM_TEXT_CHARACTERS = 100_000
 STOP_WORDS_PATH = Path(__file__).with_name("stop_words.txt")
 DEFAULT_SAMPLE = """
 Une adoption plus rapide que le telephone classique et mobile.
@@ -38,20 +40,49 @@ def _default_tokenizer() -> Callable[[str], Iterable[str]]:
 
 
 def _normalise_tokens(tokens: Iterable[str]) -> Set[str]:
+    if isinstance(tokens, (str, bytes)):
+        return set()
+    if isinstance(tokens, RuntimeMapping):
+        return set()
+    try:
+        token_iterator = iter(tokens)
+    except TypeError:
+        return set()
+
     normalised_tokens = set()
-    for token in tokens:
-        normalised_token = token.strip().lower()
-        if any(character.isalpha() for character in normalised_token):
-            normalised_tokens.add(normalised_token)
+    try:
+        for token in token_iterator:
+            if not isinstance(token, str):
+                continue
+            normalised_token = token.strip().lower()
+            if any(character.isalpha() for character in normalised_token):
+                normalised_tokens.add(normalised_token)
+    except Exception:
+        return set()
     return normalised_tokens
 
 
 def _normalise_stopwords(words: Iterable[str]) -> Set[str]:
-    return {
-        word.strip().lower()
-        for word in words
-        if word.strip()
-    }
+    if isinstance(words, (str, bytes)):
+        return set()
+    if isinstance(words, RuntimeMapping):
+        return set()
+    try:
+        word_iterator = iter(words)
+    except Exception:
+        return set()
+
+    normalised_words = set()
+    try:
+        for word in word_iterator:
+            if not isinstance(word, str):
+                continue
+            normalised_word = word.strip().lower()
+            if normalised_word:
+                normalised_words.add(normalised_word)
+    except Exception:
+        return set()
+    return normalised_words
 
 
 def _normalise_language_name(language: str) -> str:
@@ -59,20 +90,26 @@ def _normalise_language_name(language: str) -> str:
         return ""
 
     normalised_language = language.strip().lower()
-    if not any(character.isalpha() for character in normalised_language):
+    if (
+        not normalised_language.isprintable()
+        or not any(character.isalpha() for character in normalised_language)
+    ):
         return ""
     return normalised_language
 
 
 def _normalise_stopword_sets(stopword_sets: Mapping[str, Iterable[str]]) -> Dict[str, Set[str]]:
     normalised_sets: Dict[str, Set[str]] = {}
-    for language, stopwords in stopword_sets.items():
-        normalised_language = _normalise_language_name(language)
-        if not normalised_language:
-            continue
-        normalised_sets.setdefault(normalised_language, set()).update(
-            _normalise_stopwords(stopwords)
-        )
+    try:
+        for language, stopwords in stopword_sets.items():
+            normalised_language = _normalise_language_name(language)
+            if not normalised_language:
+                continue
+            normalised_sets.setdefault(normalised_language, set()).update(
+                _normalise_stopwords(stopwords)
+            )
+    except Exception:
+        return {}
     return normalised_sets
 
 
@@ -80,7 +117,17 @@ def _normalised_text_words(
     text: str,
     tokenizer: Optional[Callable[[str], Iterable[str]]],
 ) -> Set[str]:
-    return _normalise_tokens((tokenizer or _default_tokenizer())(text or ""))
+    if text is None:
+        text = ""
+    if not isinstance(text, str):
+        raise ValueError("text must be a string")
+    if len(text) > MAXIMUM_TEXT_CHARACTERS:
+        raise ValueError("text exceeds 100000 character limit")
+    try:
+        tokens = (tokenizer or _default_tokenizer())(text)
+    except Exception:
+        return set()
+    return _normalise_tokens(tokens)
 
 
 def load_checked_in_stop_words(path: Path = STOP_WORDS_PATH) -> Set[str]:
@@ -88,22 +135,33 @@ def load_checked_in_stop_words(path: Path = STOP_WORDS_PATH) -> Set[str]:
     return _normalise_stopwords(path.read_text(encoding="utf-8").splitlines())
 
 
+def _load_provider_stopword_sets(stopwords_provider) -> Dict[str, Set[str]]:
+    languages = stopwords_provider.fileids()
+    if isinstance(languages, (str, bytes)):
+        return {}
+    if isinstance(languages, RuntimeMapping):
+        return {}
+    return _normalise_stopword_sets({
+        language: stopwords_provider.words(language)
+        for language in languages
+    })
+
+
 def load_stopword_sets(stopwords_provider=None) -> Dict[str, Set[str]]:
     """Load NLTK stopwords, falling back to the checked-in English list."""
     if stopwords_provider is not None:
-        return _normalise_stopword_sets({
-            language: stopwords_provider.words(language)
-            for language in stopwords_provider.fileids()
-        })
+        try:
+            return _load_provider_stopword_sets(stopwords_provider)
+        except Exception:
+            return {}
 
     if _nltk_stopwords is not None:
         try:
-            return _normalise_stopword_sets({
-                language: _nltk_stopwords.words(language)
-                for language in _nltk_stopwords.fileids()
-            })
+            return _load_provider_stopword_sets(_nltk_stopwords)
         except LookupError:
             pass
+        except Exception:
+            return {}
 
     return {"english": load_checked_in_stop_words()}
 
