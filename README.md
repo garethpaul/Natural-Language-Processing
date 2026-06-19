@@ -41,10 +41,14 @@ python3 -m nltk.downloader stopwords  # optional; falls back to stop_words.txt w
 
 The setup commands above are derived from repository files. Legacy mobile, Python, or JavaScript samples may require older SDKs or package versions than a modern workstation uses by default.
 
-`requirements.txt` keeps the supported NLTK 3.x compatibility range public,
+`requirements.txt` requires the first NLTK release with strict path enforcement,
 while `constraints.txt` records the reviewed exact Python 3.12 graph used by
 CI. These version constraints reduce resolver drift but do not authenticate
 downloaded package artifacts or make installation offline-reproducible.
+
+The sample enables `nltk.pathsec.ENFORCE` before using NLTK. User text is passed
+only to `wordpunct_tokenize`; the default corpus lookup remains the fixed
+`corpora/stopwords` resource. Do not add caller-controlled NLTK resource URLs.
 
 ## Running or Using the Project
 

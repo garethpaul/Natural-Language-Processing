@@ -2,6 +2,8 @@
 
 ## 2026-06-19
 
+- Enabled NLTK strict path enforcement, required the first release that exposes
+  it, and added a regression test for encoded absolute-path resource payloads.
 - Rejected mapping-shaped tokenizer output, stopword collections, and provider
   language collections before iteration so mapping keys cannot become evidence.
 - Integrated the read-only hosted CI ownership contract with CODEOWNERS, agent

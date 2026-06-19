@@ -120,9 +120,16 @@ def main():
         failures.append(f"docs/readme-overview.svg must parse as XML: {error}")
 
     source = read("language_detection.py")
+    tests = read("tests/test_language_detection.py")
     require("print " not in source, "language_detection.py must not use Python 2 print syntax", failures)
     require("def load_stopword_sets" in source and "LookupError" in source,
             "detector must have an NLTK corpus fallback", failures)
+    require("from nltk import pathsec as _nltk_pathsec" in source and
+            "_nltk_pathsec.ENFORCE = True" in source,
+            "detector must enable NLTK strict path enforcement", failures)
+    require("test_nltk_strict_path_enforcement_blocks_encoded_absolute_paths" in tests and
+            'data.load(f"nltk:{encoded_path}", format="raw")' in tests,
+            "tests must reject encoded absolute NLTK resource paths", failures)
     require("UNKNOWN_LANGUAGE" in source,
             "detector must return an explicit unknown result for zero-score input",
             failures)
@@ -711,14 +718,18 @@ nltk==3.9.4
 regex==2026.5.9
 tqdm==4.68.1
 """
-    require(requirements == "nltk>=3.8,<4\n",
-            "requirements.txt must preserve the NLTK 3.x compatibility range", failures)
+    require(requirements == "nltk>=3.9.4,<4\n",
+            "requirements.txt must require NLTK strict path enforcement support", failures)
     require(constraints == expected_constraints,
             "constraints.txt must match the reviewed Python 3.12 graph exactly", failures)
     require(workflow.count("python -m pip install") == 1,
             "Check workflow must contain exactly one constrained dependency installation", failures)
     require("constraints.txt" in docs,
             "README, security, vision, or change docs must describe dependency constraints", failures)
+    require("CVE-2026-54293" in docs and "nltk.pathsec.ENFORCE" in docs and
+            "corpora/stopwords" in docs,
+            "project guidance must document NLTK traversal containment and fixed resource flow",
+            failures)
     require("do not authenticate" in docs.lower(),
             "docs must describe the constraints artifact-authentication boundary", failures)
     status = re.findall(r"(?mi)^status:\s*(.+?)\s*$", constraints_plan)

@@ -33,6 +33,15 @@ Helpful reports include:
 - Run `make lint`, `make test`, `make build`, and `make check` after changing detector code, stopword data, dependencies, tests, or security docs.
 - The pinned Linux workflow installs declared dependencies and runs local tests
   without private text, external service calls, or NLTK corpus downloads.
+- NLTK 3.9.4 is affected by CVE-2026-54293 when attacker-controlled encoded
+  `nltk:` resource URLs reach `nltk.data.load()` under warn-only path handling.
+  This sample does not accept resource URLs: user text reaches only
+  `wordpunct_tokenize`, and the default corpus loader resolves the fixed
+  `corpora/stopwords` path. The module still enables `nltk.pathsec.ENFORCE`
+  before using NLTK so encoded absolute or traversal paths fail closed.
+- Keep `nltk>=3.9.4` while strict enforcement is required. Do not weaken the
+  setting or add caller-controlled NLTK resource names. Replace the constraint
+  with the first stable patched NLTK release after compatibility validation.
 - Text samples can contain private text. Tests and examples should use synthetic or public text, and errors should not dump private input.
 - Bounded detector text should reject more than 100,000 characters before
   tokenization and keep validation errors free of private input content.

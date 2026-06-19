@@ -11,11 +11,15 @@ from pathlib import Path
 from typing import Callable, Dict, Iterable, Mapping, Optional, Set
 
 try:
+    from nltk import pathsec as _nltk_pathsec
     from nltk import wordpunct_tokenize as _nltk_wordpunct_tokenize
     from nltk.corpus import stopwords as _nltk_stopwords
 except ImportError:  # pragma: no cover - covered by fallback behavior.
+    _nltk_pathsec = None
     _nltk_wordpunct_tokenize = None
     _nltk_stopwords = None
+else:
+    _nltk_pathsec.ENFORCE = True
 
 
 UNKNOWN_LANGUAGE = "unknown"

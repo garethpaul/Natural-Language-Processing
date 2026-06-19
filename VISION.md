@@ -52,6 +52,8 @@ Priority:
 - Keep `make lint`, `make test`, `make build`, and `make check` available
 - Keep pinned, read-only Python 3.12 hosted validation dependency-aware and
   independent of private text or NLTK corpus downloads
+- Preserve NLTK strict path enforcement and keep caller-controlled resource
+  URLs outside the detector boundary until a stable patched release is adopted
 
 Next priorities:
 

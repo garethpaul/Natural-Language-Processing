@@ -40,6 +40,8 @@ stopword-overlap language detection with deterministic local and hosted checks.
   corpus downloads.
 - Missing optional NLTK stopword corpora fall back to the checked-in English
   list; unexpected default-provider failures fail closed to empty evidence.
+- NLTK integration requires strict `nltk.pathsec` enforcement. Do not introduce
+  caller-controlled NLTK resource URLs or weaken that process-level boundary.
 - GitHub Actions runs the same `make check` gate on Python 3.12 with pinned
   actions, read-only checkout credentials, and the reviewed constraints file.
 - If a validation command is skipped, record the exact command and the reason.

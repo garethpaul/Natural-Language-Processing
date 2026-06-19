@@ -1,4 +1,6 @@
 import unittest
+from pathlib import Path
+from urllib.parse import quote
 from unittest.mock import patch
 
 import language_detection
@@ -758,6 +760,17 @@ class LanguageDetectionTests(unittest.TestCase):
 
         self.assertIn("the", words)
         self.assertIn("and", words)
+
+    def test_nltk_strict_path_enforcement_blocks_encoded_absolute_paths(self):
+        if language_detection._nltk_pathsec is None:
+            self.skipTest("NLTK strict path enforcement is unavailable")
+
+        from nltk import data
+
+        self.assertTrue(language_detection._nltk_pathsec.ENFORCE)
+        encoded_path = quote(str(Path(__file__).resolve()), safe="")
+        with self.assertRaises((LookupError, PermissionError, ValueError)):
+            data.load(f"nltk:{encoded_path}", format="raw")
 
 
 if __name__ == "__main__":
