@@ -1,5 +1,12 @@
 # Changes
 
+## 2026-06-19
+
+- Rejected mapping-shaped tokenizer output, stopword collections, and provider
+  language collections before iteration so mapping keys cannot become evidence.
+- Integrated the read-only hosted CI ownership contract with CODEOWNERS, agent
+  guidance, and a completed CI baseline plan.
+
 ## 2026-06-17
 
 - Added a provider language collection type guard so malformed scalar

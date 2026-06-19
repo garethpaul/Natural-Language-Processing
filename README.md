@@ -73,10 +73,14 @@ downloaded package artifacts or make installation offline-reproducible.
   before normalization instead of raising or coercing them.
 - Scalar stopword collections are rejected before iteration so malformed
   strings cannot become character-level language evidence.
+- Mapping-shaped stopword collections are rejected before iteration so mapping
+  keys cannot become stopword evidence.
 - The token entry type guard ignores non-string tokenizer output before string
   normalization and scoring.
 - The tokenizer output type guard treats scalar strings, bytes, and
   non-iterable return values as empty evidence instead of iterating or raising.
+- Mapping-shaped tokenizer output is rejected before iteration so mapping keys
+  cannot become token evidence.
 - The tokenizer iteration failure guard discards partial evidence when a custom
   tokenizer raises while its returned iterator is being consumed.
 - The tokenizer invocation failure guard converts custom tokenizer call errors
@@ -89,6 +93,8 @@ downloaded package artifacts or make installation offline-reproducible.
   `words()` errors to empty evidence while preserving missing-corpus fallback.
 - Scalar provider language collections are rejected before iteration so a
   malformed `fileids()` string cannot create one-character language buckets.
+- Mapping-shaped provider language collections are rejected before iteration so
+  `fileids()` mapping keys cannot trigger `words()` lookups.
 - Language label normalization strips and lowercases caller-provided or
   provider-loaded language names, merging duplicate normalized stopword
   mappings before scoring.
@@ -153,6 +159,7 @@ When the required SDK or runtime is unavailable, use static checks and source re
   explicit stopword set normalization behavior.
 - See `docs/plans/2026-06-10-stopword-language-label-normalization.md` for
   language label normalization behavior.
+- See `docs/plans/2026-06-10-ci-baseline.md` for the GitHub Actions baseline.
 - See `docs/plans/2026-06-10-stopword-language-label-validation.md` for
   language label validation behavior.
 - See `docs/plans/2026-06-09-make-gate-aliases.md` for the local verification

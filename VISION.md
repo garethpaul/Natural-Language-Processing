@@ -32,9 +32,11 @@ Priority:
 - Preserve stopword entry normalization before scoring provider data
 - Preserve the stopword entry type guard for provider and explicit collections
 - Preserve scalar stopword collection rejection before iterable normalization
+- Preserve mapping-shaped stopword collection rejection before iterable normalization
 - Preserve text token normalization before stopword scoring
 - Preserve the token entry type guard for injected tokenizer output
 - Preserve the tokenizer output type guard before token iteration
+- Preserve mapping-shaped tokenizer output rejection before token iteration
 - Preserve the tokenizer iteration failure guard during token consumption
 - Preserve the tokenizer invocation failure guard around provider calls
 - Preserve all-or-nothing stopword normalization when iterables fail
@@ -42,6 +44,7 @@ Priority:
 - Preserve stopword mapping iteration failure isolation before scoring partial data
 - Preserve the stopword provider invocation failure guard around corpus calls
 - Preserve scalar provider language collection rejection before iteration
+- Preserve mapping-shaped provider language collection rejection before iteration
 - Preserve language label normalization before scoring custom mappings
 - Preserve language label validation before exposing detector output labels
 - Preserve the language label control character guard before CLI output

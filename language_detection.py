@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import argparse
 import re
+from collections.abc import Mapping as RuntimeMapping
 from pathlib import Path
 from typing import Callable, Dict, Iterable, Mapping, Optional, Set
 
@@ -41,6 +42,8 @@ def _default_tokenizer() -> Callable[[str], Iterable[str]]:
 def _normalise_tokens(tokens: Iterable[str]) -> Set[str]:
     if isinstance(tokens, (str, bytes)):
         return set()
+    if isinstance(tokens, RuntimeMapping):
+        return set()
     try:
         token_iterator = iter(tokens)
     except TypeError:
@@ -61,6 +64,8 @@ def _normalise_tokens(tokens: Iterable[str]) -> Set[str]:
 
 def _normalise_stopwords(words: Iterable[str]) -> Set[str]:
     if isinstance(words, (str, bytes)):
+        return set()
+    if isinstance(words, RuntimeMapping):
         return set()
     try:
         word_iterator = iter(words)
@@ -133,6 +138,8 @@ def load_checked_in_stop_words(path: Path = STOP_WORDS_PATH) -> Set[str]:
 def _load_provider_stopword_sets(stopwords_provider) -> Dict[str, Set[str]]:
     languages = stopwords_provider.fileids()
     if isinstance(languages, (str, bytes)):
+        return {}
+    if isinstance(languages, RuntimeMapping):
         return {}
     return _normalise_stopword_sets({
         language: stopwords_provider.words(language)

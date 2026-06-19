@@ -46,12 +46,16 @@ Helpful reports include:
   values without logging or coercing their contents.
 - Scalar stopword collections should be rejected before iteration so malformed
   strings cannot create character-level language evidence.
+- Mapping-shaped stopword collections should be rejected before iteration so
+  caller-controlled keys cannot become stopword evidence.
 - Text token normalization should strip and lowercase tokenizer output before
   scoring so whitespace-padded input does not change evidence.
 - The token entry type guard should ignore non-string tokenizer output without
   logging or coercing attacker-controlled object values.
 - The tokenizer output type guard should reject scalar and non-iterable return
   values without logging, coercing, or exposing their representations.
+- Mapping-shaped tokenizer output should be rejected before iteration so
+  caller-controlled keys cannot become token evidence.
 - The tokenizer iteration failure guard should discard partial token evidence
   without exposing iterator diagnostics.
 - The tokenizer invocation failure guard should return empty evidence when a
@@ -64,6 +68,8 @@ Helpful reports include:
   evidence when `fileids()` or `words()` raises, without exposing diagnostics.
 - Scalar provider language collections should be rejected before iteration so
   malformed `fileids()` strings cannot create fabricated language evidence.
+- Mapping-shaped provider language collections should be rejected before
+  iteration so provider keys cannot trigger unintended `words()` lookups.
 - Explicit stopword set normalization should strip, lowercase, and ignore blank
   caller-provided entries before scoring so custom mappings match provider behavior.
 - Language label normalization should strip and lowercase caller-provided or

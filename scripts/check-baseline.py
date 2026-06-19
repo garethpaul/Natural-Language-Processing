@@ -59,8 +59,10 @@ def markdown_section(document, heading):
 def main():
     failures = []
     required = [
+        ".github/CODEOWNERS",
         ".gitignore",
         ".github/workflows/check.yml",
+        "AGENTS.md",
         "CHANGES.md",
         "Makefile",
         "README.md",
@@ -81,6 +83,7 @@ def main():
         "docs/plans/2026-06-09-stopword-entry-normalization.md",
         "docs/plans/2026-06-09-text-token-normalization.md",
         "docs/plans/2026-06-09-explicit-stopword-set-normalization.md",
+        "docs/plans/2026-06-10-ci-baseline.md",
         "docs/plans/2026-06-10-stopword-language-label-normalization.md",
         "docs/plans/2026-06-10-stopword-language-label-validation.md",
         "docs/plans/2026-06-10-hosted-python-validation.md",
@@ -135,11 +138,12 @@ def main():
             failures)
     token_normalizer = source.split("def _normalise_tokens", 1)[1].split("def _normalise_stopwords", 1)[0]
     require("if isinstance(tokens, (str, bytes)):" in token_normalizer and
+            "isinstance(tokens, RuntimeMapping)" in token_normalizer and
             "token_iterator = iter(tokens)" in token_normalizer and
             "except TypeError:" in token_normalizer and
             "for token in token_iterator:" in token_normalizer and
             "for token in tokens:" not in token_normalizer,
-            "detector must reject scalar and non-iterable tokenizer output before entry normalization",
+            "detector must reject scalar, mapping, and non-iterable tokenizer output before entry normalization",
             failures)
     require("try:\n        for token in token_iterator:" in token_normalizer and
             "except Exception:\n        return set()" in token_normalizer,
@@ -222,6 +226,7 @@ def main():
         "test_text_tokens_are_normalized_before_scoring",
         "test_non_string_tokenizer_entries_are_ignored",
         "test_malformed_tokenizer_output_collections_return_unknown",
+        "test_mapping_tokenizer_output_collections_return_unknown",
         "test_text_character_limit_is_checked_before_tokenization",
         "test_invalid_text_types_are_rejected_without_echoing_values",
         "test_none_text_retains_empty_text_behavior",
@@ -376,6 +381,27 @@ def main():
             '{"english": 0, "french": 0, "spanish": 0}' in tokenizer_output_test and
             "UNKNOWN_LANGUAGE" in tokenizer_output_test,
             "tests must cover malformed tokenizer output collections through ratios and detection", failures)
+    mapping_tokenizer_output_test_match = re.search(
+        r"(?ms)^    def test_mapping_tokenizer_output_collections_return_unknown\(self\):\n(.*?)(?=^    def test_|\Z)",
+        tests,
+    )
+    mapping_tokenizer_output_test = (
+        mapping_tokenizer_output_test_match.group(1)
+        if mapping_tokenizer_output_test_match else ""
+    )
+    require('return {"the": object(), "and": object(), "you": object()}' in
+            mapping_tokenizer_output_test and
+            '{"english": 0, "french": 0, "spanish": 0}' in
+            mapping_tokenizer_output_test and
+            "UNKNOWN_LANGUAGE" in mapping_tokenizer_output_test,
+            "tests must cover mapping-shaped tokenizer output collections through ratios and detection",
+            failures)
+    require("Mapping-shaped tokenizer output is rejected" in read("README.md") and
+            "Mapping-shaped tokenizer output should be rejected" in read("SECURITY.md") and
+            "Preserve mapping-shaped tokenizer output rejection" in read("VISION.md") and
+            "mapping-shaped tokenizer output, stopword collections, and provider" in read("CHANGES.md"),
+            "mapping-shaped tokenizer output guidance and changelog must remain documented",
+            failures)
     tokenizer_iteration_plan = read("docs/plans/2026-06-15-tokenizer-iteration-failure-guard.md")
     tokenizer_iteration_verification = markdown_section(tokenizer_iteration_plan, "Verification Completed")
     require("status: completed" in tokenizer_iteration_plan.lower() and
@@ -418,11 +444,13 @@ def main():
     scalar_stopword_guard = "if isinstance(words, (str, bytes)):\n        return set()"
     require(scalar_stopword_guard in stopword_normalizer and
             stopword_normalizer.index(scalar_stopword_guard) < stopword_normalizer.index("word_iterator = iter(words)") and
+            "isinstance(words, RuntimeMapping)" in stopword_normalizer and
+            stopword_normalizer.index("isinstance(words, RuntimeMapping)") < stopword_normalizer.index("word_iterator = iter(words)") and
             "word_iterator = iter(words)" in stopword_normalizer and
             stopword_normalizer.count("except Exception:") == 2 and
-            stopword_normalizer.count("return set()") == 3 and
+            stopword_normalizer.count("return set()") == 4 and
             "for word in word_iterator:" in stopword_normalizer,
-            "stopword normalization must reject scalar collections before iteration and discard failed iterable evidence", failures)
+            "stopword normalization must reject scalar and mapping collections before iteration and discard failed iterable evidence", failures)
     stopword_collection_test_match = re.search(
         r"(?ms)^    def test_scalar_stopword_collections_are_empty_evidence\(self\):\n(.*?)(?=^    def test_|\Z)",
         tests,
@@ -435,6 +463,19 @@ def main():
             '{"english": 0}' in stopword_collection_test and
             "UNKNOWN_LANGUAGE" in stopword_collection_test,
             "tests must prove scalar stopword collections are empty evidence on explicit and provider paths", failures)
+    mapping_stopword_collection_test_match = re.search(
+        r"(?ms)^    def test_mapping_stopword_collections_are_empty_evidence\(self\):\n(.*?)(?=^    def test_|\Z)",
+        tests,
+    )
+    mapping_stopword_collection_test = (
+        mapping_stopword_collection_test_match.group(1)
+        if mapping_stopword_collection_test_match else ""
+    )
+    require('{"the": True, "and": True, "you": True}' in mapping_stopword_collection_test and
+            '{"english": 0, "french": 3}' in mapping_stopword_collection_test and
+            '            "french",' in mapping_stopword_collection_test,
+            "tests must prove mapping-shaped stopword collections are empty evidence",
+            failures)
     stopword_collection_plan = read("docs/plans/2026-06-16-stopword-collection-type-guard.md")
     stopword_collection_verification = markdown_section(stopword_collection_plan, "Verification Completed")
     require("status: completed" in stopword_collection_plan.lower() and
@@ -448,6 +489,12 @@ def main():
             "Preserve scalar stopword collection rejection" in read("VISION.md") and
             "scalar stopword collection type guard" in read("CHANGES.md"),
             "stopword collection type guard guidance and changelog must remain documented", failures)
+    require("Mapping-shaped stopword collections are rejected" in read("README.md") and
+            "Mapping-shaped stopword collections should be rejected" in read("SECURITY.md") and
+            "Preserve mapping-shaped stopword collection rejection" in read("VISION.md") and
+            "mapping-shaped tokenizer output, stopword collections, and provider" in read("CHANGES.md"),
+            "mapping-shaped stopword collection guidance and changelog must remain documented",
+            failures)
     stopword_iteration_test_match = re.search(
         r"(?ms)^    def test_stopword_iteration_failure_discards_partial_language_evidence\(self\):\n(.*?)(?=^    def test_|\Z)",
         tests,
@@ -511,6 +558,7 @@ def main():
     require("stopwords_provider.fileids()" in provider_loader and
             "languages = stopwords_provider.fileids()" in provider_loader and
             "isinstance(languages, (str, bytes))" in provider_loader and
+            "isinstance(languages, RuntimeMapping)" in provider_loader and
             "stopwords_provider.words(language)" in provider_loader and
             provider_entry.count("return _load_provider_stopword_sets") == 2 and
             "if stopwords_provider is not None:\n        try:" in provider_entry and
@@ -535,11 +583,35 @@ def main():
             "UNKNOWN_LANGUAGE" in provider_language_collection_test,
             "tests must prove scalar provider language collections are empty evidence",
             failures)
+    mapping_provider_language_collection_test_match = re.search(
+        r"(?ms)^    def test_mapping_provider_language_collections_are_empty_evidence\(self\):\n(.*?)(?=^    def test_|\Z)",
+        tests,
+    )
+    mapping_provider_language_collection_test = (
+        mapping_provider_language_collection_test_match.group(1)
+        if mapping_provider_language_collection_test_match else ""
+    )
+    require("MappingLanguageCollectionStopwords()" in
+            mapping_provider_language_collection_test and
+            "load_stopword_sets(provider), {}" in
+            mapping_provider_language_collection_test and
+            mapping_provider_language_collection_test.count("provider.words_calls, []") == 3 and
+            "stopwords_provider=provider" in
+            mapping_provider_language_collection_test and
+            "UNKNOWN_LANGUAGE" in mapping_provider_language_collection_test,
+            "tests must prove mapping-shaped provider language collections are empty evidence",
+            failures)
     require("Scalar provider language collections are rejected" in read("README.md") and
             "Scalar provider language collections should be rejected" in read("SECURITY.md") and
             "Preserve scalar provider language collection rejection" in read("VISION.md") and
             "provider language collection type guard" in read("CHANGES.md"),
             "provider language collection type guard guidance must remain documented",
+            failures)
+    require("Mapping-shaped provider language collections are rejected" in read("README.md") and
+            "Mapping-shaped provider language collections should be rejected" in read("SECURITY.md") and
+            "Preserve mapping-shaped provider language collection rejection" in read("VISION.md") and
+            "mapping-shaped tokenizer output, stopword collections, and provider" in read("CHANGES.md"),
+            "mapping-shaped provider language collection guidance must remain documented",
             failures)
     provider_language_collection_plan = read(
         "docs/plans/2026-06-17-provider-language-collection-type-guard.md"
@@ -588,6 +660,7 @@ def main():
             "stopword provider invocation failure guard plan must record completed verification",
             failures)
     hosted_plan = read("docs/plans/2026-06-10-hosted-python-validation.md")
+    ci_plan = read("docs/plans/2026-06-10-ci-baseline.md")
     constraints_plan = read("docs/plans/2026-06-12-python-dependency-constraints.md")
     requirements = read("requirements.txt")
     constraints = read("constraints.txt")
@@ -598,6 +671,10 @@ def main():
     workflow = read(".github/workflows/check.yml")
     require("status: completed" in hosted_plan and "make check" in hosted_plan,
             "hosted Python validation plan must be completed and include verification", failures)
+    require("status: completed" in ci_plan and "GitHub Actions" in ci_plan and
+            "constraints.txt" in ci_plan and "make check" in ci_plan,
+            "CI baseline plan must be completed and include constrained make check verification",
+            failures)
     for expected in [
         "permissions:\n  contents: read",
         "cancel-in-progress: true",
@@ -613,6 +690,20 @@ def main():
         "run: make check",
     ]:
         require(expected in workflow, f"Check workflow must keep {expected}", failures)
+    workflow_files = sorted(
+        str(path.relative_to(ROOT))
+        for path in (ROOT / ".github/workflows").rglob("*")
+        if path.is_file()
+    )
+    require(workflow_files == [".github/workflows/check.yml"],
+            "check.yml must be the repository's only hosted workflow", failures)
+    require(read(".github/CODEOWNERS").strip() == "* @garethpaul",
+            "CODEOWNERS must assign the repository to @garethpaul", failures)
+    agent_guidance = read("AGENTS.md")
+    require("make check" in agent_guidance and "constraints.txt" in agent_guidance and
+            "fail-closed behavior" in agent_guidance and "GitHub Actions" in agent_guidance,
+            "AGENTS.md must document validation, constraints, fail-closed behavior, and hosted CI",
+            failures)
     expected_constraints = """# Reviewed CI resolution for Python 3.12.
 click==8.4.1
 joblib==1.5.3

@@ -92,6 +92,11 @@ class ScalarLanguageCollectionStopwords:
         return ["the", "and", "you"]
 
 
+class MappingLanguageCollectionStopwords(ScalarLanguageCollectionStopwords):
+    def __init__(self):
+        super().__init__({"english": object(), "french": object()})
+
+
 def simple_tokenizer(text):
     return text.replace(".", " ").replace(",", " ").split()
 
@@ -273,6 +278,30 @@ class LanguageDetectionTests(unittest.TestCase):
                     UNKNOWN_LANGUAGE,
                 )
                 self.assertEqual(provider.words_calls, [])
+
+    def test_mapping_provider_language_collections_are_empty_evidence(self):
+        provider = MappingLanguageCollectionStopwords()
+
+        self.assertEqual(load_stopword_sets(provider), {})
+        self.assertEqual(provider.words_calls, [])
+        self.assertEqual(
+            _calculate_languages_ratios(
+                "the and you",
+                stopwords_provider=provider,
+                tokenizer=simple_tokenizer,
+            ),
+            {},
+        )
+        self.assertEqual(provider.words_calls, [])
+        self.assertEqual(
+            detect_language(
+                "the and you",
+                stopwords_provider=provider,
+                tokenizer=simple_tokenizer,
+            ),
+            UNKNOWN_LANGUAGE,
+        )
+        self.assertEqual(provider.words_calls, [])
 
     def test_missing_default_stopword_corpus_uses_checked_in_fallback(self):
         with patch.object(language_detection, "_nltk_stopwords", MissingCorpusStopwords()), \
@@ -519,6 +548,29 @@ class LanguageDetectionTests(unittest.TestCase):
                         UNKNOWN_LANGUAGE,
                     )
 
+    def test_mapping_stopword_collections_are_empty_evidence(self):
+        stopword_sets = {
+            "english": {"the": True, "and": True, "you": True},
+            "french": ["une", "deux", "trois"],
+        }
+
+        self.assertEqual(
+            _calculate_languages_ratios(
+                "the and you une deux trois",
+                stopword_sets=stopword_sets,
+                tokenizer=simple_tokenizer,
+            ),
+            {"english": 0, "french": 3},
+        )
+        self.assertEqual(
+            detect_language(
+                "the and you une deux trois",
+                stopword_sets=stopword_sets,
+                tokenizer=simple_tokenizer,
+            ),
+            "french",
+        )
+
     def test_text_tokens_are_normalized_before_scoring(self):
         self.assertEqual(
             _calculate_languages_ratios(
@@ -602,6 +654,27 @@ class LanguageDetectionTests(unittest.TestCase):
                     ),
                     UNKNOWN_LANGUAGE,
                 )
+
+    def test_mapping_tokenizer_output_collections_return_unknown(self):
+        def mapping_output_tokenizer(_text):
+            return {"the": object(), "and": object(), "you": object()}
+
+        self.assertEqual(
+            _calculate_languages_ratios(
+                "ignored input",
+                stopword_sets=self.stopword_sets,
+                tokenizer=mapping_output_tokenizer,
+            ),
+            {"english": 0, "french": 0, "spanish": 0},
+        )
+        self.assertEqual(
+            detect_language(
+                "ignored input",
+                stopword_sets=self.stopword_sets,
+                tokenizer=mapping_output_tokenizer,
+            ),
+            UNKNOWN_LANGUAGE,
+        )
 
     def test_tokenizer_iteration_failure_discards_partial_evidence(self):
         def failing_tokenizer(_text):
