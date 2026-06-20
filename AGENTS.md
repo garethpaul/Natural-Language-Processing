@@ -11,8 +11,8 @@ stopword-overlap language detection with deterministic local and hosted checks.
 - `tests/` - dependency-free unittest coverage with injected fixtures
 - `scripts/check-baseline.py` - static maintenance contract checks
 - `docs/plans/` - completed implementation and verification notes
-- `requirements.txt` - public NLTK compatibility range
-- `constraints.txt` - reviewed Python 3.12 CI dependency resolution
+- `requirements.txt` - exact NLTK containment compatibility pin
+- `constraints.txt` - reviewed Python 3.10, 3.12, and 3.14 CI resolution
 
 ## Development Commands
 
@@ -40,10 +40,13 @@ stopword-overlap language detection with deterministic local and hosted checks.
   corpus downloads.
 - Missing optional NLTK stopword corpora fall back to the checked-in English
   list; unexpected default-provider failures fail closed to empty evidence.
-- NLTK integration requires strict `nltk.pathsec` enforcement. Do not introduce
-  caller-controlled NLTK resource URLs or weaken that process-level boundary.
-- GitHub Actions runs the same `make check` gate on Python 3.12 with pinned
-  actions, read-only checkout credentials, and the reviewed constraints file.
+- NLTK integration requires strict `nltk.pathsec` enforcement and the bounded
+  explicit-root override installed before tokenizer or corpus imports. Do not
+  reintroduce implicit temp trust, filesystem-root allowlists, or
+  caller-controlled NLTK resource URLs.
+- GitHub Actions runs the same `make check` gate on Python 3.10, 3.12, and 3.14
+  with pinned actions, read-only checkout credentials, and the reviewed
+  constraints file.
 - If a validation command is skipped, record the exact command and the reason.
 
 ## Agent Workflow

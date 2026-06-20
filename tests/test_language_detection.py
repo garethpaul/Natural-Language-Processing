@@ -1,4 +1,7 @@
+import os
+import tempfile
 import unittest
+import zipfile
 from pathlib import Path
 from urllib.parse import quote
 from unittest.mock import patch
@@ -781,6 +784,132 @@ class LanguageDetectionTests(unittest.TestCase):
             str(blocked.exception),
             r"Unauthorized path|Unsafe resource path",
         )
+
+    def test_nltk_strict_path_enforcement_does_not_implicitly_trust_temp(self):
+        if language_detection._nltk_pathsec is None:
+            self.skipTest("NLTK strict path enforcement is unavailable")
+
+        from nltk import data
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            temporary_path = Path(temporary_directory)
+            trusted_root = temporary_path / "trusted"
+            trusted_root.mkdir()
+            secret_path = temporary_path / "secret.txt"
+            secret_path.write_bytes(b"private")
+            symlink_path = trusted_root / "link.txt"
+            try:
+                symlink_path.symlink_to(secret_path)
+            except (NotImplementedError, OSError):
+                symlink_path = None
+
+            encoded_secret_path = quote(str(secret_path.resolve()), safe="")
+            double_encoded_secret_path = quote(encoded_secret_path, safe="")
+            hostile_resources = [
+                f"file://{encoded_secret_path}",
+                f"file://{encoded_secret_path.replace('%2F', '%2f')}",
+                f"file://{double_encoded_secret_path}",
+                f"nltk:{encoded_secret_path}",
+                f"nltk:{encoded_secret_path.replace('%2F', '%2f')}",
+                f"nltk:{double_encoded_secret_path}",
+                "nltk:%2e%2e/secret.txt",
+                "nltk:..%2fsecret.txt",
+                "nltk:%252e%252e%252fsecret.txt",
+                "nltk:..∕secret.txt",
+                "nltk:..⁄secret.txt",
+                "nltk:..%E2%88%95secret.txt",
+                "nltk:..%E2%81%84secret.txt",
+                str(secret_path.resolve()),
+                "nltk:C:/Windows/win.ini",
+                r"nltk:C:\Windows\win.ini",
+                "C:/Windows/win.ini",
+                r"C:\Windows\win.ini",
+                r"\\server\share\file.txt",
+                "file://server/share/file.txt",
+            ]
+            if symlink_path is not None:
+                hostile_resources.append(f"file://{symlink_path.absolute()}")
+
+            with patch.object(data, "path", [str(trusted_root)]), patch.dict(
+                os.environ,
+                {"NLTK_DATA": ""},
+            ):
+                data.clear_cache()
+                for resource_name in hostile_resources:
+                    with self.subTest(resource_name=resource_name):
+                        with self.assertRaises((LookupError, PermissionError, ValueError)):
+                            data.load(resource_name, format="raw", cache=False)
+
+    def test_nltk_strict_path_enforcement_preserves_legitimate_resources(self):
+        if language_detection._nltk_pathsec is None:
+            self.skipTest("NLTK strict path enforcement is unavailable")
+
+        from nltk import data
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            trusted_root = Path(temporary_directory) / "trusted"
+            resource_path = trusted_root / "corpora" / "demo" / "words.txt"
+            resource_path.parent.mkdir(parents=True)
+            resource_path.write_bytes(b"directory resource")
+            archive_path = trusted_root / "corpora" / "archive.zip"
+            with zipfile.ZipFile(archive_path, "w") as archive:
+                archive.writestr("archive/words.txt", b"zip resource")
+                archive.writestr("../outside.txt", b"not a filesystem escape")
+
+            with patch.object(data, "path", [str(trusted_root)]), patch.dict(
+                os.environ,
+                {"NLTK_DATA": ""},
+            ):
+                data.clear_cache()
+                self.assertEqual(
+                    data.load("corpora/demo/words.txt", format="raw", cache=False),
+                    b"directory resource",
+                )
+                self.assertEqual(
+                    data.load(
+                        "corpora/archive.zip/archive/words.txt",
+                        format="raw",
+                        cache=False,
+                    ),
+                    b"zip resource",
+                )
+                for resource_name in (
+                    "corpora/archive.zip/../outside.txt",
+                    "corpora/archive.zip/%2e%2e/outside.txt",
+                    "corpora/archive.zip/..%2foutside.txt",
+                ):
+                    with self.subTest(resource_name=resource_name):
+                        with self.assertRaises((LookupError, PermissionError, ValueError)):
+                            data.load(resource_name, format="raw", cache=False)
+
+    def test_nltk_trusted_root_configuration_is_bounded(self):
+        if language_detection._nltk_pathsec is None:
+            self.skipTest("NLTK strict path enforcement is unavailable")
+
+        from nltk import data
+
+        excessive_roots = [f"/tmp/nltk-root-{index}" for index in range(65)]
+        with patch.object(data, "path", excessive_roots), patch.dict(
+            os.environ,
+            {"NLTK_DATA": ""},
+        ):
+            with self.assertRaisesRegex(ValueError, "at most 64 trusted data roots"):
+                language_detection._nltk_allowed_roots()
+
+        oversized_root = "/" + "x" * 4097
+        with patch.object(data, "path", [oversized_root]), patch.dict(
+            os.environ,
+            {"NLTK_DATA": ""},
+        ):
+            with self.assertRaisesRegex(ValueError, "trusted data root exceeds 4096 characters"):
+                language_detection._nltk_allowed_roots()
+
+        with patch.object(data, "path", [Path(Path.cwd().anchor)]), patch.dict(
+            os.environ,
+            {"NLTK_DATA": ""},
+        ):
+            with self.assertRaisesRegex(ValueError, "filesystem roots cannot be trusted"):
+                language_detection._nltk_allowed_roots()
 
 
 if __name__ == "__main__":

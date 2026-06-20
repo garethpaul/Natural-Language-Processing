@@ -2,8 +2,9 @@
 
 ## 2026-06-19
 
-- Enabled NLTK strict path enforcement, required the first release that exposes
-  it, and added a regression test for encoded absolute-path resource payloads.
+- Enabled NLTK strict path enforcement before tokenizer or corpus imports,
+  removed NLTK 3.9.4's implicit temp-directory trust, bounded explicit data
+  roots, and added hostile encoded-path, symlink, ZIP, and compatibility tests.
 - Rejected mapping-shaped tokenizer output, stopword collections, and provider
   language collections before iteration so mapping keys cannot become evidence.
 - Integrated the read-only hosted CI ownership contract with CODEOWNERS, agent

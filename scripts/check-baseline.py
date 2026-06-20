@@ -125,11 +125,21 @@ def main():
     require("def load_stopword_sets" in source and "LookupError" in source,
             "detector must have an NLTK corpus fallback", failures)
     require("from nltk import pathsec as _nltk_pathsec" in source and
-            "_nltk_pathsec.ENFORCE = True" in source,
-            "detector must enable NLTK strict path enforcement", failures)
+            "_nltk_pathsec.ENFORCE = True" in source and
+            "_nltk_pathsec._get_allowed_roots = _nltk_allowed_roots" in source and
+            "MAXIMUM_NLTK_DATA_ROOTS = 64" in source and
+            "MAXIMUM_NLTK_DATA_ROOT_CHARACTERS = 4096" in source,
+            "detector must install bounded NLTK strict path enforcement", failures)
+    require(source.find("_nltk_pathsec._get_allowed_roots = _nltk_allowed_roots") <
+            source.find("from nltk import wordpunct_tokenize") and
+            source.find("_nltk_pathsec.ENFORCE = True") <
+            source.find("from nltk import wordpunct_tokenize"),
+            "NLTK path containment must precede tokenizer and corpus imports", failures)
     require("test_nltk_strict_path_enforcement_blocks_encoded_absolute_paths" in tests and
-            'data.load(f"file://{encoded_path}", format="raw")' in tests,
-            "tests must reject encoded absolute NLTK resource paths", failures)
+            "test_nltk_strict_path_enforcement_does_not_implicitly_trust_temp" in tests and
+            "test_nltk_strict_path_enforcement_preserves_legitimate_resources" in tests and
+            "test_nltk_trusted_root_configuration_is_bounded" in tests,
+            "tests must reject hostile NLTK paths and preserve legitimate resources", failures)
     require("UNKNOWN_LANGUAGE" in source,
             "detector must return an explicit unknown result for zero-score input",
             failures)
@@ -689,7 +699,8 @@ def main():
         "timeout-minutes: 10",
         "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
         "actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405",
-        'python-version: "3.12"',
+        'python-version: ${{ matrix.python-version }}',
+        'python-version: ["3.10", "3.12", "3.14"]',
         "persist-credentials: false",
         "cache-dependency-path: |\n            requirements.txt\n            constraints.txt",
         "python -m pip install --requirement requirements.txt --constraint constraints.txt",
@@ -711,15 +722,15 @@ def main():
             "fail-closed behavior" in agent_guidance and "GitHub Actions" in agent_guidance,
             "AGENTS.md must document validation, constraints, fail-closed behavior, and hosted CI",
             failures)
-    expected_constraints = """# Reviewed CI resolution for Python 3.12.
+    expected_constraints = """# Reviewed CI resolution for Python 3.10, 3.12, and 3.14.
 click==8.4.1
 joblib==1.5.3
 nltk==3.9.4
 regex==2026.5.9
 tqdm==4.68.1
 """
-    require(requirements == "nltk>=3.9.4,<4\n",
-            "requirements.txt must require NLTK strict path enforcement support", failures)
+    require(requirements == "nltk==3.9.4\n",
+            "requirements.txt must pin the reviewed NLTK containment target", failures)
     require(constraints == expected_constraints,
             "constraints.txt must match the reviewed Python 3.12 graph exactly", failures)
     require(workflow.count("python -m pip install") == 1,
@@ -727,8 +738,9 @@ tqdm==4.68.1
     require("constraints.txt" in docs,
             "README, security, vision, or change docs must describe dependency constraints", failures)
     require("CVE-2026-54293" in docs and "nltk.pathsec.ENFORCE" in docs and
-            "corpora/stopwords" in docs,
-            "project guidance must document NLTK traversal containment and fixed resource flow",
+            "corpora/stopwords" in docs and "implicit temp" in docs.lower() and
+            "4,096" in docs and "64" in docs,
+            "project guidance must document bounded NLTK traversal containment",
             failures)
     require("do not authenticate" in docs.lower(),
             "docs must describe the constraints artifact-authentication boundary", failures)
