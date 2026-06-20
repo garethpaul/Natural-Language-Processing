@@ -701,6 +701,8 @@ def main():
         "actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405",
         'python-version: ${{ matrix.python-version }}',
         'python-version: ["3.10", "3.12", "3.14"]',
+        "needs: python",
+        'echo "All supported Python checks passed."',
         "persist-credentials: false",
         "cache-dependency-path: |\n            requirements.txt\n            constraints.txt",
         "python -m pip install --requirement requirements.txt --constraint constraints.txt",
