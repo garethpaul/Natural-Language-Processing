@@ -1,4 +1,4 @@
-ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+override ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 
 .PHONY: build clean compile lint static-check test verify check
 
