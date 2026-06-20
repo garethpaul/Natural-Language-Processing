@@ -5,17 +5,75 @@
 from __future__ import annotations
 
 import argparse
+import os
 import re
 from collections.abc import Mapping as RuntimeMapping
+from itertools import chain
 from pathlib import Path
 from typing import Callable, Dict, Iterable, Mapping, Optional, Set
 
+_nltk_data = None
+_nltk_pathsec = None
+_nltk_wordpunct_tokenize = None
+_nltk_stopwords = None
+
+
+MAXIMUM_NLTK_DATA_ROOTS = 64
+MAXIMUM_NLTK_DATA_ROOT_CHARACTERS = 4096
+
+
+def _nltk_allowed_roots() -> Set[Path]:
+    """Return explicitly configured, bounded NLTK data roots."""
+    if _nltk_data is None:
+        return set()
+
+    environment_paths = os.environ.get("NLTK_DATA", "")
+    maximum_environment_characters = (
+        MAXIMUM_NLTK_DATA_ROOTS * (MAXIMUM_NLTK_DATA_ROOT_CHARACTERS + 1)
+    )
+    if len(environment_paths) > maximum_environment_characters:
+        raise ValueError("NLTK_DATA exceeds the trusted data root size limit")
+
+    allowed_roots = set()
+    environment_roots = environment_paths.split(
+        os.pathsep,
+        MAXIMUM_NLTK_DATA_ROOTS,
+    )
+    for configured_root in chain(_nltk_data.path, environment_roots):
+        if not configured_root:
+            continue
+        raw_root = (
+            configured_root.path
+            if hasattr(configured_root, "path")
+            else str(configured_root)
+        )
+        if len(raw_root) > MAXIMUM_NLTK_DATA_ROOT_CHARACTERS:
+            raise ValueError("NLTK trusted data root exceeds 4096 characters")
+        canonical_root = Path(raw_root).expanduser().resolve()
+        if canonical_root == Path(canonical_root.anchor):
+            raise ValueError("NLTK filesystem roots cannot be trusted data roots")
+        allowed_roots.add(canonical_root)
+        if len(allowed_roots) > MAXIMUM_NLTK_DATA_ROOTS:
+            raise ValueError("NLTK permits at most 64 trusted data roots")
+    return allowed_roots
+
+
 try:
-    from nltk import wordpunct_tokenize as _nltk_wordpunct_tokenize
-    from nltk.corpus import stopwords as _nltk_stopwords
+    from nltk import data as _nltk_data
+    from nltk import pathsec as _nltk_pathsec
 except ImportError:  # pragma: no cover - covered by fallback behavior.
-    _nltk_wordpunct_tokenize = None
-    _nltk_stopwords = None
+    pass
+else:
+    _nltk_pathsec.ENFORCE = True
+    _nltk_pathsec._get_allowed_roots = _nltk_allowed_roots
+    _nltk_pathsec._ALLOWED_ROOTS_CACHE = None
+    _nltk_pathsec._LAST_DATA_PATHS = None
+    try:
+        from nltk import wordpunct_tokenize as _nltk_wordpunct_tokenize
+        from nltk.corpus import stopwords as _nltk_stopwords
+    except ImportError:  # pragma: no cover - covered by fallback behavior.
+        _nltk_wordpunct_tokenize = None
+        _nltk_stopwords = None
 
 
 UNKNOWN_LANGUAGE = "unknown"

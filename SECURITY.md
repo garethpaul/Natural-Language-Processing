@@ -27,12 +27,26 @@ Helpful reports include:
 - This repository appears to be a public sample, documentation, or utility project. The active security scope is the code and documentation on the default branch.
 - Review found network clients, sockets, web APIs, or service endpoints; changes in those areas should receive security-focused review before merge.
 - Dependency manifest detected: requirements.txt. Dependency updates should preserve reproducible installation instructions and avoid introducing packages without a clear maintenance reason.
-- `constraints.txt` records the reviewed exact Python 3.12 dependency graph
-  used by CI. Exact versions reduce resolver drift but do not authenticate
+- `constraints.txt` records the reviewed exact Python 3.10, 3.12, and 3.14
+  dependency graph used by CI. Exact versions reduce resolver drift but do not authenticate
   downloaded package artifacts; review package provenance separately.
 - Run `make lint`, `make test`, `make build`, and `make check` after changing detector code, stopword data, dependencies, tests, or security docs.
 - The pinned Linux workflow installs declared dependencies and runs local tests
   without private text, external service calls, or NLTK corpus downloads.
+- NLTK 3.9.4 is affected by CVE-2026-54293 when attacker-controlled encoded
+  `nltk:` resource URLs reach `nltk.data.load()` under warn-only path handling.
+  This sample does not accept resource URLs: user text reaches only
+  `wordpunct_tokenize`, and the default corpus loader resolves the fixed
+  `corpora/stopwords` path. Before importing NLTK tokenizers or corpora, the
+  module enables `nltk.pathsec.ENFORCE` and replaces NLTK 3.9.4's implicit
+  system-temp trust with explicit `nltk.data.path` and `NLTK_DATA` roots.
+  Encoded absolute paths, encoded traversal, symlink escapes, filesystem-root
+  allowlists, more than 64 unique roots, and roots over 4,096 characters fail
+  closed. Explicitly configured data roots remain trusted.
+- Keep the exact `nltk==3.9.4` pin while this private `nltk.pathsec` integration
+  is required. Do not weaken the setting or add caller-controlled NLTK resource
+  names. Replace the containment and pin with the first stable patched NLTK
+  release after compatibility validation.
 - Text samples can contain private text. Tests and examples should use synthetic or public text, and errors should not dump private input.
 - Bounded detector text should reject more than 100,000 characters before
   tokenization and keep validation errors free of private input content.

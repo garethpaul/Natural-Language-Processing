@@ -27,7 +27,7 @@ Additional scan context:
 ### Prerequisites
 
 - Git
-- Python 3
+- Python 3.10 or newer
 - NLTK for running the sample against the built-in stopword corpus
 
 ### Setup
@@ -41,10 +41,18 @@ python3 -m nltk.downloader stopwords  # optional; falls back to stop_words.txt w
 
 The setup commands above are derived from repository files. Legacy mobile, Python, or JavaScript samples may require older SDKs or package versions than a modern workstation uses by default.
 
-`requirements.txt` keeps the supported NLTK 3.x compatibility range public,
-while `constraints.txt` records the reviewed exact Python 3.12 graph used by
-CI. These version constraints reduce resolver drift but do not authenticate
-downloaded package artifacts or make installation offline-reproducible.
+`requirements.txt` pins NLTK 3.9.4 while this repository contains its affected
+resource loader. `constraints.txt` records the rest of the reviewed Python
+3.10, 3.12, and 3.14 graph used by CI. These exact versions reduce resolver drift but do not
+authenticate downloaded package artifacts or make installation
+offline-reproducible.
+
+The sample enables `nltk.pathsec.ENFORCE` before importing NLTK tokenizers or
+corpora and replaces NLTK 3.9.4's implicit temp-directory trust with up to 64
+explicit `nltk.data.path` or `NLTK_DATA` roots of at most 4,096 characters.
+Filesystem roots such as `/` are rejected. User text is passed only to
+`wordpunct_tokenize`; the default corpus lookup remains the fixed
+`corpora/stopwords` resource. Do not add caller-controlled NLTK resource URLs.
 
 ## Running or Using the Project
 
@@ -117,9 +125,9 @@ downloaded package artifacts or make installation offline-reproducible.
 - `python3 -m unittest discover -s tests`
 - `python3 scripts/check-baseline.py`
 - Pinned `ubuntu-24.04` GitHub Actions installs `requirements.txt` through
-  `constraints.txt`, runs
-  `pip check`, and executes `make check` on Python 3.12 without private text,
-  external service calls, or NLTK corpus downloads.
+  `constraints.txt`, runs `pip check`, and executes `make check` on Python 3.10,
+  3.12, and 3.14 without private text, external service calls, or NLTK corpus
+  downloads.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 

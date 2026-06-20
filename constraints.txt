@@ -1,4 +1,4 @@
-# Reviewed CI resolution for Python 3.12.
+# Reviewed CI resolution for Python 3.10, 3.12, and 3.14.
 click==8.4.1
 joblib==1.5.3
 nltk==3.9.4
