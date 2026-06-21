@@ -119,9 +119,12 @@ Filesystem roots such as `/` are rejected. User text is passed only to
 - `make test`
 - `make build`
 - `make check`
-- The Make gates are location-independent. From another directory, pass the
-  checkout's Makefile by absolute path, such as
+- The Make gates are location-independent, including checkout paths containing
+  spaces or apostrophes. From another directory, pass the checkout's Makefile
+  by absolute path, such as
   `make -f /path/to/Natural-Language-Processing/Makefile check`.
+- `MAKEFILE_LIST` overrides are rejected before the recursive cleanup target can
+  run, so callers cannot redirect deletion outside the checkout.
 - `python3 -m unittest discover -s tests`
 - `python3 scripts/check-baseline.py`
 - Pinned `ubuntu-24.04` GitHub Actions installs `requirements.txt` through

@@ -1,5 +1,12 @@
 # Changes
 
+## 2026-06-21
+
+- Made absolute Makefile verification safe for checkout paths containing spaces
+  or apostrophes and rejected `MAKEFILE_LIST` injection before cleanup.
+- Added dry-run regression coverage that verifies cleanup remains rooted in the
+  checkout without deleting files during the test.
+
 ## 2026-06-19
 
 - Enabled NLTK strict path enforcement before tokenizer or corpus imports,

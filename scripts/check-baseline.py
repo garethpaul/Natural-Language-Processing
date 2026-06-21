@@ -9,7 +9,10 @@ import xml.etree.ElementTree as ET
 
 
 ROOT = Path(__file__).resolve().parents[1]
-EXPECTED_MAKEFILE = """override ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+EXPECTED_MAKEFILE = """ifneq ($(origin MAKEFILE_LIST),file)
+$(error MAKEFILE_LIST must not be overridden)
+endif
+override ROOT := $(shell path='$(subst ','"'"',$(MAKEFILE_LIST))'; path=$${path\\# }; dirname -- "$$path")
 
 .PHONY: build clean compile lint static-check test verify check
 
@@ -23,7 +26,7 @@ clean:
 \tfind "$(ROOT)" -type d -name '__pycache__' -prune -exec rm -rf {} +
 
 compile:
-\tcd "$(ROOT)" && PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m py_compile language_detection.py tests/test_language_detection.py scripts/check-baseline.py
+\tcd "$(ROOT)" && PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m py_compile language_detection.py tests/test_language_detection.py tests/test_makefile.py scripts/check-baseline.py
 
 build: compile
 

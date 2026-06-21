@@ -1,4 +1,7 @@
-override ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+ifneq ($(origin MAKEFILE_LIST),file)
+$(error MAKEFILE_LIST must not be overridden)
+endif
+override ROOT := $(shell path='$(subst ','"'"',$(MAKEFILE_LIST))'; path=$${path\# }; dirname -- "$$path")
 
 .PHONY: build clean compile lint static-check test verify check
 
@@ -12,7 +15,7 @@ clean:
 	find "$(ROOT)" -type d -name '__pycache__' -prune -exec rm -rf {} +
 
 compile:
-	cd "$(ROOT)" && PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m py_compile language_detection.py tests/test_language_detection.py scripts/check-baseline.py
+	cd "$(ROOT)" && PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m py_compile language_detection.py tests/test_language_detection.py tests/test_makefile.py scripts/check-baseline.py
 
 build: compile
 
