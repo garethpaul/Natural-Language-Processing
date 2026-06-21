@@ -1,5 +1,11 @@
 # Changes
 
+## 2026-06-21
+
+- Preserved the complete checkout root for absolute Makefile paths containing
+  spaces, brackets, or apostrophes, and rejected `MAKEFILE_LIST` overrides.
+- Added three isolated SDK-free regression tests across all eight Make aliases.
+
 ## 2026-06-19
 
 - Enabled NLTK strict path enforcement before tokenizer or corpus imports,

@@ -122,6 +122,9 @@ Filesystem roots such as `/` are rejected. User text is passed only to
 - The Make gates are location-independent. From another directory, pass the
   checkout's Makefile by absolute path, such as
   `make -f /path/to/Natural-Language-Processing/Makefile check`.
+- Absolute Makefile paths containing spaces, brackets, or apostrophes retain
+  the complete checkout root. `ROOT` overrides are ignored, and attempts to
+  override GNU Make's `MAKEFILE_LIST` metadata fail closed.
 - `python3 -m unittest discover -s tests`
 - `python3 scripts/check-baseline.py`
 - Pinned `ubuntu-24.04` GitHub Actions installs `requirements.txt` through

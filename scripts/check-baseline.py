@@ -9,7 +9,10 @@ import xml.etree.ElementTree as ET
 
 
 ROOT = Path(__file__).resolve().parents[1]
-EXPECTED_MAKEFILE = """override ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+EXPECTED_MAKEFILE = """ifneq ($(origin MAKEFILE_LIST),file)
+$(error MAKEFILE_LIST must not be overridden)
+endif
+override ROOT := $(shell path='$(subst ','"'"',$(MAKEFILE_LIST))'; path=$$(printf '%s\\n' "$$path" | sed 's/^ //'); dirname -- "$$path")
 
 .PHONY: build clean compile lint static-check test verify check
 
@@ -23,7 +26,7 @@ clean:
 \tfind "$(ROOT)" -type d -name '__pycache__' -prune -exec rm -rf {} +
 
 compile:
-\tcd "$(ROOT)" && PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m py_compile language_detection.py tests/test_language_detection.py scripts/check-baseline.py
+\tcd "$(ROOT)" && PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m py_compile language_detection.py tests/test_language_detection.py tests/test_makefile_root.py scripts/check-baseline.py
 
 build: compile
 
@@ -73,6 +76,7 @@ def main():
         "language_detection.py",
         "stop_words.txt",
         "tests/test_language_detection.py",
+        "tests/test_makefile_root.py",
         "docs/plans/2026-06-08-language-detection-baseline.md",
         "docs/plans/2026-06-09-ambiguous-stopword-ties.md",
         "docs/plans/2026-06-09-empty-stopword-mapping.md",
@@ -102,6 +106,7 @@ def main():
         "docs/plans/2026-06-16-stopword-provider-invocation-failure-guard.md",
         "docs/plans/2026-06-16-stopword-collection-type-guard.md",
         "docs/plans/2026-06-17-provider-language-collection-type-guard.md",
+        "docs/plans/2026-06-21-spaced-makefile-path.md",
         "docs/readme-overview.svg",
         "scripts/check-baseline.py",
     ]
@@ -267,6 +272,7 @@ def main():
     location_independent_make_plan = read(
         "docs/plans/2026-06-13-location-independent-make.md"
     )
+    spaced_makefile_plan = read("docs/plans/2026-06-21-spaced-makefile-path.md")
     require("make -f /path/to/Natural-Language-Processing/Makefile check" in readme,
             "README must document location-independent Makefile invocation", failures)
     require(all(evidence in location_independent_make_plan.lower() for evidence in [
@@ -275,6 +281,14 @@ def main():
         "eight isolated hostile mutations",
     ]),
             "location-independent Make plan must record completed root, external, and mutation verification",
+            failures)
+    require(all(value in spaced_makefile_plan for value in [
+        "status: completed",
+        "spaces, brackets, and an apostrophe",
+        "MAKEFILE_LIST",
+        "all eight Make aliases",
+    ]),
+            "spaced Makefile path plan must preserve hostile-path and override verification",
             failures)
     for phrase in ["make lint", "make test", "make build", "make check", "language_detection.py", "stopword", "ambiguous", "near-tie", "private text", "punctuation-only", "empty stopword", "sparse stopword", "stopword entry normalization", "text token normalization", "explicit stopword set normalization", "language label normalization", "language label validation", "language label control character guard", "bounded detector text"]:
         require(phrase in docs.lower(), f"docs must mention {phrase}", failures)
