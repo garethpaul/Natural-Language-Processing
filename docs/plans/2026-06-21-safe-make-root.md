@@ -9,7 +9,8 @@ GNU Make list functions split absolute Makefile paths on whitespace. Because
 ## Change
 
 - Derive the repository root from the raw, shell-quoted Makefile path.
-- Remove GNU Make's leading list separator before resolving the directory.
+- Remove GNU Make's leading list separator with POSIX shell-compatible tooling
+  before resolving the directory.
 - Reject non-file origins for the automatic `MAKEFILE_LIST` value.
 - Dry-run cleanup, compilation, tests, and static checks from paths containing
   spaces and a literal apostrophe without executing deletion.
