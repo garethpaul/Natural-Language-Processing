@@ -26,12 +26,13 @@ clean:
 \tfind "$(ROOT)" -type d -name '__pycache__' -prune -exec rm -rf {} +
 
 compile:
-\tcd "$(ROOT)" && PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m py_compile language_detection.py tests/test_language_detection.py tests/test_makefile_root.py scripts/check-baseline.py
+\tcd "$(ROOT)" && PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m py_compile language_detection.py tests/test_language_detection.py tests/test_makefile_root.py scripts/check-baseline.py scripts/test-default-sample-mutations.py
 
 build: compile
 
 test:
 \tcd "$(ROOT)" && PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m unittest discover -s tests
+\tPYTHONDONTWRITEBYTECODE=1 $(PYTHON) "$(ROOT)/scripts/test-default-sample-mutations.py"
 
 static-check:
 \tPYTHONDONTWRITEBYTECODE=1 $(PYTHON) "$(ROOT)/scripts/check-baseline.py"
@@ -109,11 +110,17 @@ def main():
         "docs/plans/2026-06-21-spaced-makefile-path.md",
         "docs/readme-overview.svg",
         "scripts/check-baseline.py",
+        "scripts/test-default-sample-mutations.py",
     ]
     for path in required:
         require((ROOT / path).is_file(), f"required file missing: {path}", failures)
 
-    for path in ["language_detection.py", "tests/test_language_detection.py", "scripts/check-baseline.py"]:
+    for path in [
+        "language_detection.py",
+        "tests/test_language_detection.py",
+        "scripts/check-baseline.py",
+        "scripts/test-default-sample-mutations.py",
+    ]:
         try:
             ast.parse(read(path), filename=path)
         except SyntaxError as error:
@@ -126,9 +133,23 @@ def main():
 
     source = read("language_detection.py")
     tests = read("tests/test_language_detection.py")
+    default_sample_mutations = read("scripts/test-default-sample-mutations.py")
     require("print " not in source, "language_detection.py must not use Python 2 print syntax", failures)
     require("def load_stopword_sets" in source and "LookupError" in source,
             "detector must have an NLTK corpus fallback", failures)
+    require("test_no_argument_main_uses_english_when_nltk_is_unavailable" in tests and
+            "test_no_argument_main_uses_english_when_corpus_is_unavailable" in tests and
+            "test_default_sample_leads_all_corpus_languages_by_required_margin" in tests and
+            "test_no_argument_main_uses_english_complete_corpus_overlap_fixture" in tests and
+            "test_no_argument_main_prints_detector_result_for_default_sample" in tests,
+            "tests must cover fallback, complete-corpus ranking, and detector output", failures)
+    require("misaligned French default" in default_sample_mutations and
+            "Hinglish full-corpus winner" in default_sample_mutations and
+            "Hinglish sub-margin runner-up" in default_sample_mutations and
+            "English Hinglish score tie" in default_sample_mutations and
+            "hardcoded CLI output" in default_sample_mutations and
+            "hardcoded no-argument input" in default_sample_mutations,
+            "mutation gate must reject cross-language ranking and hardcoded CLI regressions", failures)
     require("from nltk import pathsec as _nltk_pathsec" in source and
             "_nltk_pathsec.ENFORCE = True" in source and
             "_nltk_pathsec._get_allowed_roots = _nltk_allowed_roots" in source and

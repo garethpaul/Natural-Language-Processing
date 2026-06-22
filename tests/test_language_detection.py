@@ -1,7 +1,11 @@
+import io
+import json
 import os
+import re
 import tempfile
 import unittest
 import zipfile
+from contextlib import redirect_stdout
 from pathlib import Path
 from urllib.parse import quote
 from unittest.mock import patch
@@ -10,6 +14,8 @@ import language_detection
 
 from language_detection import (
     MAXIMUM_TEXT_CHARACTERS,
+    MIN_STOPWORD_MARGIN,
+    MIN_STOPWORD_MATCHES,
     UNKNOWN_LANGUAGE,
     _calculate_languages_ratios,
     detect_language,
@@ -30,6 +36,21 @@ class FakeStopwords:
 
     def words(self, language):
         return self.DATA[language]
+
+
+class CorpusOverlapStopwords:
+    FIXTURE_PATH = Path(__file__).with_name("fixtures") / "nltk_stopword_overlap.json"
+
+    def __init__(self):
+        fixture = json.loads(self.FIXTURE_PATH.read_text(encoding="utf-8"))
+        self.provenance = fixture["provenance"]
+        self.data = fixture["stopwords_by_language"]
+
+    def fileids(self):
+        return list(self.data)
+
+    def words(self, language):
+        return self.data[language]
 
 
 class NoisyStopwords:
@@ -104,6 +125,10 @@ class MappingLanguageCollectionStopwords(ScalarLanguageCollectionStopwords):
 
 def simple_tokenizer(text):
     return text.replace(".", " ").replace(",", " ").split()
+
+
+def nltk_wordpunct_equivalent_tokenizer(text):
+    return re.findall(r"\w+|[^\w\s]+", text, flags=re.UNICODE)
 
 
 def padded_tokenizer(text):
@@ -312,6 +337,74 @@ class LanguageDetectionTests(unittest.TestCase):
         with patch.object(language_detection, "_nltk_stopwords", MissingCorpusStopwords()), \
                 patch.object(language_detection, "load_checked_in_stop_words", return_value={"the", "and"}):
             self.assertEqual(load_stopword_sets(), {"english": {"the", "and"}})
+
+    def test_no_argument_main_uses_english_when_nltk_is_unavailable(self):
+        output = io.StringIO()
+
+        with patch.object(language_detection, "_nltk_stopwords", None), \
+                patch.object(language_detection, "_nltk_wordpunct_tokenize", None), \
+                redirect_stdout(output):
+            exit_code = language_detection.main([])
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(output.getvalue(), "english\n")
+
+    def test_no_argument_main_uses_english_when_corpus_is_unavailable(self):
+        output = io.StringIO()
+
+        with patch.object(language_detection, "_nltk_stopwords", MissingCorpusStopwords()), \
+                patch.object(language_detection, "_nltk_wordpunct_tokenize", None), \
+                redirect_stdout(output):
+            exit_code = language_detection.main([])
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(output.getvalue(), "english\n")
+
+    def test_default_sample_leads_all_corpus_languages_by_required_margin(self):
+        provider = CorpusOverlapStopwords()
+        ratios = _calculate_languages_ratios(
+            language_detection.DEFAULT_SAMPLE,
+            stopwords_provider=provider,
+            tokenizer=nltk_wordpunct_equivalent_tokenizer,
+        )
+        english_score = ratios["english"]
+        runner_up_score = max(
+            score for language, score in ratios.items() if language != "english"
+        )
+
+        self.assertEqual(provider.provenance["language_count"], 33)
+        self.assertEqual(len(ratios), provider.provenance["language_count"])
+        self.assertGreaterEqual(english_score, MIN_STOPWORD_MATCHES)
+        self.assertEqual(ratios["hinglish"], runner_up_score)
+        self.assertGreaterEqual(
+            english_score - runner_up_score,
+            MIN_STOPWORD_MARGIN,
+        )
+        self.assertEqual(max(ratios, key=ratios.get), "english")
+
+    def test_no_argument_main_uses_english_complete_corpus_overlap_fixture(self):
+        output = io.StringIO()
+
+        with patch.object(language_detection, "_nltk_stopwords", CorpusOverlapStopwords()), \
+                patch.object(language_detection, "_nltk_wordpunct_tokenize", nltk_wordpunct_equivalent_tokenizer), \
+                redirect_stdout(output):
+            exit_code = language_detection.main([])
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(output.getvalue(), "english\n")
+
+    def test_no_argument_main_prints_detector_result_for_default_sample(self):
+        output = io.StringIO()
+        patched_sample = "patched default sample"
+
+        with patch.object(language_detection, "DEFAULT_SAMPLE", patched_sample), \
+                patch.object(language_detection, "detect_language", return_value="detected") as detector, \
+                redirect_stdout(output):
+            exit_code = language_detection.main([])
+
+        detector.assert_called_once_with(patched_sample)
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(output.getvalue(), "detected\n")
 
     def test_unexpected_default_stopword_provider_failure_returns_empty_evidence(self):
         with patch.object(language_detection, "_nltk_stopwords", BrokenDefaultStopwords()), \
