@@ -32,7 +32,7 @@ build: compile
 
 test:
 \tcd "$(ROOT)" && PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m unittest discover -s tests
-\tPYTHONDONTWRITEBYTECODE=1 $(PYTHON) "$(ROOT)/scripts/test-default-sample-mutations.py"
+\tcd "$(ROOT)" && PYTHONDONTWRITEBYTECODE=1 $(PYTHON) scripts/test-default-sample-mutations.py
 
 static-check:
 \tPYTHONDONTWRITEBYTECODE=1 $(PYTHON) "$(ROOT)/scripts/check-baseline.py"

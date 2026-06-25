@@ -1,5 +1,11 @@
 # Changes
 
+## 2026-06-25
+
+- Preserved checkout-relative Python environments for the default-sample
+  mutation gate when Make is invoked through an absolute external Makefile path.
+- Added focused Make-root regression coverage for both test commands.
+
 ## 2026-06-22
 
 - Aligned the no-argument English sample with both the checked-in fallback and

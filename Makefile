@@ -21,7 +21,7 @@ build: compile
 
 test:
 	cd "$(ROOT)" && PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m unittest discover -s tests
-	PYTHONDONTWRITEBYTECODE=1 $(PYTHON) "$(ROOT)/scripts/test-default-sample-mutations.py"
+	cd "$(ROOT)" && PYTHONDONTWRITEBYTECODE=1 $(PYTHON) scripts/test-default-sample-mutations.py
 
 static-check:
 	PYTHONDONTWRITEBYTECODE=1 $(PYTHON) "$(ROOT)/scripts/check-baseline.py"

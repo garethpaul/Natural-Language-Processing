@@ -58,6 +58,13 @@ class MakefileRootTests(unittest.TestCase):
         self.assertNotEqual(0, result.returncode)
         self.assertIn("MAKEFILE_LIST must not be overridden", result.stderr)
 
+    def test_all_test_commands_run_from_checkout_for_relative_python(self):
+        result, checkout = self.run_make("test", "PYTHON=.venv/bin/python")
+
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertEqual(2, result.stdout.count('cd "{}" &&'.format(checkout)))
+        self.assertEqual(2, result.stdout.count('.venv/bin/python'))
+
 
 if __name__ == "__main__":
     unittest.main()
