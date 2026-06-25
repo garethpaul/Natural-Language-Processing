@@ -1,5 +1,23 @@
 # Changes
 
+## 2026-06-25
+
+- Preserved checkout-relative Python environments for the default-sample
+  mutation gate when Make is invoked through an absolute external Makefile path.
+- Added focused Make-root regression coverage for both test commands.
+- Limited mutation worktrees to tracked files so ignored local environments and
+  artifacts are not copied once per hostile sample mutation.
+- Preserved mutation verification in exported source archives by falling back to
+  `.gitignore`-aware copies when Git tracking metadata is unavailable.
+
+## 2026-06-22
+
+- Aligned the no-argument English sample with both the checked-in fallback and
+  the complete 33-language NLTK stopword corpus without changing thresholds.
+- Added provenance-documented complete-corpus overlap scoring, explicit
+  English/Hinglish margin assertions, end-to-end CLI coverage, and hostile
+  mutations for cross-language winners, ties, near-ties, and wiring drift.
+
 ## 2026-06-21
 
 - Preserved the complete checkout root for absolute Makefile paths containing

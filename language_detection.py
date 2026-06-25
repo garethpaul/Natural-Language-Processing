@@ -83,9 +83,7 @@ MIN_STOPWORD_DENSITY = 0.2
 MAXIMUM_TEXT_CHARACTERS = 100_000
 STOP_WORDS_PATH = Path(__file__).with_name("stop_words.txt")
 DEFAULT_SAMPLE = """
-Une adoption plus rapide que le telephone classique et mobile.
-Au petit jeu des chiffres qui impressionnent, Skype indique qu'il a fallu
-104 ans au telephone pour atteindre 300 millions d'usagers.
+Don told Ma this is our English sample.
 """
 
 

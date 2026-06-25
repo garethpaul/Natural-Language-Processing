@@ -57,7 +57,7 @@ Filesystem roots such as `/` are rejected. User text is passed only to
 ## Running or Using the Project
 
 - Run `python3 language_detection.py` to detect the language of the checked-in
-  sample text.
+  English sample text.
 - Run `python3 language_detection.py "the quick example and you"` to classify
   your own short text.
 - Import `detect_language` from `language_detection.py` for small experiments.
@@ -127,6 +127,9 @@ Filesystem roots such as `/` are rejected. User text is passed only to
   override GNU Make's `MAKEFILE_LIST` metadata fail closed.
 - `python3 -m unittest discover -s tests`
 - `python3 scripts/check-baseline.py`
+- `tests/fixtures/nltk_stopword_overlap.json` records provenance hashes and the
+  exact relevant overlaps for all 33 NLTK stopword languages. Tests require
+  English to lead Hinglish and every other runner-up by `MIN_STOPWORD_MARGIN`.
 - Pinned `ubuntu-24.04` GitHub Actions installs `requirements.txt` through
   `constraints.txt`, runs `pip check`, and executes `make check` on Python 3.10,
   3.12, and 3.14 without private text, external service calls, or NLTK corpus
@@ -144,7 +147,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 ## Maintenance Notes
 
-- The unit tests use small injected stopword fixtures, so they do not require
+- The unit tests use injected stopword fixtures, including a compact
+  provenance-documented 33-language overlap fixture, so they do not require
   downloading NLTK corpora.
 - Use an absolute Makefile path when running the verification gates outside the
   checkout.
