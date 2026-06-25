@@ -7,6 +7,8 @@
 - Added focused Make-root regression coverage for both test commands.
 - Limited mutation worktrees to tracked files so ignored local environments and
   artifacts are not copied once per hostile sample mutation.
+- Preserved mutation verification in exported source archives by falling back to
+  `.gitignore`-aware copies when Git tracking metadata is unavailable.
 
 ## 2026-06-22
 

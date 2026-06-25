@@ -68,12 +68,31 @@ def apply_mutation(source, original, replacement, name):
 
 
 def copy_tracked_checkout(source_root, destination):
-    tracked = subprocess.run(
+    tracked_result = subprocess.run(
         ["git", "ls-files", "-z"],
         cwd=source_root,
-        check=True,
         stdout=subprocess.PIPE,
-    ).stdout
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
+    if tracked_result.returncode != 0:
+        ignore_patterns = [".git"]
+        gitignore = source_root / ".gitignore"
+        if gitignore.is_file():
+            ignore_patterns.extend(
+                line.strip().rstrip("/")
+                for line in gitignore.read_text(encoding="utf-8").splitlines()
+                if line.strip() and not line.lstrip().startswith(("#", "!"))
+            )
+        shutil.copytree(
+            source_root,
+            destination,
+            symlinks=True,
+            ignore=shutil.ignore_patterns(*ignore_patterns),
+        )
+        return
+
+    tracked = tracked_result.stdout
     destination.mkdir()
     for encoded_path in tracked.split(b"\0"):
         if not encoded_path:
