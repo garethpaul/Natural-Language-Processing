@@ -67,6 +67,27 @@ def apply_mutation(source, original, replacement, name):
     return source.replace(original, replacement, 1)
 
 
+def copy_tracked_checkout(source_root, destination):
+    tracked = subprocess.run(
+        ["git", "ls-files", "-z"],
+        cwd=source_root,
+        check=True,
+        stdout=subprocess.PIPE,
+    ).stdout
+    destination.mkdir()
+    for encoded_path in tracked.split(b"\0"):
+        if not encoded_path:
+            continue
+        relative_path = Path(os.fsdecode(encoded_path))
+        source_path = source_root / relative_path
+        destination_path = destination / relative_path
+        destination_path.parent.mkdir(parents=True, exist_ok=True)
+        if source_path.is_symlink():
+            destination_path.symlink_to(os.readlink(source_path))
+        else:
+            shutil.copy2(source_path, destination_path)
+
+
 def main():
     source = (ROOT / SOURCE_PATH).read_text(encoding="utf-8")
     environment = os.environ.copy()
@@ -78,11 +99,7 @@ def main():
     for name, original, replacement, expected_test in MUTATIONS:
         with tempfile.TemporaryDirectory() as temporary_directory:
             checkout = Path(temporary_directory) / "checkout"
-            shutil.copytree(
-                ROOT,
-                checkout,
-                ignore=shutil.ignore_patterns(".git", "__pycache__", "*.pyc", "*.pyo"),
-            )
+            copy_tracked_checkout(ROOT, checkout)
             mutated_source = apply_mutation(source, original, replacement, name)
             (checkout / SOURCE_PATH).write_text(mutated_source, encoding="utf-8")
             result = subprocess.run(

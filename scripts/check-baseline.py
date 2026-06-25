@@ -26,7 +26,7 @@ clean:
 \tfind "$(ROOT)" -type d -name '__pycache__' -prune -exec rm -rf {} +
 
 compile:
-\tcd "$(ROOT)" && PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m py_compile language_detection.py tests/test_language_detection.py tests/test_makefile_root.py scripts/check-baseline.py scripts/test-default-sample-mutations.py
+\tcd "$(ROOT)" && PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m py_compile language_detection.py tests/test_language_detection.py tests/test_default_sample_mutations.py tests/test_makefile_root.py scripts/check-baseline.py scripts/test-default-sample-mutations.py
 
 build: compile
 
@@ -77,6 +77,7 @@ def main():
         "language_detection.py",
         "stop_words.txt",
         "tests/test_language_detection.py",
+        "tests/test_default_sample_mutations.py",
         "tests/test_makefile_root.py",
         "docs/plans/2026-06-08-language-detection-baseline.md",
         "docs/plans/2026-06-09-ambiguous-stopword-ties.md",

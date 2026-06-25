@@ -15,7 +15,7 @@ clean:
 	find "$(ROOT)" -type d -name '__pycache__' -prune -exec rm -rf {} +
 
 compile:
-	cd "$(ROOT)" && PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m py_compile language_detection.py tests/test_language_detection.py tests/test_makefile_root.py scripts/check-baseline.py scripts/test-default-sample-mutations.py
+	cd "$(ROOT)" && PYTHONDONTWRITEBYTECODE=1 $(PYTHON) -m py_compile language_detection.py tests/test_language_detection.py tests/test_default_sample_mutations.py tests/test_makefile_root.py scripts/check-baseline.py scripts/test-default-sample-mutations.py
 
 build: compile
 

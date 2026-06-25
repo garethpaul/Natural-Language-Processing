@@ -5,6 +5,8 @@
 - Preserved checkout-relative Python environments for the default-sample
   mutation gate when Make is invoked through an absolute external Makefile path.
 - Added focused Make-root regression coverage for both test commands.
+- Limited mutation worktrees to tracked files so ignored local environments and
+  artifacts are not copied once per hostile sample mutation.
 
 ## 2026-06-22
 
