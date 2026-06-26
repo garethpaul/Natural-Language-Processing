@@ -86,6 +86,8 @@ Helpful reports include:
   malformed `fileids()` strings cannot create fabricated language evidence.
 - Mapping-shaped provider language collections should be rejected before
   iteration so provider keys cannot trigger unintended `words()` lookups.
+- Invalid provider language labels should be rejected before provider lookups
+  so malformed labels cannot trigger resource access or erase valid evidence.
 - Explicit stopword set normalization should strip, lowercase, and ignore blank
   caller-provided entries before scoring so custom mappings match provider behavior.
 - Language label normalization should strip and lowercase caller-provided or

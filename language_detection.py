@@ -197,10 +197,15 @@ def _load_provider_stopword_sets(stopwords_provider) -> Dict[str, Set[str]]:
         return {}
     if isinstance(languages, RuntimeMapping):
         return {}
-    return _normalise_stopword_sets({
-        language: stopwords_provider.words(language)
-        for language in languages
-    })
+    normalised_sets: Dict[str, Set[str]] = {}
+    for language in languages:
+        normalised_language = _normalise_language_name(language)
+        if not normalised_language:
+            continue
+        normalised_sets.setdefault(normalised_language, set()).update(
+            _normalise_stopwords(stopwords_provider.words(language))
+        )
+    return normalised_sets
 
 
 def load_stopword_sets(stopwords_provider=None) -> Dict[str, Set[str]]:

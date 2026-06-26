@@ -28,6 +28,7 @@ stopword-overlap language detection with deterministic local and hosted checks.
 - Keep detector changes focused on the public API in `language_detection.py`.
 - Preserve fail-closed behavior for malformed tokenizer, stopword, provider, and
   language-label inputs unless the contract is deliberately changed.
+- Validate provider language labels before stopword resource lookup.
 - Add or update focused unit tests before production behavior changes.
 - Keep `scripts/check-baseline.py`, README, security notes, vision notes, and
   changelog entries synchronized when behavior or CI contracts change.

@@ -81,6 +81,28 @@ class NoisyLanguageStopwords:
         return self.DATA[language]
 
 
+class RejectingInvalidLanguageStopwords(NoisyLanguageStopwords):
+    DATA = {
+        " English ": [" The ", "AND"],
+        "ENGLISH": ["you"],
+        None: ["invalid"],
+        "---": ["invalid"],
+        "eng\nlish": ["invalid"],
+        "eng\x1b[31m": ["invalid"],
+        "  ": ["invalid"],
+        " French ": ["une"],
+    }
+
+    def __init__(self):
+        self.words_calls = []
+
+    def words(self, language):
+        self.words_calls.append(language)
+        if language not in (" English ", "ENGLISH", " French "):
+            raise RuntimeError("invalid provider language reached lookup")
+        return self.DATA[language]
+
+
 class MalformedEntryStopwords:
     DATA = {
         "english": [" The ", None, 123, b"and", object(), "AND", "you"],
@@ -643,6 +665,20 @@ class LanguageDetectionTests(unittest.TestCase):
                 tokenizer=simple_tokenizer,
             ),
             "english",
+        )
+
+    def test_invalid_provider_language_labels_are_skipped_before_lookup(self):
+        provider = RejectingInvalidLanguageStopwords()
+
+        stopword_sets = load_stopword_sets(provider)
+
+        self.assertEqual(
+            stopword_sets,
+            {"english": {"the", "and", "you"}, "french": {"une"}},
+        )
+        self.assertEqual(
+            provider.words_calls,
+            [" English ", "ENGLISH", " French "],
         )
 
     def test_non_string_mapping_stopword_entries_are_ignored(self):
