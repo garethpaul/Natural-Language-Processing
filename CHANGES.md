@@ -2,6 +2,10 @@
 
 ## 2026-06-25
 
+- Added deterministic longer mixed-language passage coverage for balanced
+  evidence and a clear stopword-margin winner.
+- Documented why unique stopword overlap is not a substitute for model-based
+  detection of short, informal, transliterated, or code-switched text.
 - Preserved checkout-relative Python environments for the default-sample
   mutation gate when Make is invoked through an absolute external Makefile path.
 - Added focused Make-root regression coverage for both test commands.

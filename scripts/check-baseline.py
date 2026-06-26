@@ -109,6 +109,7 @@ def main():
         "docs/plans/2026-06-16-stopword-collection-type-guard.md",
         "docs/plans/2026-06-17-provider-language-collection-type-guard.md",
         "docs/plans/2026-06-21-spaced-makefile-path.md",
+        "docs/plans/2026-06-25-mixed-language-limitations.md",
         "docs/readme-overview.svg",
         "scripts/check-baseline.py",
         "scripts/test-default-sample-mutations.py",
@@ -257,6 +258,8 @@ def main():
         "test_calculate_language_ratios",
         "test_ambiguous_top_score_returns_unknown",
         "test_near_tie_stopword_scores_return_unknown",
+        "test_long_balanced_mixed_language_passage_returns_unknown",
+        "test_long_mixed_language_passage_with_clear_margin_returns_winner",
         "test_empty_stopword_mapping_is_no_evidence",
         "test_stopword_mapping_iteration_failure_discards_partial_evidence",
         "test_punctuation_only_tokens_do_not_create_stopword_evidence",
@@ -314,6 +317,13 @@ def main():
             failures)
     for phrase in ["make lint", "make test", "make build", "make check", "language_detection.py", "stopword", "ambiguous", "near-tie", "private text", "punctuation-only", "empty stopword", "sparse stopword", "stopword entry normalization", "text token normalization", "explicit stopword set normalization", "language label normalization", "language label validation", "language label control character guard", "bounded detector text"]:
         require(phrase in docs.lower(), f"docs must mention {phrase}", failures)
+    for phrase in [
+        "longer mixed-language passages",
+        "unique normalized words",
+        "model-based detectors",
+        "code-switched text",
+    ]:
+        require(phrase in docs.lower(), f"docs must mention {phrase}", failures)
     for relative_path in ["README.md", "SECURITY.md", "VISION.md", "CHANGES.md"]:
         require("stopword entry type guard" in read(relative_path).lower(),
                 f"{relative_path} must document the stopword entry type guard",
@@ -333,6 +343,13 @@ def main():
             "plan must be completed and include verification", failures)
     require("scripts/check-baseline.py" in plan,
             "plan must reference the active baseline checker", failures)
+    mixed_language_plan = read("docs/plans/2026-06-25-mixed-language-limitations.md")
+    require("status: completed" in mixed_language_plan.lower() and
+            "balanced english/french passage" in mixed_language_plan.lower() and
+            "configured margin and density thresholds" in mixed_language_plan.lower() and
+            "make check" in mixed_language_plan.lower(),
+            "mixed-language plan must record completed scope and verification",
+            failures)
     ambiguity_plan = read("docs/plans/2026-06-09-ambiguous-stopword-ties.md")
     require("status: completed" in ambiguity_plan and "make check" in ambiguity_plan,
             "ambiguity plan must be completed and include verification", failures)
