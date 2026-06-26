@@ -24,6 +24,9 @@ Priority:
 - Avoid claiming production-level language detection accuracy
 - Keep sample text and stop-word data reviewable
 - Keep deterministic fixture tests for clear and no-match input
+- Keep deterministic fixture tests for balanced and clearly dominant longer
+  mixed-language passages
+- Keep known limitations relative to model-based detection explicit
 - Return an explicit unknown result when stopword evidence is absent or too weak
 - Return unknown for ambiguous tied stopword evidence
 - Return unknown for near-tie stopword evidence that does not clear the margin
@@ -59,8 +62,8 @@ Priority:
 
 Next priorities:
 
-- Add tests for longer mixed-language passages
-- Document known limitations compared with model-based language detection
+- Keep future scoring changes backed by synthetic mixed-language fixtures and
+  explicit accuracy boundaries
 
 Contribution rules:
 

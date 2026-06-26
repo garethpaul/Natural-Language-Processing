@@ -65,6 +65,9 @@ Filesystem roots such as `/` are rejected. User text is passed only to
   order.
 - Near-tie stopword scores return `unknown` unless the winning language clears
   the minimum margin.
+- Longer mixed-language passages return `unknown` when their leading stopword
+  scores tie; a passage can still receive one language label when a single
+  stopword set clears both the configured density and margin thresholds.
 - Punctuation-only tokens are ignored before stopword scoring, so symbols alone
   do not create language evidence.
 - Explicit empty stopword mappings stay empty and return `unknown` rather than
@@ -112,6 +115,20 @@ Filesystem roots such as `/` are rejected. User text is passed only to
   terminal escape, or other non-printable characters before scoring or CLI output.
 - Bounded detector text accepts at most 100,000 characters before tokenization
   and rejects invalid types without echoing private input.
+
+## Known Accuracy Limits
+
+This sample compares sets of unique normalized words with stopword sets. It does
+not learn syntax, word order, context, dialect, or code-switching patterns, and
+repeating a stopword does not increase its score. Mixed-language text receives
+one label whenever a single stopword set clears the density and margin rules;
+`unknown` therefore means insufficient or ambiguous heuristic evidence, not a
+model-calibrated probability.
+
+Model-based detectors can use character or token sequences and are generally a
+better fit for short, informal, transliterated, or code-switched text. This
+repository intentionally keeps the smaller offline stopword example and makes
+no production accuracy claim.
 
 ## Testing and Verification
 

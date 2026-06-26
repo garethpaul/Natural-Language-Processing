@@ -452,6 +452,36 @@ class LanguageDetectionTests(unittest.TestCase):
             UNKNOWN_LANGUAGE,
         )
 
+    def test_long_balanced_mixed_language_passage_returns_unknown(self):
+        text = (
+            "the designer and you will review there before sunrise while the "
+            "team prepares une maquette et le client compare la palette des couleurs"
+        )
+
+        self.assertEqual(
+            detect_language(
+                text,
+                stopword_sets=self.stopword_sets,
+                tokenizer=simple_tokenizer,
+            ),
+            UNKNOWN_LANGUAGE,
+        )
+
+    def test_long_mixed_language_passage_with_clear_margin_returns_winner(self):
+        text = (
+            "the designer and you will review there before sunrise while the "
+            "team prepares une maquette et compares every color carefully"
+        )
+
+        self.assertEqual(
+            detect_language(
+                text,
+                stopword_sets=self.stopword_sets,
+                tokenizer=simple_tokenizer,
+            ),
+            "english",
+        )
+
     def test_sparse_stopword_evidence_returns_unknown(self):
         self.assertEqual(
             detect_language(
