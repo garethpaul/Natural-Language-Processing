@@ -50,6 +50,7 @@ Priority:
 - Preserve the checked-in fallback failure guard for local I/O and decoding
 - Preserve scalar provider language collection rejection before iteration
 - Preserve mapping-shaped provider language collection rejection before iteration
+- Preserve provider language label validation before stopword lookup
 - Preserve language label normalization before scoring custom mappings
 - Preserve language label validation before exposing detector output labels
 - Preserve the language label control character guard before CLI output

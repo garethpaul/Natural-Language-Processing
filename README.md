@@ -106,6 +106,8 @@ Filesystem roots such as `/` are rejected. User text is passed only to
   malformed `fileids()` string cannot create one-character language buckets.
 - Mapping-shaped provider language collections are rejected before iteration so
   `fileids()` mapping keys cannot trigger `words()` lookups.
+- Invalid provider language labels are rejected before `words()` lookup so a
+  malformed label cannot trigger resource access or discard valid languages.
 - Language label normalization strips and lowercases caller-provided or
   provider-loaded language names, merging duplicate normalized stopword
   mappings before scoring.

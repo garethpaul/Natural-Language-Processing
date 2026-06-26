@@ -110,6 +110,7 @@ def main():
         "docs/plans/2026-06-17-provider-language-collection-type-guard.md",
         "docs/plans/2026-06-21-spaced-makefile-path.md",
         "docs/plans/2026-06-25-mixed-language-limitations.md",
+        "docs/plans/2026-06-26-provider-label-prelookup-validation.md",
         "docs/readme-overview.svg",
         "scripts/check-baseline.py",
         "scripts/test-default-sample-mutations.py",
@@ -135,6 +136,9 @@ def main():
 
     source = read("language_detection.py")
     tests = read("tests/test_language_detection.py")
+    provider_loader = source.split("def _load_provider_stopword_sets", 1)[1].split(
+        "def load_stopword_sets", 1
+    )[0]
     default_sample_mutations = read("scripts/test-default-sample-mutations.py")
     require("print " not in source, "language_detection.py must not use Python 2 print syntax", failures)
     require("def load_stopword_sets" in source and "LookupError" in source,
@@ -220,7 +224,12 @@ def main():
             "except Exception:\n        return {}" in stopword_set_normalizer,
             "detector must discard partial evidence when stopword mapping iteration fails",
             failures)
-    require("def _normalise_language_name" in source and "normalised_sets.setdefault" in source and "return _normalise_stopword_sets({" in source,
+    require("def _normalise_language_name" in source and
+            "normalised_sets.setdefault(normalised_language, set()).update" in provider_loader and
+            "normalised_language = _normalise_language_name(language)" in provider_loader and
+            "if not normalised_language:" in provider_loader and
+            provider_loader.index("if not normalised_language:") <
+            provider_loader.index("stopwords_provider.words(language)"),
             "detector must normalize and merge stopword language labels",
             failures)
     require("if not isinstance(language, str)" in source and
@@ -623,7 +632,6 @@ def main():
             "Preserve stopword mapping iteration failure isolation" in read("VISION.md") and
             "Discarded all partial language evidence" in read("CHANGES.md"),
             "project guidance must document stopword mapping iteration failure handling", failures)
-    provider_loader = source.split("def _load_provider_stopword_sets", 1)[1].split("def load_stopword_sets", 1)[0]
     provider_entry = source.split("def load_stopword_sets", 1)[1].split("def _language_stopword_sets", 1)[0]
     require("stopwords_provider.fileids()" in provider_loader and
             "languages = stopwords_provider.fileids()" in provider_loader and
@@ -672,6 +680,11 @@ def main():
             "UNKNOWN_LANGUAGE" in mapping_provider_language_collection_test,
             "tests must prove mapping-shaped provider language collections are empty evidence",
             failures)
+    require("test_invalid_provider_language_labels_are_skipped_before_lookup" in tests and
+            "RejectingInvalidLanguageStopwords" in tests and
+            'provider.words_calls,\n            [" English ", "ENGLISH", " French "]' in tests,
+            "tests must skip invalid provider language labels before lookup",
+            failures)
     require("Scalar provider language collections are rejected" in read("README.md") and
             "Scalar provider language collections should be rejected" in read("SECURITY.md") and
             "Preserve scalar provider language collection rejection" in read("VISION.md") and
@@ -683,6 +696,24 @@ def main():
             "Preserve mapping-shaped provider language collection rejection" in read("VISION.md") and
             "mapping-shaped tokenizer output, stopword collections, and provider" in read("CHANGES.md"),
             "mapping-shaped provider language collection guidance must remain documented",
+            failures)
+    require("Invalid provider language labels are rejected before `words()` lookup" in
+            read("README.md") and
+            "Invalid provider language labels should be rejected before provider lookups" in
+            read("SECURITY.md") and
+            "Preserve provider language label validation before stopword lookup" in
+            read("VISION.md") and
+            "Validate provider language labels before lookup" in read("CHANGES.md"),
+            "provider language pre-lookup validation must remain documented",
+            failures)
+    provider_label_plan = read(
+        "docs/plans/2026-06-26-provider-label-prelookup-validation.md"
+    )
+    require("Status: Completed" in provider_label_plan and
+            "54 offline tests" in provider_label_plan and
+            "hostile mutations were rejected" in provider_label_plan and
+            "No NLTK downloads" in provider_label_plan,
+            "provider label pre-lookup plan must record completed verification",
             failures)
     provider_language_collection_plan = read(
         "docs/plans/2026-06-17-provider-language-collection-type-guard.md"

@@ -1,5 +1,29 @@
 # Changes
 
+## 2026-06-26 - P1 - Validate provider language labels before lookup
+
+### Summary
+
+Prevented malformed provider language labels from reaching stopword resource
+lookups and discarding otherwise valid language evidence.
+
+### Work completed
+
+- Normalized and validated provider labels before calling `provider.words()`.
+- Preserved merging for duplicate valid labels after normalization.
+- Added a failing-first provider that raises if a blank label reaches lookup.
+- Registered source, test, guidance, and completed-plan baseline contracts.
+
+### Validation
+
+- RED: a blank provider label reached `words()` and converted all provider
+  evidence to `{}`.
+- GREEN: invalid labels were skipped before lookup and valid English/French
+  evidence remained available.
+- Repository and external-directory `make check` pass all 54 tests.
+- Three hostile mutations were rejected: lookup before validation, missing
+  invalid-label skipping, and raw-label result keys.
+
 ## 2026-06-26 06:19 - P2 - Fail closed on unreadable fallback stopwords
 
 ### Summary
