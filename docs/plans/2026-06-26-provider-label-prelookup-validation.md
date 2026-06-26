@@ -29,4 +29,8 @@ provider invocation failures.
 - Repository and external-directory `make check` passed all 54 offline tests.
 - Three hostile mutations were rejected: lookup before validation, missing
   invalid-label skipping, and raw-label result keys.
+- Hosted Python 3.10, 3.12, 3.14, baseline, and CodeQL checks passed on
+  implementation head `4a782d96c9d531816c359635aaac94290abbe840`.
+- Codex branch review failed with HTTP 401 before analysis; immutable manual
+  review of that implementation head found no actionable findings.
 - No NLTK downloads, private text, or live external resources were used.

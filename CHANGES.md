@@ -23,6 +23,16 @@ lookups and discarding otherwise valid language evidence.
 - Repository and external-directory `make check` pass all 54 tests.
 - Three hostile mutations were rejected: lookup before validation, missing
   invalid-label skipping, and raw-label result keys.
+- Hosted Python 3.10, 3.12, 3.14, baseline, and CodeQL checks passed on the
+  implementation head.
+
+### Review
+
+- The required Codex branch review was attempted for PR #24, but the Codex API
+  returned HTTP 401 before analysis began.
+- Immutable manual review of implementation head
+  `4a782d96c9d531816c359635aaac94290abbe840` found no correctness, security,
+  compatibility, or test-coverage findings.
 
 ## 2026-06-26 06:19 - P2 - Fail closed on unreadable fallback stopwords
 
