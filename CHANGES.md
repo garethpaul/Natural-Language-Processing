@@ -1,11 +1,65 @@
 # Changes
 
+## 2026-06-26 06:12 - P2 - Cover mixed-language limits honestly
+
+### Summary
+
+Closed the two remaining mixed-language roadmap items with deterministic
+balanced/dominant passages and explicit stopword-heuristic accuracy limits.
+
+### Work completed
+
+- Added a balanced English/French passage that remains `unknown` under the
+  existing density and runner-up margin rules.
+- Added a mixed passage whose English stopword evidence clears both unchanged
+  thresholds and returns `english`.
+- Documented unique-word scoring, frequency blindness, code-switching limits,
+  and why model-based detectors are better suited to harder text.
+- Replaced completed roadmap tasks with a durable future-scoring guardrail.
+
+### Threads
+
+- Started: none; continued the preserved mixed-language coverage branch.
+- Continued: continuous open-source maintenance loop.
+- Stopped: none.
+
+### Files changed
+
+- `tests/test_language_detection.py` — balanced and dominant mixed passages.
+- `README.md` — runtime behavior and known accuracy limits.
+- `VISION.md` — completed roadmap state and future guardrail.
+- `scripts/check-baseline.py` — test, documentation, and plan contracts.
+- `docs/plans/2026-06-25-mixed-language-limitations.md` — completed plan.
+- `CHANGES.md` — this maintenance-cycle record.
+
+### Validation
+
+- Two focused mixed-language tests — passed.
+- Root and external absolute-Makefile `make check` — passed 52 tests with four
+  environment-dependent NLTK skips and six default-sample mutations rejected.
+- Nine isolated hostile mutations — rejected both test names, both expected
+  outcomes, four accuracy-limit promises, and completed-plan status.
+- `git diff --check` — passed.
+
+### Bugs / findings
+
+- P2: Longer mixed-language behavior lacked direct coverage even though density
+  and margin rules can produce either `unknown` or one winning label.
+- P2: Documentation did not explain that unique stopword overlap ignores word
+  frequency, syntax, order, context, dialect, transliteration, and code switching.
+
+### Blockers
+
+- Live NLTK corpus integration and real multilingual accuracy evaluation remain
+  outside the deterministic offline fixture scope.
+
+### Next action
+
+- Require exact-head Python 3.10/3.12/3.14 and CodeQL gates, then review and
+  merge if clean.
+
 ## 2026-06-25
 
-- Added deterministic longer mixed-language passage coverage for balanced
-  evidence and a clear stopword-margin winner.
-- Documented why unique stopword overlap is not a substitute for model-based
-  detection of short, informal, transliterated, or code-switched text.
 - Preserved checkout-relative Python environments for the default-sample
   mutation gate when Make is invoked through an absolute external Makefile path.
 - Added focused Make-root regression coverage for both test commands.

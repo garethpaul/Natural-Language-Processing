@@ -27,6 +27,8 @@ rules.
   runner.
 - `make check` passed from the repository root and through an absolute Makefile
   path from an external directory.
+- Nine isolated hostile mutations rejected both test names, both expected
+  outcomes, four accuracy-limit documentation promises, and completed status.
 - `git diff --check` reported no whitespace errors.
 
 ## Residual Risk
