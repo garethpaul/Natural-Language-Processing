@@ -47,6 +47,7 @@ Priority:
 - Preserve explicit stopword set normalization before scoring custom mappings
 - Preserve stopword mapping iteration failure isolation before scoring partial data
 - Preserve the stopword provider invocation failure guard around corpus calls
+- Preserve the checked-in fallback failure guard for local I/O and decoding
 - Preserve scalar provider language collection rejection before iteration
 - Preserve mapping-shaped provider language collection rejection before iteration
 - Preserve language label normalization before scoring custom mappings

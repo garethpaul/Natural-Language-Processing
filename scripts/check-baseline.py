@@ -632,7 +632,8 @@ def main():
             "stopwords_provider.words(language)" in provider_loader and
             provider_entry.count("return _load_provider_stopword_sets") == 2 and
             "if stopwords_provider is not None:\n        try:" in provider_entry and
-            "except LookupError:\n            pass\n        except Exception:\n            return {}" in provider_entry,
+            "except LookupError:\n            pass\n        except Exception:\n            return {}" in provider_entry and
+            "except (OSError, UnicodeError):\n        return {}" in provider_entry,
             "stopword provider invocation failures must discard evidence while preserving missing-corpus fallback",
             failures)
     provider_language_collection_test_match = re.search(
@@ -708,12 +709,17 @@ def main():
             "stopwords_provider=provider" in provider_failure_test and
             "UNKNOWN_LANGUAGE" in provider_failure_test and
             "test_missing_default_stopword_corpus_uses_checked_in_fallback" in tests and
+            "test_unreadable_checked_in_fallback_returns_empty_evidence" in tests and
             "test_unexpected_default_stopword_provider_failure_returns_empty_evidence" in tests,
-            "tests must cover explicit and default stopword provider invocation failures",
+            "tests must cover explicit providers, missing corpora, and fallback file failures",
             failures)
     require(all("stopword provider invocation failure guard" in read(path).lower()
                 for path in ["README.md", "SECURITY.md", "VISION.md", "CHANGES.md"]),
             "project guidance must document the stopword provider invocation failure guard",
+            failures)
+    require(all("checked-in fallback failure guard" in read(path).lower()
+                for path in ["README.md", "SECURITY.md", "VISION.md", "CHANGES.md"]),
+            "project guidance must document the checked-in fallback failure guard",
             failures)
     provider_failure_plan = read("docs/plans/2026-06-16-stopword-provider-invocation-failure-guard.md")
     provider_failure_verification = markdown_section(provider_failure_plan, "Verification Completed")
