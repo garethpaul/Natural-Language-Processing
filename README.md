@@ -171,6 +171,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   checkout.
 - If NLTK or its stopwords corpus is unavailable, the sample falls back to the
   checked-in English stop-word list and returns `unknown` for zero-score input.
+  The checked-in fallback failure guard also returns `unknown` when that local
+  file is missing, unreadable, or undecodable.
 - See `docs/plans/2026-06-09-ambiguous-stopword-ties.md` for the ambiguous
   stopword tie behavior.
 - See `docs/plans/2026-06-09-near-tie-stopword-margin.md` for the near-tie

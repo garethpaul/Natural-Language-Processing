@@ -412,6 +412,33 @@ class LanguageDetectionTests(unittest.TestCase):
             self.assertEqual(load_stopword_sets(), {})
             fallback.assert_not_called()
 
+    def test_unreadable_checked_in_fallback_returns_empty_evidence(self):
+        failures = (
+            OSError("private fallback path failure"),
+            UnicodeError("private fallback decoding failure"),
+        )
+        for failure in failures:
+            with self.subTest(failure=type(failure).__name__):
+                with patch.object(language_detection, "_nltk_stopwords", None):
+                    with patch.object(
+                        language_detection,
+                        "load_checked_in_stop_words",
+                        side_effect=failure,
+                    ):
+                        self.assertEqual(load_stopword_sets(), {})
+                        self.assertEqual(
+                            detect_language(
+                                "the and you",
+                                tokenizer=simple_tokenizer,
+                            ),
+                            UNKNOWN_LANGUAGE,
+                        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            missing_path = Path(directory) / "missing-stopwords.txt"
+            with self.assertRaises(OSError):
+                load_checked_in_stop_words(missing_path)
+
     def test_punctuation_only_tokens_do_not_create_stopword_evidence(self):
         stopword_sets = {"english": {"-", "&"}}
 

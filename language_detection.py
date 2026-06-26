@@ -219,7 +219,10 @@ def load_stopword_sets(stopwords_provider=None) -> Dict[str, Set[str]]:
         except Exception:
             return {}
 
-    return {"english": load_checked_in_stop_words()}
+    try:
+        return {"english": load_checked_in_stop_words()}
+    except (OSError, UnicodeError):
+        return {}
 
 
 def _language_stopword_sets(

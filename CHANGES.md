@@ -1,5 +1,24 @@
 # Changes
 
+## 2026-06-26 06:19 - P2 - Fail closed on unreadable fallback stopwords
+
+### Summary
+
+Added a checked-in fallback failure guard so missing, unreadable, or
+undecodable local stopwords become empty default evidence and detection returns
+`unknown` without exposing filesystem errors.
+
+### Work completed
+
+- Preserved direct loader errors for explicit callers while default detection
+  handles local I/O and decoding failures safely.
+- Added focused unit, documentation, plan, and static baseline coverage for
+  both contracts.
+
+### Validation
+
+- `make check` passes all unit, mutation, compile, and baseline gates.
+
 ## 2026-06-26 06:12 - P2 - Cover mixed-language limits honestly
 
 ### Summary
